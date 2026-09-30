@@ -89,16 +89,16 @@ Links and notes will be added after checking the corresponding repositories.
 
 ## 6. Local Environment
 
-Current machine:
+Current machine (re-verified live on 2026-09-30; an earlier version of this section misreported the GPU):
 
-- **OS:** Windows 10, 64-bit
-- **Python:** 3.13.9
-- **GPU:** NVIDIA GeForce RTX 4090 Laptop GPU
-- **NVIDIA Driver:** 595.97
-- **CUDA version reported by `nvidia-smi`:** 13.2
-- **CUDA Toolkit / nvcc:** Not detected
-- **PyTorch:** 2.14.0+cu130
-- **PyTorch CUDA runtime:** 13.0
+- **OS:** Windows 11 Home (China) 10.0.26100, 64-bit, native (no WSL). Python's `platform` reports "10".
+- **CPU / RAM:** Intel Core i9-14900HX (24 cores / 32 threads), 31.7 GB RAM
+- **GPU:** NVIDIA GeForce **RTX 4060 Laptop GPU, 8 GB** (8,188 MiB), compute capability 8.9
+- **NVIDIA Driver:** 595.97; CUDA version reported by `nvidia-smi`: 13.2; CUDA Toolkit / nvcc: not installed (not needed)
+- **Project environment:** dedicated conda env `cgfedllm` (Python 3.11.16) with PyTorch 2.14.0+cu130 (CUDA runtime 13.0),
+  transformers 5.17.0, peft 0.21.1, accelerate 1.15.0, datasets 5.0.1, bitsandbytes 0.50.2, lm-eval 0.4.13.
+  Exact pins: `requirements/base-win-cu130.txt`; full freeze: `requirements/lock-win-py311-cu130.txt`.
+  (The shared Anaconda base env, Python 3.13.9, is not used by this project.)
 
 ### Original Paper Environment
 
@@ -109,7 +109,7 @@ The extended version of the paper reports:
 - **PyTorch:** 2.2.1
 - **CUDA:** 12.4
 
-Because my local GPU has only 8 GB VRAM, reproducing the complete 7B-model experiments may require smaller-scale experiments or memory-saving methods. The reproduction scope will be decided after studying the paper and baseline implementations.
+Because the local GPU has only 8 GB VRAM, reproducing the complete 7B-model experiments may require smaller-scale experiments or memory-saving methods. The reproduction scope will be decided after studying the paper and baseline implementations.
 
 ## 7. Progress
 

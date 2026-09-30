@@ -1,0 +1,9 @@
+# Normalise text files to LF so that hashed manifests/configs are byte-identical on Windows and Linux.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.pdf binary
+*.safetensors binary
+*.parquet binary
+*.bat text eol=crlf
+*.ps1 text eol=crlf

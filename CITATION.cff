@@ -1,0 +1,47 @@
+cff-version: 1.2.0
+message: >-
+  This repository is an independent reproduction attempt. If you use it, please cite this software
+  and the original paper listed under references.
+title: "cg-fedllm-reproduction: an independent, auditable reproduction of CG-FedLLM"
+type: software
+authors:
+  - name: "cg-fedllm-reproduction contributors"
+repository-code: "https://github.com/zindigo321/cg-fedllm-reproduction"
+license: Apache-2.0
+version: 0.2.0.dev0
+keywords: [federated learning, LoRA, gradient compression, autoencoder, reproducibility]
+references:
+  - type: conference-paper
+    title: "CG-FedLLM: How to Compress Gradients in Federated Fine-Tuning for Large Language Models"
+    authors:
+      - given-names: Huiwen
+        family-names: Wu
+        orcid: "https://orcid.org/0000-0001-8471-4219"
+      - given-names: Xiaogang
+        family-names: Xu
+      - given-names: Deyi
+        family-names: Zhang
+      - given-names: Xiaohan
+        family-names: Li
+      - given-names: Jiafei
+        family-names: Wu
+      - given-names: Zhe
+        family-names: Liu
+    collection-title: "ECAI 2025"
+    conference:
+      name: "28th European Conference on Artificial Intelligence (ECAI 2025)"
+    publisher:
+      name: IOS Press
+    volume: 413
+    start: 4257
+    end: 4264
+    year: 2025
+    date-published: 2025-10-21
+    doi: 10.3233/FAIA251320
+    isbn: "9781643686318"
+    issn: "0922-6389"
+    license: CC-BY-NC-4.0
+    url: "https://doi.org/10.3233/FAIA251320"
+    identifiers:
+      - type: other
+        value: "arXiv:2405.13746 (extended version v3, 2025-11-17)"

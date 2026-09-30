@@ -1,0 +1,94 @@
+# Base defaults. Every scientifically relevant value is explicit here; provenance tags:
+#   [PAPER]     stated in the ECAI 2025 paper / arXiv v3 appendix
+#   [SHEPHERD]  behaviour reconstructed from FedIT/Shepherd @ bcffa00 (+ HF Trainer defaults it used)
+#   [INFERRED]  missing in the paper; our documented reproduction choice
+#   [OURS]      engineering choice for reproducibility
+run:
+  name: unnamed
+  seed: 1234                      # [OURS] base seed for all derived RNG streams
+  output_root: "${CGFED_RUNS:-runs}"  # [OURS] run outputs never live in Git
+  device: cpu
+  deterministic: true             # [OURS] torch.use_deterministic_algorithms
+  num_threads: null
+
+lora:
+  r: 8                            # [PAPER] rank 8 for Dolly/MMLU runs (16 for C-Eval-dev)
+  alpha: 16                       # [SHEPHERD] paper silent; Shepherd default lora_alpha=16
+  dropout: 0.05                   # [SHEPHERD] paper silent; Shepherd default
+  target_modules: [q_proj, k_proj, v_proj, o_proj]   # [PAPER] Q/K/V/O (appendix + figure names)
+  bias: none                      # [SHEPHERD]
+  init: kaiming_uniform_A_zero_B  # [SHEPHERD/PEFT] init_lora_weights=True
+  init_seed: 1234                 # [OURS] Shepherd leaves the initial A unseeded
+
+local_train:
+  epochs: 1                       # [PAPER] LLaMA/Alpaca + Dolly: 1 local epoch
+  batch_size: 32                  # [PAPER] local batch size 32
+  micro_batch_size: 16            # [PAPER] local micro batch size 16
+  learning_rate: 1.5e-4           # [PAPER] Dolly runs
+  optimizer: adamw_torch          # [SHEPHERD] Trainer optim="adamw_torch"
+  adam_beta1: 0.9                 # [SHEPHERD] Trainer default
+  adam_beta2: 0.999               # [SHEPHERD] Trainer default
+  adam_epsilon: 1.0e-8            # [SHEPHERD] Trainer default
+  weight_decay: 0.0               # [SHEPHERD] Trainer default
+  lr_scheduler: linear            # [SHEPHERD] Trainer default, restarted every round
+  warmup_steps: 0                 # [SHEPHERD] warmup_steps=0
+  max_grad_norm: 1.0              # [SHEPHERD] Trainer default max_grad_norm
+  precision: fp32
+  loss_reduction: token_mean_per_microbatch   # [INFERRED]
+  accumulation_normalization: mean_over_group # [INFERRED]
+  partial_accumulation: flush_at_epoch_end    # [INFERRED]
+  pad_to_multiple_of: 8           # [SHEPHERD] DataCollatorForSeq2Seq(pad_to_multiple_of=8)
+  reset_optimizer_each_round: true            # [SHEPHERD] new Trainer per client per round
+
+federated:
+  num_rounds: 20                  # [PAPER] Dolly runs: 20 communication rounds
+  client_fraction: 0.05           # [PAPER] selection probability 0.05 (100 clients -> 5 per round)
+  sampler: shepherd_round_seeded  # [SHEPHERD] np.random.seed(round); K = max(int(f N), 1)
+  aggregation: sample_weighted_mean   # [SHEPHERD] FedAvg (reviewer R3: primary)
+  representation: adapter_state   # [SHEPHERD] full adapter upload (reviewer R2: delta supported too)
+  client_split: d2                # [PAPER] FAF uses D2
+  pooled: false
+  heldout_eval_every: 1           # [OURS] reviewer R12: held-out loss is the primary metric
+  stop_after_round: null
+
+codec:
+  type: none
+  layout: layer_major_qkvo_AtB    # [INFERRED] reviewer R4 default ordering
+  ae_checkpoint: null
+  latent_dtype: float32
+  device: null
+  noise_sigma: null
+  mean_path: null
+
+tgap:
+  source: local_pretrain          # [INFERRED] reviewer R6: default for smoke only; ambiguous in paper
+  representation: adapter_state
+  num_time_steps: 20              # [PAPER] snapshots "collected over 20 training epochs"
+  client_fraction: 0.05
+  client_split: d1                # [PAPER] TGAP data come from D1
+  layout: layer_major_qkvo_AtB
+
+autoencoder:
+  arch: resnet3                   # [PAPER] ResNet AE (reconstructed; reviewer R5)
+  stem_kernel: 3                  # [PAPER] appendix table
+  stem_channels: 1                # [PAPER] appendix table (conv2d 1 -> 1)
+  down_channels: [2, 4, 8, 16, 32, 64]   # [PAPER] six stride-2 stages
+  num_res_blocks: 3               # [PAPER] three ResNet blocks per side
+  final_kernel: 7                 # [PAPER] final conv2d (7,7)
+  norm: batch                     # [PAPER] BatchNorm2d in the diagram
+  output_activation: tanh         # [PAPER] Tanh in the diagram
+  representation: adapter_state
+  layout: layer_major_qkvo_AtB
+  batch_size: 4                   # [INFERRED] unknown in paper
+  iterations: 600                 # [INFERRED] TGAP loss curve spans ~600 iterations
+  learning_rate: 2.0e-4           # [PAPER] Adam, 2e-4
+  adam_beta1: 0.9                 # [INFERRED] PyTorch default
+  adam_beta2: 0.999               # [INFERRED] PyTorch default
+  adam_epsilon: 1.0e-8
+  weight_decay: 0.0
+  split: temporal                 # [INFERRED] hold out the latest time steps
+  val_fraction: 0.2               # [INFERRED]
+  split_seed: 0
+  init_seed: 0
+  eval_every: 50
+  checkpoint_policy: final        # [OURS] no selection on validation loss

@@ -216,3 +216,23 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ---------------------------------------------------------------------------
+# CG-FedLLM reproduction: never commit models, datasets, run outputs or caches
+# ---------------------------------------------------------------------------
+/runs/
+/outputs/
+/cache/
+/hf_cache/
+/data_cache/
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.parquet
+*.arrow
+wandb/
+lm_eval_output/
+# local scratch
+/scratch/
