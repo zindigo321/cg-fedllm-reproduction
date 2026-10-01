@@ -158,3 +158,20 @@ def test_scores_are_invariant_to_batching(tiny_hf_llama, toy_tokenizer):
     b = score_requests(tiny_hf_llama, reqs, 0, "cpu", max_batch_tokens=100_000, max_batch_size=8, max_batch_attention=1)
     assert [x.prediction for x in a] == [x.prediction for x in b]
     assert max(abs(u - v) for x, y in zip(a, b) for u, v in zip(x.logprobs, y.logprobs)) < 1e-4
+
+
+def test_stratified_subset_is_seeded_per_subject_and_keeps_order():
+    from cg_fedllm.config import BenchmarkSpec, ConfigError, build_dataclass
+    from cg_fedllm.evaluation.reference_eval import stratified_subset
+
+    qs = {"a": [q("mmlu", "a", i) for i in range(10)], "b": [q("mmlu", "b", i) for i in range(3)]}
+    sub = stratified_subset(qs, 0.25, 7, "mmlu", "test")
+    assert [len(v) for v in sub.values()] == [3, 1]  # ceil(2.5), ceil(0.75)
+    assert [x.index for x in sub["a"]] == sorted(x.index for x in sub["a"])
+    assert sub == stratified_subset(qs, 0.25, 7, "mmlu", "test")
+    assert stratified_subset({"a": qs["a"]}, 0.25, 7, "mmlu", "test")["a"] == sub["a"]  # independent of other subjects
+    assert stratified_subset(qs, 1.0, 7, "mmlu", "test") == qs
+    with pytest.raises(ConfigError):
+        build_dataclass(BenchmarkSpec, {"name": "mmlu", "split": "test", "subset_fraction": 0.2, "limit_per_subject": 5})
+    with pytest.raises(ConfigError):
+        build_dataclass(BenchmarkSpec, {"name": "mmlu", "split": "test", "subset_fraction": 0.0})

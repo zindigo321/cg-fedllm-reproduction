@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import time
 from dataclasses import asdict
 from pathlib import Path
@@ -13,6 +14,17 @@ from cg_fedllm.evaluation.benchmarks import ceval_subject_mapping, data_digest, 
 from cg_fedllm.evaluation.prompts import PROTOCOL_ID, mmlu_display_name
 from cg_fedllm.evaluation.scorer import build_requests, score_requests
 from cg_fedllm.utils.io import append_jsonl, atomic_write_json
+from cg_fedllm.utils.seeding import numpy_rng
+
+
+def stratified_subset(questions: dict[str, list], fraction: float, seed: int, *keys: str) -> dict[str, list]:
+    """ceil(fraction * n) questions per subject, seeded per subject, in dataset order (independent of other subjects)."""
+    out = {}
+    for subject, qs in questions.items():
+        k = min(len(qs), max(1, math.ceil(fraction * len(qs))))
+        keep = sorted(int(i) for i in numpy_rng(seed, "eval_subset", *keys, subject).permutation(len(qs))[:k])
+        out[subject] = [qs[i] for i in keep]
+    return out
 
 
 def evaluate_benchmark(
@@ -37,6 +49,8 @@ def evaluate_benchmark(
     dev = load_split(root, spec.name, "dev", sorted(questions))
     if spec.limit_per_subject is not None:
         questions = {s: qs[: spec.limit_per_subject] for s, qs in questions.items()}
+    if spec.subset_fraction is not None:
+        questions = stratified_subset(questions, spec.subset_fraction, spec.subset_seed, spec.name, spec.split)
     if spec.name == "ceval":
         mapping = ceval_subject_mapping()
         display = {s: mapping[s][1] for s in questions}

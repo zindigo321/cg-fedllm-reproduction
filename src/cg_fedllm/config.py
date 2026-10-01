@@ -311,6 +311,17 @@ class BenchmarkSpec:
     num_shots: int = 5
     subjects: list[str] | None = None
     limit_per_subject: int | None = None
+    # seeded stratified subset: ceil(fraction * n_subject) questions of every subject, chosen by a permutation
+    # keyed on (subset_seed, benchmark, split, subject) and kept in dataset order; the qids are in the predictions
+    subset_fraction: float | None = None
+    subset_seed: int = 0
+
+    def validate(self, path: str) -> None:
+        if self.subset_fraction is not None:
+            if not 0.0 < self.subset_fraction <= 1.0:
+                raise ConfigError(f"{path}: subset_fraction must be in (0, 1]")
+            if self.limit_per_subject is not None:
+                raise ConfigError(f"{path}: subset_fraction and limit_per_subject are exclusive")
 
 
 @dataclass
