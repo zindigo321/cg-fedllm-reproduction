@@ -159,3 +159,31 @@ def test_forensic_cli_on_tiny_snapshots(tiny_cfg, tiny_bundle, tmp_path):
                                   "S5_product_rel_fro_error_le_0_50", "S6_input_dependent", "S7_materially_better_than_train_mean"}
     assert "product_vs_exact_delta" in sc["modes"]["none"]["val"]["identity"]
     assert sc["modes"]["none"]["val"]["identity"]["product"]["rel_fro_error"] < 1e-6
+
+
+def test_distribution_shape_reference_values(tiny_cfg, tiny_bundle, tmp_path):
+    from cg_fedllm.forensics.gradients import distribution_shape, family_shapes
+
+    g = torch.Generator().manual_seed(0)
+    gauss = distribution_shape([torch.randn(400_000, generator=g)], drop_zeros=False)
+    unif = distribution_shape([torch.rand(400_000, generator=g) * 2 - 1, torch.zeros(10)], drop_zeros=True)
+    assert abs(gauss["excess_kurtosis"]) < 0.05 and abs(unif["excess_kurtosis"] + 1.2) < 0.02
+    assert unif["exact_zeros"] == 10 and unif["values"] == 400_000 and abs(unif["abs_quantiles"]["p50"] - 0.5) < 0.01
+    assert gauss["fraction_abs_gt_0_01"] > 0.99 and abs(gauss["std"] - 1) < 0.01
+    # on recorded tiny-model dumps: every family is present and the deltas are bounded by the learning rate
+    lay = get_layout("layer_major_qkvo_AtB")
+    root = tmp_path / "gf"
+    w = SnapshotWriter(root, run_id="g", source_mode="federated_pretrain", representation="adapter_state", layout=lay)
+    spec = simulator_spec(tiny_cfg, 4, namespace="tgap_fed")
+    spec.num_rounds, spec.client_fraction = 2, 0.5
+
+    def hook(t, cid, start, end, n, rec):
+        w.write(t, cid, start, end, n, {})
+
+    sim = FederatedSimulator(tiny_bundle.trainer, spec, synthetic_clients([6, 9, 5, 8], seed=34), root / "fl", codec=None, layout=None, identity={"t": 4},
+                             snapshot_hook=hook, observer_factory=lambda t, cid: GradientDumper(root / "gradients", t, cid))
+    sim.run(tiny_bundle.initial_state)
+    shapes = family_shapes(root / "gradients", root, read_index(root))
+    assert set(shapes) == {"pre_clip_step_gradient", "mean_step_gradient", "optimizer_step_delta", "local_epoch_delta"}
+    assert shapes["optimizer_step_delta"]["max_abs"] <= tiny_cfg.local_train.learning_rate * (1 + 1e-3)
+    assert shapes["mean_step_gradient"]["zeros_excluded"] is True and shapes["local_epoch_delta"]["zeros_excluded"] is False

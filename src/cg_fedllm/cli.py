@@ -1006,6 +1006,26 @@ def cmd_eval_projection(args) -> dict:
     return {"decision": out["decision"], "projected_full_minutes": {k: round(v["projected_full_minutes"], 1) for k, v in models.items()}}
 
 
+def cmd_gradient_shape(args) -> dict:
+    """F5 addendum (PHASE4-FORENSIC, CPU): value-distribution shape of the recorded gradient/update families."""
+    from cg_fedllm.compression.metrics import json_safe
+    from cg_fedllm.forensics.gradients import family_shapes
+    from cg_fedllm.tgap.snapshots import read_index
+    from cg_fedllm.utils.hashing import sha256_file
+
+    root = resolve_path(args.forensics)
+    out = json_safe({
+        "label": "PHASE4-FORENSIC",
+        "source": "F5 gradient dumps (outside Git)",
+        "snapshot_index_sha256": sha256_file(root / "index.jsonl"),
+        "families": family_shapes(root / "gradients", root, read_index(root)),
+        "provenance": _provenance(),
+    })
+    if args.out:
+        atomic_write_json(resolve_path(args.out), out)
+    return out["families"]
+
+
 COMMANDS = {
     "capture-env": cmd_capture_env,
     "prepare-data": cmd_prepare_data,
@@ -1029,6 +1049,7 @@ COMMANDS = {
     "screen-reuse": cmd_screen_reuse,
     "eval-cost": cmd_eval_cost,
     "eval-projection": cmd_eval_projection,
+    "gradient-shape": cmd_gradient_shape,
 }
 
 
@@ -1037,7 +1058,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="command", required=True)
     for name in COMMANDS:
         sp = sub.add_parser(name)
-        if name not in ("capture-env", "ae-select", "baseline-summary", "screen-reuse", "eval-projection"):
+        if name not in ("capture-env", "ae-select", "baseline-summary", "screen-reuse", "eval-projection", "gradient-shape"):
             sp.add_argument("--config", required=True)
             sp.add_argument("--set", action="append", default=[], help="override, e.g. --set run.seed=7")
             sp.add_argument("--stage", default=None, help="run sub-directory name")
@@ -1068,6 +1089,9 @@ def build_parser() -> argparse.ArgumentParser:
             sp.add_argument("--label", required=True, choices=RESULT_LABELS)
             sp.add_argument("--out", default=None)
         if name == "eval-cost":
+            sp.add_argument("--out", default=None)
+        if name == "gradient-shape":
+            sp.add_argument("--forensics", required=True, help="F5 run directory (snapshots + gradients/)")
             sp.add_argument("--out", default=None)
         if name == "eval-projection":
             sp.add_argument("--timing-run", action="append", required=True, help="model=evaluate run dir of the timed sample")

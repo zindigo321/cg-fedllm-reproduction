@@ -156,6 +156,47 @@ def _family_stats(samples: list[dict[str, Any]], s: float, first_order: bool) ->
     return out
 
 
+def distribution_shape(xs: list[torch.Tensor], drop_zeros: bool, quantile_sample: int = 2_000_000, seed: int = 0) -> dict[str, Any]:
+    """Value distribution of a family: std, excess kurtosis, max and the fraction beyond 0.01 over all values;
+    |x| quantiles over a seeded subsample (torch.quantile has an input-size limit)."""
+    x = torch.cat([t.reshape(-1).double() for t in xs])
+    n_zero = int((x == 0).sum())
+    if drop_zeros:
+        x = x[x != 0]
+    a = x.abs()
+    idx = torch.randperm(a.numel(), generator=torch.Generator().manual_seed(seed))[:quantile_sample]
+    probs = [0.5, 0.9, 0.99, 0.999]
+    q = torch.quantile(a[idx], torch.tensor(probs, dtype=torch.float64))
+    m, sd = x.mean(), x.std()
+    return {
+        "values": a.numel(),
+        "exact_zeros": n_zero,
+        "zeros_excluded": drop_zeros,
+        "std": float(sd),
+        "excess_kurtosis": float(((x - m) ** 4).mean() / sd**4 - 3),
+        "max_abs": float(a.max()),
+        "fraction_abs_gt_0_01": float((a > 0.01).double().mean()),
+        "abs_quantiles": {f"p{100 * p:g}": float(v) for p, v in zip(probs, q)},
+        "quantile_subsample": int(idx.numel()),
+    }
+
+
+def family_shapes(grad_root: Path, snapshot_root: Path, records: list[dict]) -> dict[str, Any]:
+    """F5 addendum: value-distribution shape of the recorded families (gradients drop exact zeros: round-0 A)."""
+    from cg_fedllm.tgap.snapshots import load_states
+
+    fam: dict[str, list[torch.Tensor]] = {"pre_clip_step_gradient": [], "mean_step_gradient": [], "optimizer_step_delta": [], "local_epoch_delta": []}
+    for r in records:
+        t, cid = int(r["time_index"]), int(r["client_id"])
+        cr = load_client_round(Path(grad_root) / f"t{t:04d}_c{cid:04d}")
+        start, end = load_states(snapshot_root, r)
+        fam["pre_clip_step_gradient"] += [_flat(x) for x in cr["grads"]]
+        fam["mean_step_gradient"].append(_flat(mean_state(cr["grads"])))
+        fam["optimizer_step_delta"] += [_flat(x) for x in cr["deltas"]]
+        fam["local_epoch_delta"].append(_flat(end.sub(start)))
+    return {name: distribution_shape(xs, drop_zeros=name.endswith("gradient")) for name, xs in fam.items()}
+
+
 def gradient_statistics(grad_root: Path, snapshot_root: Path, records: list[dict], s: float) -> dict[str, Any]:
     from cg_fedllm.tgap.snapshots import load_states
 
