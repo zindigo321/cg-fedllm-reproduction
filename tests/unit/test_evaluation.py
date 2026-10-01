@@ -235,3 +235,29 @@ def test_eval_projection_scales_the_timed_sample_by_padded_tokens(tmp_path):
     # one slow model (3000 + 20 + 600 + 4 s > 45 min) forces the subset for every model
     assert main(["eval-projection", "--timing-run", f"base={tmp_path / 'fast'}", "--timing-run", f"lora={tmp_path / 'slow'}", *common]) == 0
     assert json.loads(out.read_text(encoding="utf-8"))["decision"] == "subset"
+
+
+def test_scoring_without_kv_cache_is_bitwise_unchanged(tiny_hf_llama, toy_tokenizer):
+    from cg_fedllm.evaluation.scorer import _left_pad
+
+    class Ascii(type(toy_tokenizer)):
+        def _enc(self, text):
+            return [3 + (ord(c) % 120) for c in text]
+
+    dev = {"s": [MCQuestion("ceval", "s", "dev", i, f"q{i}?", ("a", "b", "c", "d"), "ABCD"[i % 4]) for i in range(3)]}
+    qs = {"s": [MCQuestion("ceval", "s", "test", i, "x" * (i + 1), ("e", "f", "g", "h"), "ABCD"[i % 4]) for i in range(6)]}
+    reqs = build_requests(Ascii(), "ceval", qs, dev, {"s": "s"}, 3, None)
+    ids, mask, pos = _left_pad([r.context_ids for r in reqs], 0, "cpu")
+    with torch.no_grad():
+        cached = tiny_hf_llama(input_ids=ids, attention_mask=mask, position_ids=pos, use_cache=True)
+        plain = tiny_hf_llama(input_ids=ids, attention_mask=mask, position_ids=pos, use_cache=False)
+    assert cached.past_key_values is not None and plain.past_key_values is None
+    assert torch.equal(cached.logits, plain.logits)
+    plain_items = score_requests(tiny_hf_llama, reqs, 0, "cpu", max_batch_tokens=10_000, max_batch_size=4)
+    orig = tiny_hf_llama.forward
+    tiny_hf_llama.forward = lambda *a, **k: orig(*a, **{**k, "use_cache": True})  # the scorer's calls, cache forced on
+    try:
+        cached_items = score_requests(tiny_hf_llama, reqs, 0, "cpu", max_batch_tokens=10_000, max_batch_size=4)
+    finally:
+        tiny_hf_llama.forward = orig
+    assert [it.logprobs for it in plain_items] == [it.logprobs for it in cached_items]

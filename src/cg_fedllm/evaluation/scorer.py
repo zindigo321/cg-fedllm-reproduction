@@ -162,7 +162,9 @@ def score_requests(
     order = sorted(fast, key=lambda i: (-lengths[i], i))
     for batch in _batches(order, lengths, max_batch_tokens, max_batch_size, max_batch_attention):
         ids, mask, pos = _left_pad([requests[i].context_ids for i in batch], pad_token_id, device)
-        out = model(input_ids=ids, attention_mask=mask, position_ids=pos, logits_to_keep=1)
+        # no KV cache: scoring is a single forward, and a returned cache (192 KiB/token for Qwen1.5-1.8B bf16) would
+        # stay alive in ``out`` during the next batch's forward
+        out = model(input_ids=ids, attention_mask=mask, position_ids=pos, logits_to_keep=1, use_cache=False)
         logp = torch.log_softmax(out.logits[:, -1, :].float(), dim=-1).cpu()
         for row, i in enumerate(batch):
             r = requests[i]
@@ -174,7 +176,7 @@ def score_requests(
         for cont in r.continuation_ids:
             seq = r.context_ids + cont
             ids, mask, pos = _left_pad([seq[:-1]], pad_token_id, device)
-            out = model(input_ids=ids, attention_mask=mask, position_ids=pos)
+            out = model(input_ids=ids, attention_mask=mask, position_ids=pos, use_cache=False)
             logp = torch.log_softmax(out.logits[0].float(), dim=-1).cpu()
             start = len(r.context_ids) - 1
             lps.append(float(sum(logp[start + j, tok] for j, tok in enumerate(cont))))
