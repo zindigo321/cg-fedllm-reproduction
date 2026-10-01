@@ -20,6 +20,11 @@ model:
 lora:
   init_seed: 1
 eval:
+  # ENVIRONMENT: the Phase-2 budget (16,384 tokens, B*L^2 <= 4e6, sized for the 0.5B fp32 model) ran out of memory
+  # under the 6.69 GiB allocator cap with the 1.8B bf16 weights (5.62 GiB allocated + 1.05 GiB fragmented) before any
+  # result existed. Halved for this model; batching only groups requests, and Base and LoRA-FT use the same budget.
+  max_batch_tokens: 8192
+  max_batch_attention: 2000000
   benchmarks:
     - {name: mmlu, split: test, num_shots: 5}
     - {name: ceval, split: val, num_shots: 5}
