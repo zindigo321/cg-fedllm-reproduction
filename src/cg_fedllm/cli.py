@@ -1,7 +1,8 @@
 """Command-line entry point: ``cgfed <command> --config <yaml> [--set key.path=value ...]``.
 
 Commands: capture-env, prepare-data, run-fl, collect-tgap, train-ae, evaluate, smoke, bench-gpu, and the
-Phase-3 diagnostics calibrate-train, microbatch-diag, tgap-stats, ae-viability, ae-select, reference-codes.
+Phase-3 diagnostics calibrate-train, microbatch-diag, tgap-stats, ae-viability, ae-select, reference-codes, and the
+Phase-4 forensics validate-microbatch, forensic-stats, gradient-forensics, forensic-screen.
 Determinism settings and the optional CUDA allocator cap (``run.allocator_cap_margin_mb``) are applied before
 any model or CUDA work.
 """
@@ -560,6 +561,271 @@ def cmd_validate_microbatch(args) -> dict:
     }
 
 
+def cmd_forensic_stats(args) -> dict:
+    """F2-F4 on a TGAP snapshot set: gauge diagnostics, R2 balanced-state and R3 effective-increment statistics."""
+    import math
+    import statistics
+
+    import torch
+
+    from cg_fedllm.compression.gauge import gauge_diagnostics, module_pairs, spectrum
+    from cg_fedllm.compression.metrics import json_safe
+    from cg_fedllm.forensics.representations import balanced_effective_delta, balanced_effective_state
+    from cg_fedllm.models.adapter import AdapterState
+    from cg_fedllm.tgap.snapshots import load_states, read_index
+    from cg_fedllm.tgap.train_ae import split_indices
+    from cg_fedllm.utils.hashing import sha256_file
+
+    cfg = _load(args)
+    cfg.require("lora", "autoencoder")
+    s = cfg.lora.alpha / cfg.lora.r
+    snap_dir = resolve_path(args.snapshots)
+    records = read_index(snap_dir)
+    _, val_idx = split_indices(records, cfg.autoencoder.split, cfg.autoencoder.val_fraction, cfg.autoencoder.split_seed)
+    rows = []
+    t0 = time.time()
+    for i, r in enumerate(records):
+        start, end = load_states(snap_dir, r)
+        gd = gauge_diagnostics(end, s)
+        r2, r2_info = balanced_effective_state(end, s)
+        _, r3 = balanced_effective_delta(start, end, s, rank=cfg.lora.r)
+        spectra = torch.tensor([m["singular_values"] for m in r3["per_module"]], dtype=torch.float64)
+        top = spectra[:, :1].clamp(min=1e-300)
+        rows.append({
+            "time_index": int(r["time_index"]), "client_id": int(r["client_id"]), "split": "val" if i in set(val_idx) else "train",
+            "raw_factor_sq": gd["factor_sq_total"], "A_sq": gd["A_sq_total"], "B_sq": gd["B_sq_total"],
+            "M_fro_sq": gd["M_fro_sq_total"], "M_nuclear": gd["M_nuclear_total"], "balanced_factor_sq": gd["balanced_factor_sq_total"],
+            "stable_rank": gd["stable_rank"],
+            "r2_rms": math.sqrt(r2.l2_sq() / r2.num_elements()), "r2_max_abs": max(float(t.abs().max()) for t in r2.tensors.values()),
+            "r2_tied": r2_info["tied_singular_values"], "r2_zero_components": r2_info["numerically_zero_components"],
+            "r3_retained_energy": r3["energy_weighted_retained_energy"], "r3_truncation_rel_fro_error": r3["truncation_rel_fro_error"],
+            "r3_product_cosine": r3["rank_r_product_cosine"], "r3_exact_rank_distribution": r3["exact_rank_distribution"],
+            "r3_module_retained": r3["module_retained_energy"],
+            "r3_mean_normalised_spectrum": [float(x) for x in (spectra / top).mean(0)],
+            "delta_M_energy": sum(sum(x * x for x in m["singular_values"]) for m in r3["per_module"]),
+        })
+    val_rows = [x for x in rows if x["split"] == "val"]
+    med = statistics.median(x["r3_retained_energy"] for x in val_rows)
+    # gauge invariance on real data: a random well-conditioned Q per module changes the factor norms, not the spectrum
+    start, end = load_states(snap_dir, records[val_idx[0]])
+    g = torch.Generator().manual_seed(0)
+    gauged, worst = {}, 0.0
+    for ka, kb in module_pairs(end):
+        q, _ = torch.linalg.qr(torch.randn(cfg.lora.r, cfg.lora.r, generator=g, dtype=torch.float64))
+        q = q @ torch.diag(torch.linspace(0.5, 2.0, cfg.lora.r, dtype=torch.float64))
+        a, b = end.tensors[ka].double(), end.tensors[kb].double()
+        a2, b2 = torch.linalg.solve(q, a), b @ q
+        gauged[ka], gauged[kb] = a2.float(), b2.float()
+        s1, s2 = spectrum(a, b, s), spectrum(a2, b2, s)
+        worst = max(worst, float(((s2 - s1).abs() / s1.max()).max()))
+    gauged = AdapterState(gauged)
+    out = json_safe({
+        "label": cfg.run.result_label,
+        "source_mode": records[0]["source_mode"],
+        "snapshot_index_sha256": sha256_file(snap_dir / "index.jsonl"),
+        "lora_scaling": s,
+        "geometry": records[0]["geometry"],
+        "split": {"val_time_indices": sorted({x["time_index"] for x in val_rows}), "val_snapshots": len(val_rows)},
+        "gauge_invariance_demo": {
+            "snapshot": [int(records[val_idx[0]]["time_index"]), int(records[val_idx[0]]["client_id"])],
+            "raw_factor_sq_before": end.l2_sq(), "raw_factor_sq_after": gauged.l2_sq(),
+            "A_sq_before": end.l2_sq("A"), "A_sq_after": gauged.l2_sq("A"), "B_sq_before": end.l2_sq("B"), "B_sq_after": gauged.l2_sq("B"),
+            "max_relative_singular_value_change": worst,
+        },
+        "r3_structural_prerequisite": {
+            "rule": "median over the validation snapshots of the energy-weighted rank-8 retained energy must be >= 0.95",
+            "median_val_retained_energy": med,
+            "structurally_lossy": med < 0.95,
+        },
+        "summary": {
+            split: {
+                k: {"min": min(x[k] for x in rs), "median": statistics.median(x[k] for x in rs), "max": max(x[k] for x in rs)}
+                for k in ("raw_factor_sq", "A_sq", "B_sq", "M_fro_sq", "M_nuclear", "balanced_factor_sq", "r2_rms", "r2_max_abs",
+                          "r3_retained_energy", "r3_truncation_rel_fro_error", "r3_product_cosine", "delta_M_energy")
+            }
+            for split, rs in (("train", [x for x in rows if x["split"] == "train"]), ("val", val_rows))
+        },
+        "per_snapshot": rows,
+        "elapsed_s": round(time.time() - t0, 1),
+        "provenance": _provenance(),
+    })
+    if args.out:
+        atomic_write_json(resolve_path(args.out), out)
+    return {"r3_structural_prerequisite": out["r3_structural_prerequisite"], "gauge_invariance_demo": out["gauge_invariance_demo"], "elapsed_s": out["elapsed_s"]}
+
+
+def cmd_gradient_forensics(args) -> dict:
+    """F5: bounded real-gradient collection (2 D1 rounds, Phase-3 TGAP schedule/seeds) + statistics."""
+    from cg_fedllm.compression.layout import get_layout
+    from cg_fedllm.compression.metrics import json_safe
+    from cg_fedllm.federated.simulator import FederatedSimulator
+    from cg_fedllm.forensics.gradients import GradientDumper, gradient_statistics
+    from cg_fedllm.pipeline import (
+        apply_vram_guard,
+        build_data_bundle,
+        build_model_bundle,
+        client_examples,
+        identity_config_sha256,
+        init_run_dir,
+        simulator_spec,
+    )
+    from cg_fedllm.tgap.snapshots import SnapshotWriter, read_index
+
+    cfg = _load(args)
+    cfg.require("tgap", "data", "federated", "lora")
+    guard = apply_vram_guard(cfg)
+    bundle = build_model_bundle(cfg)
+    data = build_data_bundle(cfg)
+    clients = client_examples(cfg, data, bundle.loaded.tokenizer, cfg.tgap.client_split)
+    run_dir = init_run_dir(cfg, args.stage or "gradient_forensics", {"model": bundle.loaded.info, "manifest_sha256": data.manifest_sha256, "vram_guard": guard})
+    writer = SnapshotWriter(run_dir, run_id=f"{cfg.run.name}/{run_dir.name}", source_mode="federated_pretrain", representation="adapter_state", layout=get_layout(cfg.tgap.layout))
+    spec = simulator_spec(cfg, len(clients), namespace="tgap_fed")
+    spec.num_rounds, spec.client_fraction = cfg.tgap.num_time_steps, cfg.tgap.client_fraction
+
+    def hook(t, cid, start, end, n, rec):
+        writer.write(t, cid, start, end, n, {k: v for k, v in rec.items() if k != "payload"})
+
+    t0 = time.time()
+    sim = FederatedSimulator(
+        bundle.trainer, spec, clients, run_dir / "fl", codec=None, layout=None, identity={"identity_config_sha256": identity_config_sha256(cfg)},
+        snapshot_hook=hook, observer_factory=lambda t, cid: GradientDumper(run_dir / "gradients", t, cid), result_label=cfg.run.result_label,
+    )
+    fl = sim.run(bundle.initial_state)
+    wall = time.time() - t0
+    records = read_index(run_dir)
+    check = None
+    if args.reference_snapshots:
+        ref = {(int(r["time_index"]), int(r["client_id"])): r["end_adapter_hash"] for r in read_index(resolve_path(args.reference_snapshots))}
+        pairs = [((int(r["time_index"]), int(r["client_id"])), r["end_adapter_hash"]) for r in records]
+        check = {"compared": len(pairs), "bitwise_equal": sum(1 for k, h in pairs if ref.get(k) == h), "all_equal": all(ref.get(k) == h for k, h in pairs)}
+    stats = gradient_statistics(run_dir / "gradients", run_dir, records, cfg.lora.alpha / cfg.lora.r)
+    out = json_safe({
+        "label": cfg.run.result_label,
+        "fl_status": fl["status"],
+        "rounds": spec.num_rounds,
+        "collection_wall_s": round(wall, 1),
+        "unchanged_optimisation_check": check,
+        "schedule": [[int(r["time_index"]), int(r["client_id"]), int(r["num_samples"])] for r in records],
+        **stats,
+        "provenance": _provenance(),
+    })
+    if args.out:
+        atomic_write_json(resolve_path(args.out), out)
+    return {"label": out["label"], "unchanged_optimisation_check": check, "optimizer_steps": out["optimizer_steps"], "collection_wall_s": out["collection_wall_s"]}
+
+
+def _codec_predictor(codec, ctx_cls):
+    def predict(x, it):
+        ctx = ctx_cls(it.time_index, it.client_id, 0)
+        return codec.decode(codec.encode(x, ctx), ctx)
+
+    return predict
+
+
+def cmd_forensic_screen(args) -> dict:
+    """F6: one pre-registered candidate through the fixed ResNet-3 AE screen."""
+    import dataclasses
+
+    import torch
+
+    from cg_fedllm.compression.autoencoder import load_autoencoder
+    from cg_fedllm.compression.codecs import AutoEncoderCodec, CodecContext
+    from cg_fedllm.compression.layout import geometry_from_dict, get_layout
+    from cg_fedllm.compression.metrics import json_safe
+    from cg_fedllm.compression.normalization import (
+        MAXABS_QUANTILE,
+        MAXABS_TARGET,
+        Normalizer,
+        train_abs_quantile,
+    )
+    from cg_fedllm.forensics.gradients import load_client_round, mean_state
+    from cg_fedllm.forensics.representations import balanced_effective_delta, balanced_effective_state
+    from cg_fedllm.forensics.screen import ScreenItem, evaluate, group_by_time, screen_gate
+    from cg_fedllm.pipeline import apply_vram_guard, init_run_dir
+    from cg_fedllm.tgap.snapshots import load_states, read_index
+    from cg_fedllm.tgap.train_ae import split_indices, train_autoencoder
+    from cg_fedllm.utils.hashing import sha256_file
+
+    cfg = _load(args)
+    cfg.require("lora", "autoencoder")
+    guard = apply_vram_guard(cfg)
+    s = cfg.lora.alpha / cfg.lora.r
+    kind = args.candidate
+    snap_dir = resolve_path(args.snapshots)
+    records = read_index(snap_dir)
+    layout = get_layout(cfg.autoencoder.layout)
+    geom = geometry_from_dict(records[0]["geometry"])
+    items = []
+    for i, r in enumerate(records):
+        start, end = load_states(snap_dir, r)
+        if kind == "balanced_effective_state":
+            rep, _ = balanced_effective_state(end, s)
+        elif kind == "balanced_effective_delta_r8":
+            rep, _ = balanced_effective_delta(start, end, s, rank=cfg.lora.r)
+        elif kind == "mean_step_gradient":
+            cr = load_client_round(resolve_path(args.gradients) / f"t{int(r['time_index']):04d}_c{int(r['client_id']):04d}")
+            rep = mean_state(cr["grads"])
+        else:
+            raise ValueError(kind)
+        items.append(ScreenItem(i, int(r["time_index"]), int(r["client_id"]), int(r["num_samples"]), rep, start, end))
+    xs = [layout.forward(it.rep, geom) for it in items]
+    train_idx, val_idx = split_indices(records, cfg.autoencoder.split, cfg.autoencoder.val_fraction, cfg.autoencoder.split_seed)
+    q = train_abs_quantile(xs, train_idx, MAXABS_QUANTILE)
+    modes = ["none"] + (["global_maxabs_train"] if q["value"] > MAXABS_TARGET else [])
+    run_dir = init_run_dir(cfg, f"{args.stage or 'f6'}_{kind}", {"vram_guard": guard, "snapshot_dir": str(snap_dir), "candidate": kind})
+    mean = torch.stack([xs[i] for i in train_idx]).mean(0)
+    device = torch.device(cfg.run.device)
+    result: dict[str, Any] = {
+        "label": cfg.run.result_label,
+        "candidate": kind,
+        "source_mode": records[0]["source_mode"],
+        "snapshot_index_sha256": sha256_file(snap_dir / "index.jsonl"),
+        "num_snapshots": len(items),
+        "split": {"train": len(train_idx), "val": len(val_idx), "val_time_indices": sorted({items[i].time_index for i in val_idx})},
+        "scale_rule": {"train_abs_p99_9": q, "threshold": MAXABS_TARGET, "modes_run": modes},
+        "input_stats": {"train_rms": float(torch.stack([xs[i] for i in train_idx]).pow(2).mean().sqrt()), "train_max_abs": float(max(xs[i].abs().max() for i in train_idx))},
+        "modes": {},
+    }
+    by_val = group_by_time([items[i] for i in val_idx])
+    by_train = group_by_time([items[i] for i in train_idx])
+    for mode in modes:
+        ae_cfg = dataclasses.replace(cfg.autoencoder, normalization=mode)
+        out_dir = run_dir / f"ae_{mode}"
+        t0 = time.time()
+        m = train_autoencoder(xs, [torch.zeros_like(x) for x in xs], records, ae_cfg, device=device, out_dir=out_dir,
+                              provenance={"phase4_candidate": kind, "snapshot_index_sha256": result["snapshot_index_sha256"]}, label=cfg.run.result_label, layout=layout, geom=geom)
+        codecs = {}
+        for name, fname in (("autoencoder_best_val", "autoencoder_best_val.safetensors"), ("autoencoder_final", "autoencoder.safetensors")):
+            ae, meta = load_autoencoder(out_dir / fname, device=device)
+            codecs[name] = AutoEncoderCodec(ae, device=device, normalizer=Normalizer.from_dict(meta.get("normalization")))
+        norm = Normalizer.from_dict(m["normalization"])
+        preds = {
+            **{name: _codec_predictor(codec, CodecContext) for name, codec in codecs.items()},
+            "zero": lambda x, it: torch.zeros_like(x),
+            "train_mean": lambda x, it: mean.clone(),
+            "identity": lambda x, it: x.clone(),
+        }
+        if not norm.is_identity:
+            preds["tanh_range_ceiling"] = lambda x, it, norm=norm: norm.denormalize(norm.normalize(x).clamp(-1.0, 1.0))
+        val = evaluate(by_val, kind, s, layout, geom, preds)
+        train = evaluate(by_train, kind, s, layout, geom, preds)
+        result["modes"][mode] = {
+            "normalization": m["normalization"],
+            "ae_training": {k: m[k] for k in ("curve", "best_val", "train_time_s", "latent_shape", "input_shape", "compression_ratio_elements", "normalized_range") if k in m},
+            "val": val,
+            "train": train,
+            "gate": screen_gate(val),
+            "elapsed_s": round(time.time() - t0, 1),
+        }
+        result["modes"][mode]["ae_training"]["best_val"] = {k: v for k, v in m.get("best_val", {}).items() if k in ("iteration", "val_mse", "selection")}
+    result["passes_screen"] = any(v["gate"]["pass"] for v in result["modes"].values())
+    result["provenance"] = _provenance()
+    result = json_safe(result)
+    if args.out:
+        atomic_write_json(resolve_path(args.out), result)
+    return {"candidate": kind, "modes": modes, "passes_screen": result["passes_screen"], "gates": {m: v["gate"]["criteria"] for m, v in result["modes"].items()}}
+
+
 COMMANDS = {
     "capture-env": cmd_capture_env,
     "prepare-data": cmd_prepare_data,
@@ -576,6 +842,9 @@ COMMANDS = {
     "ae-select": cmd_ae_select,
     "reference-codes": cmd_reference_codes,
     "validate-microbatch": cmd_validate_microbatch,
+    "forensic-stats": cmd_forensic_stats,
+    "gradient-forensics": cmd_gradient_forensics,
+    "forensic-screen": cmd_forensic_screen,
 }
 
 
@@ -600,6 +869,15 @@ def build_parser() -> argparse.ArgumentParser:
             sp.add_argument("--ae-dir", required=True)
         if name in ("microbatch-diag", "validate-microbatch"):
             sp.add_argument("--adapter", default=None, help="start adapter (default: the initial LoRA state / a warm start)")
+        if name in ("forensic-stats", "forensic-screen"):
+            sp.add_argument("--snapshots", required=True)
+        if name in ("forensic-stats", "gradient-forensics", "forensic-screen"):
+            sp.add_argument("--out", default=None)
+        if name == "gradient-forensics":
+            sp.add_argument("--reference-snapshots", default=None, help="Phase-3 TGAP snapshot dir for the bitwise check")
+        if name == "forensic-screen":
+            sp.add_argument("--candidate", required=True, choices=["balanced_effective_state", "balanced_effective_delta_r8", "mean_step_gradient"])
+            sp.add_argument("--gradients", default=None, help="F5 gradient directory (mean_step_gradient)")
         if name == "validate-microbatch":
             sp.add_argument("--modes", required=True, help="comma list, first = reference, e.g. physical:16,virtual:1,virtual:2")
             sp.add_argument("--dropout-batches", type=int, default=4)

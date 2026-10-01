@@ -43,6 +43,7 @@ from cg_fedllm.models.adapter import AdapterState
 from cg_fedllm.utils.io import atomic_write_json, atomic_write_text, read_json
 
 SnapshotHook = Callable[[int, int, AdapterState, AdapterState, int, dict], None]
+ObserverFactory = Callable[[int, int], Any]  # (round, client) -> StepObserver | None (read-only gradient hooks)
 HeldoutFn = Callable[[AdapterState], dict]
 
 
@@ -94,6 +95,7 @@ class FederatedSimulator:
         heldout_fn: HeldoutFn | None = None,
         snapshot_hook: SnapshotHook | None = None,
         result_label: str = "UNKNOWN",
+        observer_factory: ObserverFactory | None = None,
     ) -> None:
         if len(client_examples) != spec.num_clients:
             raise ValueError(f"expected data for {spec.num_clients} clients, got {len(client_examples)}")
@@ -109,6 +111,7 @@ class FederatedSimulator:
         self.heldout_fn = heldout_fn
         self.snapshot_hook = snapshot_hook
         self.result_label = result_label
+        self.observer_factory = observer_factory
 
     # ------------------------------------------------------------------------------------------------
     def _check_identity(self, initial: AdapterState) -> int:
@@ -130,7 +133,11 @@ class FederatedSimulator:
         return 0
 
     def _client_round(self, t: int, cid: int, global_state: AdapterState, geom) -> tuple[AdapterState, int, dict]:
-        res = self.trainer.train(global_state, self.client_examples[cid], (self.spec.namespace, t, cid))
+        observer = self.observer_factory(t, cid) if self.observer_factory is not None else None
+        if observer is None:
+            res = self.trainer.train(global_state, self.client_examples[cid], (self.spec.namespace, t, cid))
+        else:
+            res = self.trainer.train(global_state, self.client_examples[cid], (self.spec.namespace, t, cid), observer=observer)
         rec: dict[str, Any] = {"client_id": cid, **res.summary()}
         if self.snapshot_hook is not None:
             self.snapshot_hook(t, cid, global_state, res.end_state, res.num_samples, rec)

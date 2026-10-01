@@ -1,0 +1,11 @@
+# Phase 4, F5 (PHASE4-FORENSIC): bounded real-gradient forensics. The Phase-3 federated TGAP schedule, seeds and
+# training semantics (micro-batch 1 x 32, namespace tgap_fed) for 2 D1 rounds only; every optimizer step's
+# pre-/post-clip gradient and parameter change is recorded outside Git. The end states must equal the Phase-3
+# round-0/1 snapshots bitwise (the optimisation is unchanged).
+inherit: ../phase3/tierb_seed1.yaml
+run:
+  name: phase4_gradient_forensics_seed1
+  result_label: PHASE4-FORENSIC
+tgap:
+  source: federated_pretrain
+  num_time_steps: 2
