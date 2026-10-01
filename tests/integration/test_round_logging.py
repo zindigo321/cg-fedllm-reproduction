@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import json
 import math
+import shutil
 
+from cg_fedllm.federated.regression import compare_runs
 from cg_fedllm.federated.simulator import FederatedSimulator
 from cg_fedllm.models.adapter import AdapterState
 from cg_fedllm.pipeline import simulator_spec
@@ -56,7 +58,31 @@ def test_baseline_summary_and_identity_regression(tiny_cfg, tiny_bundle, tmp_pat
     s = json.loads(out.read_text(encoding="utf-8"))
     reg = s["identity_regression"]
     assert reg["round_hashes_equal"] is True and reg["final_adapter_bitwise_equal"] is True and reg["rounds_compared"] == 2
+    assert reg["validated"] is True and reg["num_mismatches"] == 0 and reg["config"] is None  # no resolved configs in these run dirs
+    assert all(v is True for k, v in reg["checks"].items() if k != "only_expected_config_differences")
     com = s["runs"]["lora_ft"]["communication"]
     n = tiny_bundle.initial_state.num_elements() * 4
     assert com["uplink_per_client_bytes"] == n and com["two_way_total_bytes"] == com["uplink_total_bytes"] + com["downlink_total_bytes"] == 2 * 2 * 2 * n
     assert s["label"] == "PHASE4-BASELINE" and len(s["runs"]["lora_ft"]["per_round"]) == 2
+
+    # negative controls: a changed held-out loss in round 1 and an unexpected config difference must both fail
+    tampered = tmp_path / "tampered"
+    shutil.copytree(tmp_path / "faf_identity", tampered)
+    rj = tampered / "rounds" / "r0001" / "round.json"
+    rec = json.loads(rj.read_text(encoding="utf-8"))
+    rec["heldout"] = {"loss": 1.0}
+    rj.write_text(json.dumps(rec), encoding="utf-8")
+    bad = compare_runs(tmp_path / "lora_ft", tampered)
+    assert bad["validated"] is False and bad["first_mismatch_round"] == 1 and bad["checks"]["heldout_loss_every_round"] is False
+    assert bad["checks"]["global_adapter_hash_every_round"] is True
+    for d, codec, seed in ((tmp_path / "lora_ft", "none", 1), (tmp_path / "faf_identity", "identity", 2)):
+        (d / "config.resolved.yaml").write_text(f"codec:\n  type: {codec}\nrun:\n  seed: {seed}\n", encoding="utf-8")
+    cfg_bad = compare_runs(tmp_path / "lora_ft", tmp_path / "faf_identity")
+    assert cfg_bad["config"]["resolved_config_differences"] == {"codec.type": ["none", "identity"], "run.seed": [1, 2]}
+    assert cfg_bad["checks"]["only_expected_config_differences"] is False and cfg_bad["validated"] is False
+    (tmp_path / "faf_identity" / "config.resolved.yaml").write_text("codec:\n  type: identity\nrun:\n  seed: 1\n", encoding="utf-8")
+    assert compare_runs(tmp_path / "lora_ft", tmp_path / "faf_identity")["validated"] is True
+    # a pooled (centralized) run reports no communication cost
+    (tmp_path / "lora_ft" / "config.resolved.yaml").write_text("codec:\n  type: none\nfederated:\n  pooled: true\n", encoding="utf-8")
+    assert main(["baseline-summary", "--run", f"cent={(tmp_path / 'lora_ft').as_posix()}", "--label", "PHASE4-BASELINE", "--out", out.as_posix()]) == 0
+    assert json.loads(out.read_text(encoding="utf-8"))["runs"]["cent"]["communication"]["applicable"] is False

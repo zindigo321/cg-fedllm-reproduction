@@ -827,8 +827,12 @@ def cmd_forensic_screen(args) -> dict:
 
 def cmd_baseline_summary(args) -> dict:
     """F7: condense the seed-1 baseline run directories into one labelled record (+ the Identity regression)."""
+    import subprocess
+
+    import yaml
+
     from cg_fedllm.compression.metrics import json_safe
-    from cg_fedllm.models.adapter import AdapterState
+    from cg_fedllm.federated.regression import compare_runs
 
     runs = {name: resolve_path(p) for name, p in (item.split("=", 1) for item in args.run)}
 
@@ -845,6 +849,8 @@ def cmd_baseline_summary(args) -> dict:
         sm = read_json(d / "summary.json")
         meta = read_json(d / "run_metadata.json") if (d / "run_metadata.json").exists() else {}
         init = read_json(d / "initial_eval.json") if (d / "initial_eval.json").exists() else None
+        resolved = yaml.safe_load((d / "config.resolved.yaml").read_text(encoding="utf-8")) if (d / "config.resolved.yaml").exists() else {}
+        pooled = bool((resolved.get("federated") or {}).get("pooled", False))
         per_round = []
         for r in rs:
             per_round.append({
@@ -876,7 +882,9 @@ def cmd_baseline_summary(args) -> dict:
             "final_heldout_loss": per_round[-1]["heldout_loss"] if per_round else None,
             "git_commit": meta.get("environment", {}).get("git", {}).get("commit"),
             "git_dirty_files": [f for f in meta.get("environment", {}).get("git", {}).get("dirty_files", []) if not f.startswith("?? results/")],
+            "git_untracked_results_dirs": [f for f in meta.get("environment", {}).get("git", {}).get("dirty_files", []) if f.startswith("?? results/")],
             "config_sha256": meta.get("config_sha256"),
+            "pooled_centralized_reference": pooled,
             "vram_guard": meta.get("vram_guard"),
             "wall_time_s": round(sum(x["wall_time_s"] for x in per_round), 1),
             "communication": {
@@ -887,27 +895,32 @@ def cmd_baseline_summary(args) -> dict:
                 "two_way_total_bytes": up + down,
                 "per_round_two_way_bytes": [x["uplink_logical_bytes"] + (x["downlink_logical_bytes"] or 0) for x in per_round],
                 "note": "logical fp32 bytes of the uncompressed adapter state (12,582,912 B per client); no compression",
+            } if not pooled else {
+                "applicable": False,
+                "note": "centralized reference (one pooled client): no client-server communication; the simulator's logical bytes are not a communication cost",
             },
             "per_round": per_round,
         }
     if args.identity_pair:
         a, b = args.identity_pair.split(",")
-        ra, rb = summary["runs"][a]["per_round"], summary["runs"][b]["per_round"]
-        fa = AdapterState.load(runs[a] / "final_adapter.safetensors")
-        fb = AdapterState.load(runs[b] / "final_adapter.safetensors")
-        summary["identity_regression"] = {
-            "pair": [a, b],
-            "rounds_compared": min(len(ra), len(rb)),
-            "round_hashes_equal": [x["global_hash"] for x in ra] == [x["global_hash"] for x in rb],
-            "final_adapter_bitwise_equal": fa.equal(fb),
-            "final_relative_l2": fa.relative_l2_diff(fb),
-            "heldout_trajectories_equal": [x["heldout_loss"] for x in ra] == [x["heldout_loss"] for x in rb],
+        reg = compare_runs(runs[a], runs[b])
+        ca, cb = summary["runs"][a]["git_commit"], summary["runs"][b]["git_commit"]
+        changed = None
+        if ca and cb:
+            res = subprocess.run(["git", "diff", "--name-only", ca, cb, "--", "src/"], capture_output=True, text=True)
+            changed = res.stdout.split() if res.returncode == 0 else None
+        reg["provenance"] = {
+            "commits": [ca, cb],
+            "dirty_files": [summary["runs"][a]["git_dirty_files"], summary["runs"][b]["git_dirty_files"]],
+            "src_files_changed_between_commits": changed,
         }
+        summary["identity_regression"] = {"pair": [a, b], **{k: v for k, v in reg.items() if k != "pair"}}
     summary["provenance"] = _provenance()
     out = json_safe(summary)
     if args.out:
         atomic_write_json(resolve_path(args.out), out)
-    return {"identity_regression": out.get("identity_regression"), "runs": {k: {kk: v[kk] for kk in ("status", "rounds_completed", "initial_heldout_loss", "final_heldout_loss", "wall_time_s")} for k, v in out["runs"].items()}}
+    reg = out.get("identity_regression")
+    return {"identity_regression": None if reg is None else {k: reg[k] for k in ("pair", "rounds_compared", "checks", "validated", "num_mismatches")}, "runs": {k: {kk: v[kk] for kk in ("status", "rounds_completed", "initial_heldout_loss", "final_heldout_loss", "wall_time_s")} for k, v in out["runs"].items()}}
 
 
 def cmd_screen_reuse(args) -> dict:
