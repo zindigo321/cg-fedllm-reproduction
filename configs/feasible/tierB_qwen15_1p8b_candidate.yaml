@@ -1,7 +1,13 @@
 # PHASE-3 CANDIDATE (NOT RUN IN PHASE 2). Tier-B resource-feasible configuration: Qwen1.5-1.8B
 # (MHA, d=2048, L=24 -> Phi input [1, 2048, 1536] -> AE latent [64, 32, 24], CR = 1/64) with the
-# paper's Dolly federated hyperparameters. Micro-batch/precision to be finalised from the Phase-2
-# micro-benchmark (results/phase2/gpu_microbench.json).
+# paper's Dolly federated hyperparameters (inherited: 100 Dirichlet(0.5) clients, 20 rounds, fraction 0.05,
+# batch 32, lr 1.5e-4, 1 epoch, LoRA r 8 / alpha 16 / dropout 0.05 on q,k,v,o, cutoff 512, per-client D1/D2 30/70).
+# Precision / checkpointing / micro-batch chosen from MEASURED Phase-2 evidence (results/phase2/gpu_microbench.json,
+# LOCAL-MICROBENCH, seq 512, allocator capped at 6.69 GiB): bf16 + gradient checkpointing + micro-batch 2 peaks at
+# 5.35 GiB allocated / 5.81 GiB reserved and trains at 1,899 tok/s; micro-batch 4 runs out of memory. Alternatives
+# measured: bf16 without checkpointing at micro-batch 1 (5.60 GiB, 2,156 tok/s), nf4 micro-batch 4 (5.49 GiB,
+# 1,967 tok/s), int8 = the paper's 8-bit base family, micro-batch 2 (4.98 GiB, 1,563 tok/s).
+# Evaluation: reference_eval_v1 (configs/eval/reference_eval_v1.yaml) + held-out Dolly loss.
 inherit: ../base/shepherd_dolly.yaml
 run:
   name: tierB_qwen15_1p8b
@@ -21,5 +27,5 @@ model:
   pad_token_id: null
 local_train:
   batch_size: 32
-  micro_batch_size: 4             # to be confirmed from the micro-benchmark (paper: 16)
+  micro_batch_size: 2             # measured feasible maximum for bf16 + checkpointing (paper: 16; 16 accumulation steps)
   precision: bf16
