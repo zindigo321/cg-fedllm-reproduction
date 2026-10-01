@@ -969,6 +969,43 @@ def cmd_eval_cost(args) -> dict:
     return out
 
 
+def cmd_eval_projection(args) -> dict:
+    """F8 decision (DERIVED): project each model's full-evaluation time from its timed sample and the cost plans."""
+    full = read_json(resolve_path(args.cost_full))["benchmarks"]
+    sample = read_json(resolve_path(args.cost_sample))["benchmarks"]
+    models: dict[str, Any] = {}
+    for item in args.timing_run:
+        name, path = item.split("=", 1)
+        timed = read_json(resolve_path(path) / "eval_summary.json")
+        rows, total = {}, 0.0
+        for bench, t in timed.items():
+            fs, ss = full[bench], sample[bench]
+            score = t["timing_s"]["score"] * fs["padded_tokens"] / ss["padded_tokens"]
+            prepare = t["timing_s"]["prepare"] * fs["questions"] / ss["questions"]  # upper bound: dataset loading is a fixed cost
+            rows[bench] = {
+                "sample_questions": ss["questions"], "sample_padded_tokens": ss["padded_tokens"], "sample_timing_s": t["timing_s"],
+                "sample_padded_tokens_per_s": ss["padded_tokens"] / t["timing_s"]["score"],
+                "full_questions": fs["questions"], "full_padded_tokens": fs["padded_tokens"],
+                "projected_full_score_s": score, "projected_full_prepare_s_upper": prepare, "projected_full_s": score + prepare,
+            }
+            total += score + prepare
+        models[name] = {"timing_run": Path(path).as_posix(), "benchmarks": rows, "projected_full_minutes": total / 60}
+    worst = max(m["projected_full_minutes"] for m in models.values())
+    out = {
+        "label": "DERIVED",
+        "rule": f"full MMLU test + C-Eval val per model if the projected time is <= {args.threshold_min} min for every model; otherwise a fixed seeded stratified subset (docs/phase4_preregistration.md, section 5)",
+        "projection": "full_score = sample_score_s * full_padded_tokens / sample_padded_tokens; prepare scaled by question count (upper bound)",
+        "threshold_minutes": args.threshold_min,
+        "models": models,
+        "max_projected_full_minutes": worst,
+        "decision": "full" if worst <= args.threshold_min else "subset",
+        "provenance": _provenance(),
+    }
+    if args.out:
+        atomic_write_json(resolve_path(args.out), out)
+    return {"decision": out["decision"], "projected_full_minutes": {k: round(v["projected_full_minutes"], 1) for k, v in models.items()}}
+
+
 COMMANDS = {
     "capture-env": cmd_capture_env,
     "prepare-data": cmd_prepare_data,
@@ -991,6 +1028,7 @@ COMMANDS = {
     "baseline-summary": cmd_baseline_summary,
     "screen-reuse": cmd_screen_reuse,
     "eval-cost": cmd_eval_cost,
+    "eval-projection": cmd_eval_projection,
 }
 
 
@@ -999,7 +1037,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="command", required=True)
     for name in COMMANDS:
         sp = sub.add_parser(name)
-        if name not in ("capture-env", "ae-select", "baseline-summary", "screen-reuse"):
+        if name not in ("capture-env", "ae-select", "baseline-summary", "screen-reuse", "eval-projection"):
             sp.add_argument("--config", required=True)
             sp.add_argument("--set", action="append", default=[], help="override, e.g. --set run.seed=7")
             sp.add_argument("--stage", default=None, help="run sub-directory name")
@@ -1030,6 +1068,12 @@ def build_parser() -> argparse.ArgumentParser:
             sp.add_argument("--label", required=True, choices=RESULT_LABELS)
             sp.add_argument("--out", default=None)
         if name == "eval-cost":
+            sp.add_argument("--out", default=None)
+        if name == "eval-projection":
+            sp.add_argument("--timing-run", action="append", required=True, help="model=evaluate run dir of the timed sample")
+            sp.add_argument("--cost-full", required=True)
+            sp.add_argument("--cost-sample", required=True)
+            sp.add_argument("--threshold-min", type=float, default=45.0)
             sp.add_argument("--out", default=None)
         if name == "screen-reuse":
             sp.add_argument("--phase3", action="append", required=True, help="id=path/to/phase3 a5/a8 report")

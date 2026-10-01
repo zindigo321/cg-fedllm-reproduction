@@ -209,3 +209,29 @@ def test_batch_plan_counts_the_forward_passes_of_the_scorer(tiny_hf_llama, toy_t
         else:
             assert plan["single_token_batches"] == 0 and plan["multi_token_requests"] == 7
             assert plan["multi_token_forward_tokens"] == sum(b * n for b, n in calls) and len(calls) == 7 * 4
+
+
+def test_eval_projection_scales_the_timed_sample_by_padded_tokens(tmp_path):
+    import json
+
+    from cg_fedllm.cli import main
+
+    full = {"benchmarks": {"mmlu/test": {"questions": 1000, "padded_tokens": 100_000}, "ceval/val": {"questions": 100, "padded_tokens": 10_000}}}
+    sample = {"benchmarks": {"mmlu/test": {"questions": 100, "padded_tokens": 10_000}, "ceval/val": {"questions": 50, "padded_tokens": 5_000}}}
+    (tmp_path / "full.json").write_text(json.dumps(full), encoding="utf-8")
+    (tmp_path / "sample.json").write_text(json.dumps(sample), encoding="utf-8")
+    for name, score in (("fast", 60.0), ("slow", 300.0)):
+        (tmp_path / name).mkdir()
+        timed = {b: {"timing_s": {"prepare": 2.0, "score": score}} for b in ("mmlu/test", "ceval/val")}
+        (tmp_path / name / "eval_summary.json").write_text(json.dumps(timed), encoding="utf-8")
+    out = tmp_path / "proj.json"
+    common = ["--cost-full", str(tmp_path / "full.json"), "--cost-sample", str(tmp_path / "sample.json"), "--out", str(out)]
+    assert main(["eval-projection", "--timing-run", f"base={tmp_path / 'fast'}", *common]) == 0
+    p = json.loads(out.read_text(encoding="utf-8"))
+    m = p["models"]["base"]["benchmarks"]["mmlu/test"]
+    assert m["projected_full_score_s"] == 600.0 and m["projected_full_prepare_s_upper"] == 20.0
+    # (600 + 20) + (120 + 4) seconds = 12.4 minutes <= 45 -> full
+    assert abs(p["models"]["base"]["projected_full_minutes"] - 744 / 60) < 1e-12 and p["decision"] == "full"
+    # one slow model (3000 + 20 + 600 + 4 s > 45 min) forces the subset for every model
+    assert main(["eval-projection", "--timing-run", f"base={tmp_path / 'fast'}", "--timing-run", f"lora={tmp_path / 'slow'}", *common]) == 0
+    assert json.loads(out.read_text(encoding="utf-8"))["decision"] == "subset"
