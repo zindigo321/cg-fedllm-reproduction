@@ -1,7 +1,7 @@
 """Command-line entry point: ``cgfed <command> --config <yaml> [--set key.path=value ...]``.
 
 Commands: capture-env, prepare-data, run-fl, collect-tgap, train-ae, evaluate, smoke, bench-gpu, and the
-Phase-3 diagnostics calibrate-train, microbatch-diag, tgap-stats, ae-viability, ae-select.
+Phase-3 diagnostics calibrate-train, microbatch-diag, tgap-stats, ae-viability, ae-select, reference-codes.
 Determinism settings and the optional CUDA allocator cap (``run.allocator_cap_margin_mb``) are applied before
 any model or CUDA work.
 """
@@ -19,6 +19,13 @@ from cg_fedllm.config import RESULT_LABELS, ExperimentConfig, load_config, resol
 from cg_fedllm.utils.io import atomic_write_json, read_json
 from cg_fedllm.utils.provenance import collect_environment
 from cg_fedllm.utils.seeding import configure_determinism
+
+
+def _provenance() -> dict[str, Any]:
+    """Git state and key package versions for lightweight result files that have no run directory."""
+    from cg_fedllm.utils.provenance import git_info, package_versions
+
+    return {"git": git_info(), "packages": package_versions()}
 
 
 def _load(args) -> ExperimentConfig:
@@ -394,6 +401,7 @@ def cmd_tgap_stats(args) -> dict:
             "layout_id": records[0]["layout_id"],
             **stats,
             "manifest": [{k: r[k] for k in fields} | {"training": r.get("extra", {})} for r in records],
+            "provenance": _provenance(),
         }
     )
     if args.out:
@@ -430,6 +438,8 @@ def cmd_ae_viability(args) -> dict:
             "checkpoint_sha256": {f: sha256_file(ae_dir / f) for f in ("autoencoder_best_val.safetensors", "autoencoder.safetensors")},
         },
         "ae_training": {k: v for k, v in read_json(ae_dir / "ae_metrics.json").items() if k in keep},
+        "ae_run_git": read_json(ae_dir / "run_metadata.json").get("environment", {}).get("git") if (ae_dir / "run_metadata.json").exists() else None,
+        "provenance": _provenance(),
         **rep,
     }
     out["elapsed_s"] = round(time.time() - t0, 1)
@@ -451,10 +461,43 @@ def cmd_ae_select(args) -> dict:
         "inputs": files,
         "gates": {m: {"pass": g["pass"], "criteria": {k: c["pass"] for k, c in g["criteria"].items()}} for m, g in gates.items()},
         **select_primary(gates),
+        "provenance": _provenance(),
     }
     if args.out:
         atomic_write_json(resolve_path(args.out), out)
     return out
+
+
+def cmd_reference_codes(args) -> dict:
+    """DERIVED interpretation aid: simple codes at the AE's element ratio on the validation snapshots."""
+    from cg_fedllm.compression.layout import geometry_from_dict, get_layout
+    from cg_fedllm.compression.metrics import json_safe
+    from cg_fedllm.tgap.compressibility import reference_code_report
+    from cg_fedllm.tgap.snapshots import read_index
+    from cg_fedllm.utils.hashing import sha256_file
+
+    cfg = _load(args)
+    cfg.require("autoencoder")
+    a = cfg.autoencoder
+    snap_dir = resolve_path(args.snapshots)
+    records = read_index(snap_dir)
+    t0 = time.time()
+    rep = reference_code_report(
+        snap_dir, records, representation=a.representation, layout=get_layout(a.layout), geom=geometry_from_dict(records[0]["geometry"]),
+        split=a.split, val_fraction=a.val_fraction, split_seed=a.split_seed,
+    )
+    out = json_safe(
+        {
+            "source_mode": records[0]["source_mode"],
+            "snapshot_index_sha256": sha256_file(snap_dir / "index.jsonl"),
+            **rep,
+            "elapsed_s": round(time.time() - t0, 1),
+            "provenance": _provenance(),
+        }
+    )
+    if args.out:
+        atomic_write_json(resolve_path(args.out), out)
+    return {"label": out["label"], "elapsed_s": out["elapsed_s"], "train_pca_rank": out["train_pca_rank"]}
 
 
 COMMANDS = {
@@ -471,6 +514,7 @@ COMMANDS = {
     "tgap-stats": cmd_tgap_stats,
     "ae-viability": cmd_ae_viability,
     "ae-select": cmd_ae_select,
+    "reference-codes": cmd_reference_codes,
 }
 
 
@@ -487,9 +531,9 @@ def build_parser() -> argparse.ArgumentParser:
             sp.add_argument("--out", default=None)
         if name == "prepare-data":
             sp.add_argument("--write", action="store_true", help="(re)write the committed manifest")
-        if name in ("train-ae", "tgap-stats", "ae-viability"):
+        if name in ("train-ae", "tgap-stats", "ae-viability", "reference-codes"):
             sp.add_argument("--snapshots", required=True)
-        if name in ("tgap-stats", "ae-viability", "ae-select"):
+        if name in ("tgap-stats", "ae-viability", "ae-select", "reference-codes"):
             sp.add_argument("--out", default=None)
         if name == "ae-viability":
             sp.add_argument("--ae-dir", required=True)
