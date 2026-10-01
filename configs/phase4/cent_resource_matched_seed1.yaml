@@ -1,0 +1,8 @@
+# PHASE 4 `cent_resource_matched_seed1` (PHASE4-BASELINE): a centralized REFERENCE, not the paper's Cent (whose
+# configuration is unknown). One pooled client holding the union of every client's D2, one pass with the same
+# local recipe as the FL clients (K*T/N = 5*20/100 = 1 pass; 10,445 examples vs 10,076 seen by the FL run).
+inherit: tierb_seed1.yaml
+federated:
+  pooled: true
+  client_fraction: 1.0
+  num_rounds: 1
