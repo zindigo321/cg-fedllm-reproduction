@@ -5,9 +5,12 @@ This repository is for reproducing the paper **CG-FedLLM: How to Compress Gradie
 ## 1. Paper
 
 - **Title:** CG-FedLLM: How to Compress Gradients in Federated Fine-Tuning for Large Language Models
-- **Authors:** Huiwen Wu et al.
-- **Paper:** arXiv:2405.13746
-- **Venue:** ECAI 2025
+- **Authors:** Huiwen Wu, Xiaogang Xu, Deyi Zhang, Xiaohan Li, Jiafei Wu, Zhe Liu
+- **Venue:** ECAI 2025, Frontiers in Artificial Intelligence and Applications vol. 413, pp. 4257-4264
+  (IOS Press), DOI [10.3233/FAIA251320](https://doi.org/10.3233/FAIA251320), CC BY-NC 4.0
+- **Extended version:** [arXiv:2405.13746](https://arxiv.org/abs/2405.13746) v3 (main body identical to the
+  ECAI text, plus appendices with hyperparameters and AutoEncoder details); v1/v2 are earlier drafts
+- Citation metadata: `CITATION.cff`; version notes: `docs/paper_notes.md`, `docs/provenance.md`
 
 ## 2. What Problem Does This Paper Solve?
 
@@ -53,10 +56,10 @@ The reproduction will be carried out incrementally.
 
 ### Phase 2: Baseline
 
-- [ ] Set up a clean Python environment
-- [ ] Run a basic LoRA fine-tuning experiment
-- [ ] Build or adapt a simple federated LoRA baseline
-- [ ] Verify client/server aggregation
+- [x] Set up a clean Python environment
+- [x] Run a basic LoRA fine-tuning experiment (smoke scale)
+- [x] Build or adapt a simple federated LoRA baseline (re-implemented FedIT/Shepherd semantics)
+- [x] Verify client/server aggregation (regression-tested against the Shepherd formula)
 
 ### Phase 3: CG-FedLLM
 
@@ -117,7 +120,36 @@ Because the local GPU has only 8 GB VRAM, reproducing the complete 7B-model expe
 - [x] Repository cloned locally
 - [x] Local environment inspected
 - [ ] Paper reading
-- [ ] Environment setup
-- [ ] Baseline implementation
+- [x] Environment setup
+- [x] Baseline implementation
 - [ ] CG-FedLLM implementation
 - [ ] Experiments
+
+## 8. Phase-2 Status (foundation, baselines, compression core, end-to-end smoke)
+
+Branch `phase2-foundation-smoke`. Phase 2 builds and validates the machinery at smoke scale; it does **not**
+reproduce any number from the paper. Every reported number is labelled PAPER-REPORTED, PHASE2-SMOKE,
+LOCAL-MICROBENCH, DERIVED or UNKNOWN.
+
+Implemented (package `src/cg_fedllm`, see `docs/architecture.md`): strict configs with provenance;
+Shepherd-compatible Dolly partition (oracle-equivalent) and per-client D1/D2 manifests; `reference_eval_v1`
+(C-Eval / MMLU log-likelihood evaluator, cross-checked against lm-eval); local LoRA training and a
+FedIT/Shepherd-style simulator with resume; `adapter_state | adapter_delta` representations and the Phi layout;
+the reconstructed ResNet-3 AutoEncoder (1/64 compression); TGAP collection (`local_pretrain` and
+`federated_pretrain`); FAF with Identity / AutoEncoder / ConstantMean / GaussianNoise codecs.
+
+Quickstart (Windows, conda; see `docs/reproduction_protocol.md`):
+
+```bash
+conda create -n cgfedllm python=3.11 -y && conda activate cgfedllm
+python -m pip install torch==2.14.0 --index-url https://download.pytorch.org/whl/cu130
+python -m pip install -r requirements/base-win-cu130.txt && python -m pip install -e . --no-deps
+pytest -q -m "not gpu and not model"                      # CPU suite (also run in CI)
+cgfed smoke --config configs/smoke/llama160m_smoke.yaml   # Tier-C GPU smoke (llama-160m)
+```
+
+Documentation: `docs/phase2_validation.md` (exit gates, smoke, evaluator, GPU measurements),
+`docs/reproduction_protocol.md`, `docs/architecture.md`, `docs/paper_notes.md`, `docs/evidence_ledger.md`
+(resolved / inferred / unknown), `docs/deviations.md`, `docs/discrepancies.md`, `docs/provenance.md`.
+Results: `results/phase2/`. Licenses: Apache-2.0 (`LICENSE`), third-party notices in `NOTICE`; models and
+datasets are downloaded at pinned revisions and never committed.
