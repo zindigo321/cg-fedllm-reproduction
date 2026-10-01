@@ -1,8 +1,9 @@
 # PHASE 3, Tier B, scientific seed 1 -- base configuration for every Phase-3A stage
 # (docs/phase3_preregistration.md). RESOURCE-FEASIBLE reproduction configuration, NOT paper-faithful:
 #   * bf16 base, no quantization (the paper appears to use an 8-bit base; int8 is a deferred sensitivity),
-#   * micro-batch 2 x 16 accumulation = effective batch 32 (the paper's micro-batch 16 does not fit 8 GB;
-#     micro-batch decomposition changes example weighting, see the micro-batch diagnostic),
+#   * micro-batch 1 x 32 accumulation = effective batch 32 (the paper's micro-batch 16 does not fit 8 GB; the
+#     planned micro-batch 2 was replaced by the pre-registered A3 rule; micro-batch decomposition changes example
+#     weighting, see the micro-batch diagnostic),
 #   * LoRA alpha 16 / dropout 0.05 are INFERRED from Shepherd defaults (paper silent),
 #   * sample-weighted FedAvg is the Shepherd baseline, not something CG-FedLLM specifies explicitly.
 # Scientific seed s sets run.seed = lora.init_seed = autoencoder.init_seed = s. The data partition (seed 42),
@@ -18,7 +19,9 @@ lora:
   init_seed: 1
 local_train:
   batch_size: 32                  # [PAPER] effective batch
-  micro_batch_size: 2             # [ENVIRONMENT] measured feasible maximum (Phase 2); A3 may switch it to 1
+  micro_batch_size: 1             # [ENVIRONMENT] A3 rule TRIGGERED: at micro-batch 2 the peak reserved memory came within
+                                  # 256 MiB of the allocator cap in 3 of 6 real-data measurements (headroom 0.094 GiB;
+                                  # results/phase3/calibration/a3_calibration_mb2.json) -> micro-batch 1 x 32 accumulation
   precision: bf16
 federated:
   num_rounds: 20                  # [PAPER]

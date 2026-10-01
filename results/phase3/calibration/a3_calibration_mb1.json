@@ -1,0 +1,246 @@
+{
+  "config": {
+    "attn_implementation": "sdpa",
+    "batch_size": 32,
+    "deterministic": true,
+    "dtype": "bfloat16",
+    "gradient_checkpointing": true,
+    "micro_batch_size": 1,
+    "quantization": "none"
+  },
+  "label": "PHASE3-DIAGNOSTIC",
+  "model_load_s": 7.4,
+  "timing": {
+    "batch_size": 32,
+    "clients": [
+      {
+        "client_id": 2,
+        "examples": 108,
+        "finite": true,
+        "max_example_tokens": 512,
+        "mean_loss": 2.624376888386905,
+        "micro_batches": 108,
+        "optimizer_steps": 4,
+        "padded_tokens": 14016,
+        "padded_tokens_per_s": 538.1,
+        "peak_allocated_bytes": 4816363520,
+        "peak_reserved_bytes": 6782189568,
+        "real_tokens": 13638,
+        "real_tokens_per_s": 523.6,
+        "step_time_s": 6.511,
+        "wall_s": 26.046
+      },
+      {
+        "client_id": 26,
+        "examples": 186,
+        "finite": true,
+        "max_example_tokens": 512,
+        "mean_loss": 2.2441697931633544,
+        "micro_batches": 186,
+        "optimizer_steps": 6,
+        "padded_tokens": 50728,
+        "padded_tokens_per_s": 1130.1,
+        "peak_allocated_bytes": 4818395136,
+        "peak_reserved_bytes": 5200936960,
+        "real_tokens": 50208,
+        "real_tokens_per_s": 1118.5,
+        "step_time_s": 7.482,
+        "wall_s": 44.889
+      },
+      {
+        "client_id": 55,
+        "examples": 75,
+        "finite": true,
+        "max_example_tokens": 512,
+        "mean_loss": 2.3078532241510623,
+        "micro_batches": 75,
+        "optimizer_steps": 3,
+        "padded_tokens": 20872,
+        "padded_tokens_per_s": 1206.5,
+        "peak_allocated_bytes": 4816691200,
+        "peak_reserved_bytes": 6939475968,
+        "real_tokens": 20609,
+        "real_tokens_per_s": 1191.3,
+        "step_time_s": 5.767,
+        "wall_s": 17.3
+      },
+      {
+        "client_id": 75,
+        "examples": 72,
+        "finite": true,
+        "max_example_tokens": 512,
+        "mean_loss": 2.6087210873762765,
+        "micro_batches": 72,
+        "optimizer_steps": 3,
+        "padded_tokens": 14312,
+        "padded_tokens_per_s": 908.5,
+        "peak_allocated_bytes": 4816363520,
+        "peak_reserved_bytes": 6878658560,
+        "real_tokens": 14080,
+        "real_tokens_per_s": 893.7,
+        "step_time_s": 5.251,
+        "wall_s": 15.754
+      },
+      {
+        "client_id": 86,
+        "examples": 148,
+        "finite": true,
+        "max_example_tokens": 512,
+        "mean_loss": 2.2706246540695427,
+        "micro_batches": 148,
+        "optimizer_steps": 5,
+        "padded_tokens": 39192,
+        "padded_tokens_per_s": 1129.2,
+        "peak_allocated_bytes": 4817346560,
+        "peak_reserved_bytes": 5991563264,
+        "real_tokens": 38765,
+        "real_tokens_per_s": 1116.9,
+        "step_time_s": 6.942,
+        "wall_s": 34.708
+      }
+    ],
+    "decision": {
+      "allocator_cap_gib": 6.689,
+      "headroom_to_cap_gib": 0.227,
+      "max_peak_allocated_gib": 4.487,
+      "measurements_near_cap": 1,
+      "rule": "switch to micro-batch 1 if peak allocated > 6.3 GiB or peak reserved within 256 MiB of the allocator cap in >= 2 measurements",
+      "switch_to_micro_batch_1": false
+    },
+    "gradient_accumulation": 32,
+    "micro_batch_size": 1,
+    "totals": {
+      "mean_step_time_s": 6.605,
+      "optimizer_steps": 21,
+      "padded_tokens_per_s": 1003.0,
+      "peak_allocated_bytes": 4818395136,
+      "peak_reserved_bytes": 6939475968,
+      "real_tokens_per_s": 989.9,
+      "wall_s": 138.7
+    },
+    "worst_case_micro_batch": {
+      "example_tokens": [
+        512
+      ],
+      "examples": 1,
+      "finite": true,
+      "micro_batches": 1,
+      "peak_allocated_bytes": 4778614784,
+      "peak_reserved_bytes": 5154799616,
+      "wall_s": 0.372
+    }
+  },
+  "token_lengths": {
+    "cutoff_len": 512,
+    "schedules": {
+      "fl": {
+        "client_rounds": 100,
+        "examples": 10076,
+        "lengths": {
+          "max": 512,
+          "mean": 190.48203652242952,
+          "n": 10076,
+          "p50": 138.0,
+          "p90": 456.5,
+          "p95": 512.0,
+          "p99": 512.0
+        },
+        "micro_batch_1": {
+          "padded_tokens": 1951912,
+          "padding_overhead": 1.016993201156465,
+          "real_tokens": 1919297
+        },
+        "micro_batch_2": {
+          "padded_tokens": 2640776,
+          "padding_overhead": 1.3759079496294737,
+          "real_tokens": 1919297
+        },
+        "optimizer_steps": 367,
+        "rounds": 20,
+        "split": "d2"
+      },
+      "tgap_fed": {
+        "client_rounds": 100,
+        "examples": 4333,
+        "lengths": {
+          "max": 512,
+          "mean": 189.49942303254096,
+          "n": 4333,
+          "p50": 137.0,
+          "p90": 450.0,
+          "p95": 512.0,
+          "p99": 512.0
+        },
+        "micro_batch_1": {
+          "padded_tokens": 835176,
+          "padding_overhead": 1.0171416183879938,
+          "real_tokens": 821101
+        },
+        "micro_batch_2": {
+          "padded_tokens": 1128200,
+          "padding_overhead": 1.3740088003790034,
+          "real_tokens": 821101
+        },
+        "optimizer_steps": 178,
+        "rounds": 20,
+        "split": "d1"
+      },
+      "tgap_local": {
+        "client_rounds": 100,
+        "examples": 5060,
+        "lengths": {
+          "max": 512,
+          "mean": 235.7588932806324,
+          "n": 5060,
+          "p50": 190.0,
+          "p90": 512.0,
+          "p95": 512.0,
+          "p99": 512.0
+        },
+        "micro_batch_1": {
+          "padded_tokens": 1208480,
+          "padding_overhead": 1.01302664006572,
+          "real_tokens": 1192940
+        },
+        "micro_batch_2": {
+          "padded_tokens": 1595776,
+          "padding_overhead": 1.3376833704964206,
+          "real_tokens": 1192940
+        },
+        "optimizer_steps": 180,
+        "rounds": 20,
+        "split": "d1"
+      }
+    },
+    "splits": {
+      "d1": {
+        "fraction_at_cutoff": 0.06815144766146994,
+        "max": 512,
+        "mean": 180.3425389755011,
+        "n": 4490,
+        "p50": 128.0,
+        "p90": 422.0,
+        "p95": 512.0,
+        "p99": 512.0
+      },
+      "d2": {
+        "fraction_at_cutoff": 0.07391096218286261,
+        "max": 512,
+        "mean": 182.86385830540928,
+        "n": 10445,
+        "p50": 131.0,
+        "p90": 430.0,
+        "p95": 512.0,
+        "p99": 512.0
+      }
+    }
+  },
+  "vram_guard": {
+    "allocator_cap_bytes": 7182745600,
+    "allocator_cap_fraction": 0.836641,
+    "device_total_bytes": 8585216000,
+    "free_at_start_bytes": 7451181056,
+    "margin_bytes": 268435456
+  },
+  "weights_allocated_bytes_after_load": 3725038592
+}

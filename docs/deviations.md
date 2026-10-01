@@ -48,7 +48,7 @@ reconstructed baseline), **ENVIRONMENT** (forced by hardware/software), **SCOPE*
 | # | Topic | Our choice | Paper / Shepherd | Label | Configurable |
 |---|---|---|---|---|---|
 | 25 | Tier-B base precision | Qwen1.5-1.8B bf16, no quantization | the paper appears to use an 8-bit base | ENVIRONMENT (resource-feasible, reviewer D2) | `model.dtype`, `model.quantization` |
-| 26 | Local micro-batch | 2 x 16 accumulation = effective batch 32 (A3 may switch to 1) | paper: 16 x 2 | ENVIRONMENT (8 GB); changes example weighting (diagnostic) | `local_train.micro_batch_size` |
+| 26 | Local micro-batch | **1 x 32 accumulation** = effective batch 32. The planned 2 x 16 was replaced by the pre-registered A3 rule (at micro-batch 2 the peak reserved memory came within 256 MiB of the allocator cap in 3 of 6 real-data measurements; `results/phase3/calibration/`) | paper: 16 x 2 | ENVIRONMENT (8 GB); changes example weighting (diagnostic) | `local_train.micro_batch_size` |
 | 27 | AE input normalisation | `none` (paper-literal) plus `global_rms` / `factor_rms` as DIAGNOSTIC variants, fitted on the D1 training split only, frozen, 0 uplink bytes, no clipping | paper silent | PAPER-SILENT (reviewer A2) | `autoencoder.normalization` |
 | 28 | AE checkpoint | final + best-D1-validation; the best-validation AE is gated and probed | paper silent | PAPER-SILENT (reviewer D9) | `autoencoder.checkpoint_policy` |
 | 29 | AE budget | 3000 iterations, eval every 50, batch 4, Adam betas 0.9/0.999, no weight decay | paper: MSE/Adam/2e-4 only | PAPER-SILENT (reviewer D9) | `autoencoder.*` |
