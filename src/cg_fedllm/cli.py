@@ -911,6 +911,28 @@ def cmd_baseline_summary(args) -> dict:
     return {"identity_regression": out.get("identity_regression"), "runs": {k: {kk: v[kk] for kk in ("status", "rounds_completed", "initial_heldout_loss", "final_heldout_loss", "wall_time_s")} for k, v in out["runs"].items()}}
 
 
+def cmd_screen_reuse(args) -> dict:
+    """F6 R0/R1: read the frozen Phase-3 reports against the S1-S7 screen criteria (DERIVED; nothing recomputed)."""
+    from cg_fedllm.compression.metrics import json_safe
+    from cg_fedllm.forensics.screen import phase3_gate_mapping
+    from cg_fedllm.utils.hashing import sha256_file
+
+    rows = {}
+    for item in args.phase3:
+        name, path = item.split("=", 1)
+        f = resolve_path(path)
+        rows[name] = {"source": Path(path).as_posix(), "source_sha256": sha256_file(f), **phase3_gate_mapping(read_json(f))}
+    out = json_safe({
+        "label": "DERIVED",
+        "note": "Phase-3 best-val AE metrics (validation, rounds 16-19) mapped onto the Phase-4 S1-S7 criteria; R0/R1 were not retrained (reviewer R2)",
+        "candidates": rows,
+        "provenance": _provenance(),
+    })
+    if args.out:
+        atomic_write_json(resolve_path(args.out), out)
+    return {k: {"pass": v["pass"], "criteria": v["criteria"]} for k, v in out["candidates"].items()}
+
+
 COMMANDS = {
     "capture-env": cmd_capture_env,
     "prepare-data": cmd_prepare_data,
@@ -931,6 +953,7 @@ COMMANDS = {
     "gradient-forensics": cmd_gradient_forensics,
     "forensic-screen": cmd_forensic_screen,
     "baseline-summary": cmd_baseline_summary,
+    "screen-reuse": cmd_screen_reuse,
 }
 
 
@@ -939,7 +962,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="command", required=True)
     for name in COMMANDS:
         sp = sub.add_parser(name)
-        if name not in ("capture-env", "ae-select", "baseline-summary"):
+        if name not in ("capture-env", "ae-select", "baseline-summary", "screen-reuse"):
             sp.add_argument("--config", required=True)
             sp.add_argument("--set", action="append", default=[], help="override, e.g. --set run.seed=7")
             sp.add_argument("--stage", default=None, help="run sub-directory name")
@@ -968,6 +991,9 @@ def build_parser() -> argparse.ArgumentParser:
             sp.add_argument("--run", action="append", required=True, help="name=run_dir")
             sp.add_argument("--identity-pair", default=None, help="lora_ft,faf_identity")
             sp.add_argument("--label", required=True, choices=RESULT_LABELS)
+            sp.add_argument("--out", default=None)
+        if name == "screen-reuse":
+            sp.add_argument("--phase3", action="append", required=True, help="id=path/to/phase3 a5/a8 report")
             sp.add_argument("--out", default=None)
         if name == "validate-microbatch":
             sp.add_argument("--modes", required=True, help="comma list, first = reference, e.g. physical:16,virtual:1,virtual:2")

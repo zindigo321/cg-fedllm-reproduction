@@ -185,6 +185,11 @@ def evaluate(groups: Sequence[Sequence[ScreenItem]], kind: str, s: float, layout
     return out
 
 
+def _margin(matched: float, shifted: float) -> float:
+    """S6 has no pre-registered margin; (shifted - matched) / shifted is reported so a negligible pass is visible."""
+    return (shifted - matched) / shifted if shifted > 0 else math.nan
+
+
 def screen_gate(val: dict[str, Any], candidate: str = "autoencoder_best_val") -> dict[str, Any]:
     ae, tm = val[candidate], val["train_mean"]
     r, p, u = ae["representation"]["all"], ae["product"], ae["update_relevant"]
@@ -209,8 +214,53 @@ def screen_gate(val: dict[str, Any], candidate: str = "autoencoder_best_val") ->
         "values": {
             "representation_cosine": r["cosine"], "representation_rel_sq_error": r["rel_sq_error"], "product_cosine": p["cosine"],
             "product_rel_fro_error": p["rel_fro_error"], "update_rel_sq_error": u["rel_sq_error"], "shift_matched": sh["matched_rel_sq_error"],
-            "shift_shifted": sh["shifted_rel_sq_error"], "train_mean_representation_rel_sq_error": tm["representation"]["all"]["rel_sq_error"],
+            "shift_shifted": sh["shifted_rel_sq_error"], "shift_relative_margin": _margin(sh["matched_rel_sq_error"], sh["shifted_rel_sq_error"]),
+            "train_mean_representation_rel_sq_error": tm["representation"]["all"]["rel_sq_error"],
             "train_mean_update_rel_sq_error": tm["update_relevant"]["rel_sq_error"],
+        },
+        "pass": all(crit.values()),
+        "thresholds": GATE,
+    }
+
+
+def phase3_gate_mapping(p3: dict[str, Any]) -> dict[str, Any]:
+    """R0/R1 reuse: read a frozen Phase-3 A5/A8 report against S1-S7 (DERIVED; nothing is retrained or re-evaluated).
+
+    S4/S5 use the transmitted object's own effective product (state: s B A; delta: the product innovation
+    s B A - s B_s A_s); the update-relevant product is the Phase-3 product innovation. S6 reuses the Phase-3 shift
+    control, which pairs factor-space innovations, whereas the F6 version pairs product-space quantities.
+    """
+    pr = p3["val"]["predictors"]
+    ae, tm = pr["autoencoder_best_val"], pr["train_mean"]
+    prod = ae["product"]["state" if p3["representation"] == "adapter_state" else "innovation"]
+    r, u, sh = ae["transmitted"]["all"], ae["product"]["innovation"], ae["shift_control"]
+    finite = bool(ae["finite_outputs"])
+    crit = {
+        "S1_finite_outputs": finite,
+        "S2_representation_cosine_ge_0_90": r["cosine"] >= GATE["rep_cosine_min"],
+        "S3_representation_rel_sq_error_le_0_50": r["rel_sq_error"] <= GATE["rep_rel_sq_error_max"],
+        "S4_product_cosine_ge_0_90": prod["cosine"] >= GATE["product_cosine_min"],
+        "S5_product_rel_fro_error_le_0_50": math.sqrt(prod["rel_sq_error"]) <= GATE["product_rel_fro_error_max"],
+        "S6_input_dependent": sh["innovation_rel_sq_error_matched"] < sh["innovation_rel_sq_error_shifted"],
+        "S7_materially_better_than_train_mean": (
+            r["rel_sq_error"] <= GATE["train_mean_factor"] * tm["transmitted"]["all"]["rel_sq_error"]
+            and u["rel_sq_error"] <= GATE["train_mean_factor"] * tm["product"]["innovation"]["rel_sq_error"]
+        ),
+    }
+    crit = {k: bool(v) and (finite or k == "S1_finite_outputs") for k, v in crit.items()}
+    return {
+        "representation": p3["representation"],
+        "source_mode": p3["source_mode"],
+        "normalization": p3["normalization"] if isinstance(p3["normalization"], str) else p3["normalization"].get("mode"),
+        "phase3_label": p3["label"],
+        "phase3_gate_pass": p3["gate"]["pass"],
+        "criteria": crit,
+        "values": {
+            "representation_cosine": r["cosine"], "representation_rel_sq_error": r["rel_sq_error"], "product_cosine": prod["cosine"],
+            "product_rel_fro_error": math.sqrt(prod["rel_sq_error"]), "update_rel_sq_error": u["rel_sq_error"], "update_cosine": u["cosine"],
+            "shift_matched": sh["innovation_rel_sq_error_matched"], "shift_shifted": sh["innovation_rel_sq_error_shifted"],
+            "shift_relative_margin": _margin(sh["innovation_rel_sq_error_matched"], sh["innovation_rel_sq_error_shifted"]),
+            "train_mean_representation_rel_sq_error": tm["transmitted"]["all"]["rel_sq_error"], "train_mean_update_rel_sq_error": tm["product"]["innovation"]["rel_sq_error"],
         },
         "pass": all(crit.values()),
         "thresholds": GATE,
