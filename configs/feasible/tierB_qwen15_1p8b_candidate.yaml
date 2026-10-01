@@ -1,0 +1,25 @@
+# PHASE-3 CANDIDATE (NOT RUN IN PHASE 2). Tier-B resource-feasible configuration: Qwen1.5-1.8B
+# (MHA, d=2048, L=24 -> Phi input [1, 2048, 1536] -> AE latent [64, 32, 24], CR = 1/64) with the
+# paper's Dolly federated hyperparameters. Micro-batch/precision to be finalised from the Phase-2
+# micro-benchmark (results/phase2/gpu_microbench.json).
+inherit: ../base/shepherd_dolly.yaml
+run:
+  name: tierB_qwen15_1p8b
+  device: cuda
+  deterministic: true
+model:
+  kind: hf
+  id: Qwen/Qwen1.5-1.8B
+  revision: 7846de7ed421727b318d6605a0bfab659da2c067
+  license: tongyi-qianwen-research (non-commercial research use)
+  dtype: bfloat16
+  quantization: none
+  attn_implementation: sdpa
+  gradient_checkpointing: true
+  allow_patterns: [config.json, generation_config.json, model.safetensors, tokenizer.json, tokenizer_config.json, vocab.json, merges.txt, LICENSE]
+  padding_side: left
+  pad_token_id: null
+local_train:
+  batch_size: 32
+  micro_batch_size: 4             # to be confirmed from the micro-benchmark (paper: 16)
+  precision: bf16

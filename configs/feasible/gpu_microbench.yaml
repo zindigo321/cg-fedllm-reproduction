@@ -1,0 +1,27 @@
+# Bounded GPU feasibility micro-benchmarks (LOCAL-MICROBENCH). No FL, no TGAP, no evaluation.
+# Qwen1.5-1.8B is only benchmarked after all smoke gates are green (reviewer R8/R19).
+output: results/phase2/gpu_microbench.json
+steps: 5
+warmup: 2
+lora: {r: 8, alpha: 16, dropout: 0.05, target_modules: [q_proj, k_proj, v_proj, o_proj], init_seed: 1234}
+benchmarks:
+  - model: {kind: hf, id: JackFram/llama-160m, revision: aca9b687d1425f863dcf5de9a4c96e3fe36266dd, dtype: bfloat16, attn_implementation: sdpa,
+            allow_patterns: [config.json, generation_config.json, model.safetensors, special_tokens_map.json, tokenizer.json, tokenizer.model, tokenizer_config.json]}
+    seq_len: 512
+    micro_batches: [1, 4, 8, 16]
+    gradient_checkpointing: [false]
+  - model: {kind: hf, id: Qwen/Qwen1.5-0.5B, revision: 8f445e3628f3500ee69f24e1303c9f10f5342a39, dtype: bfloat16, attn_implementation: sdpa,
+            allow_patterns: [config.json, generation_config.json, model.safetensors, tokenizer.json, tokenizer_config.json, vocab.json, merges.txt, LICENSE]}
+    seq_len: 512
+    micro_batches: [1, 2, 4, 8]
+    gradient_checkpointing: [false, true]
+  - model: {kind: hf, id: Qwen/Qwen1.5-1.8B, revision: 7846de7ed421727b318d6605a0bfab659da2c067, dtype: bfloat16, attn_implementation: sdpa,
+            allow_patterns: [config.json, generation_config.json, model.safetensors, tokenizer.json, tokenizer_config.json, vocab.json, merges.txt, LICENSE]}
+    seq_len: 512
+    micro_batches: [1, 2, 4, 8]
+    gradient_checkpointing: [false, true]
+  - model: {kind: hf, id: Qwen/Qwen1.5-1.8B, revision: 7846de7ed421727b318d6605a0bfab659da2c067, dtype: bfloat16, quantization: nf4, attn_implementation: sdpa,
+            allow_patterns: [config.json, generation_config.json, model.safetensors, tokenizer.json, tokenizer_config.json, vocab.json, merges.txt, LICENSE]}
+    seq_len: 512
+    micro_batches: [1, 4, 8]
+    gradient_checkpointing: [true]

@@ -1,0 +1,274 @@
+"""Command-line entry point: ``cgfed <command> --config <yaml> [--set key.path=value ...]``.
+
+Commands: capture-env, prepare-data, run-fl, collect-tgap, train-ae, evaluate, smoke, bench-gpu.
+Determinism settings are applied before any model or CUDA work.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+from typing import Any
+
+from cg_fedllm.config import ExperimentConfig, load_config, resolve_path
+from cg_fedllm.utils.io import atomic_write_json
+from cg_fedllm.utils.provenance import collect_environment
+from cg_fedllm.utils.seeding import configure_determinism
+
+
+def _load(args) -> ExperimentConfig:
+    cfg = load_config(args.config, args.set)
+    configure_determinism(cfg.run.deterministic, cfg.run.num_threads)
+    return cfg
+
+
+def cmd_capture_env(args) -> dict:
+    env = collect_environment()
+    if args.out:
+        atomic_write_json(Path(args.out), env)
+    return env
+
+
+def cmd_prepare_data(args) -> dict:
+    from cg_fedllm.pipeline import prepare_manifest
+
+    cfg = _load(args)
+    manifest, status = prepare_manifest(cfg, write=args.write)
+    sizes = [len(c["ids"]) for c in manifest.data["clients"]]
+    return {**status, "num_clients": len(sizes), "min_client": min(sizes), "max_client": max(sizes), "holdout": len(manifest.holdout_ids)}
+
+
+def cmd_run_fl(args) -> dict:
+    from cg_fedllm.federated.simulator import FederatedSimulator
+    from cg_fedllm.pipeline import (
+        build_codec,
+        build_data_bundle,
+        build_model_bundle,
+        client_examples,
+        heldout_examples,
+        identity_config_sha256,
+        init_run_dir,
+        layout_for,
+        make_heldout_fn,
+        simulator_spec,
+    )
+
+    cfg = _load(args)
+    cfg.require("federated", "data")
+    bundle = build_model_bundle(cfg)
+    data = build_data_bundle(cfg)
+    tok = bundle.loaded.tokenizer
+    clients = client_examples(cfg, data, tok, cfg.federated.client_split)
+    if cfg.federated.pooled:
+        clients = [[ex for c in clients for ex in c]]
+    run_dir = init_run_dir(cfg, args.stage or "fl", {"model": bundle.loaded.info, "manifest_sha256": data.manifest_sha256})
+    codec = build_codec(cfg, bundle.device)
+    sim = FederatedSimulator(
+        bundle.trainer,
+        simulator_spec(cfg, len(clients)),
+        clients,
+        run_dir,
+        codec=codec,
+        layout=layout_for(cfg) if codec is not None else None,
+        identity={"identity_config_sha256": identity_config_sha256(cfg), "manifest_sha256": data.manifest_sha256},
+        heldout_fn=make_heldout_fn(cfg, bundle, heldout_examples(cfg, data, tok)),
+    )
+    return sim.run(bundle.initial_state)
+
+
+def cmd_collect_tgap(args) -> dict:
+    from cg_fedllm.compression.layout import get_layout
+    from cg_fedllm.pipeline import (
+        build_data_bundle,
+        build_model_bundle,
+        client_examples,
+        identity_config_sha256,
+        init_run_dir,
+        simulator_spec,
+    )
+    from cg_fedllm.tgap.collect import (
+        collect_federated_pretrain,
+        collect_local_pretrain,
+        local_pretrain_clients,
+    )
+    from cg_fedllm.tgap.snapshots import SnapshotWriter
+
+    cfg = _load(args)
+    cfg.require("tgap", "data")
+    bundle = build_model_bundle(cfg)
+    data = build_data_bundle(cfg)
+    clients = client_examples(cfg, data, bundle.loaded.tokenizer, cfg.tgap.client_split)
+    run_dir = init_run_dir(cfg, args.stage or f"tgap_{cfg.tgap.source}", {"model": bundle.loaded.info, "manifest_sha256": data.manifest_sha256})
+    writer = SnapshotWriter(run_dir, run_id=f"{cfg.run.name}/{run_dir.name}", source_mode=cfg.tgap.source, representation=cfg.tgap.representation, layout=get_layout(cfg.tgap.layout))
+    if cfg.tgap.source == "local_pretrain":
+        ids = local_pretrain_clients(len(clients), cfg.tgap.client_fraction, cfg.run.seed)
+        return collect_local_pretrain(bundle.trainer, bundle.initial_state, clients, clients=ids, num_time_steps=cfg.tgap.num_time_steps, writer=writer)
+    cfg.require("federated")
+    spec = simulator_spec(cfg, len(clients), namespace="tgap_fed")
+    spec.num_rounds, spec.client_fraction = cfg.tgap.num_time_steps, cfg.tgap.client_fraction
+    return collect_federated_pretrain(
+        bundle.trainer, bundle.initial_state, clients, spec=spec, run_dir=run_dir / "fl", identity={"identity_config_sha256": identity_config_sha256(cfg)}, writer=writer
+    )
+
+
+def cmd_train_ae(args) -> dict:
+    import torch
+
+    from cg_fedllm.compression.layout import get_layout
+    from cg_fedllm.pipeline import init_run_dir
+    from cg_fedllm.tgap.snapshots import read_index, snapshot_tensor
+    from cg_fedllm.tgap.train_ae import train_autoencoder
+
+    cfg = _load(args)
+    cfg.require("autoencoder")
+    snap_dir = resolve_path(args.snapshots)
+    records = read_index(snap_dir)
+    layout = get_layout(cfg.autoencoder.layout)
+    pairs = [snapshot_tensor(snap_dir, r, cfg.autoencoder.representation, layout) for r in records]
+    run_dir = init_run_dir(cfg, args.stage or "ae", {"snapshot_dir": str(snap_dir)})
+    return train_autoencoder(
+        [p[0] for p in pairs], [p[1] for p in pairs], records, cfg.autoencoder, device=torch.device(cfg.run.device), out_dir=run_dir,
+        provenance={"smoke": False, "snapshot_dir": str(snap_dir), "num_snapshots": len(records)},
+    )
+
+
+def cmd_evaluate(args) -> dict:
+    import torch
+
+    from cg_fedllm.evaluation.reference_eval import evaluate_benchmark
+    from cg_fedllm.models.adapter import AdapterState
+    from cg_fedllm.models.loading import load_model
+    from cg_fedllm.models.lora import attach_lora, lora_parameters, set_adapter_state
+    from cg_fedllm.pipeline import init_run_dir
+
+    cfg = _load(args)
+    cfg.require("model", "eval")
+    device = torch.device(cfg.run.device)
+    loaded = load_model(cfg.model, device)
+    model = loaded.model
+    adapter_info = None
+    if args.adapter:
+        cfg.require("lora")
+        model = attach_lora(model, cfg.lora)
+        state = AdapterState.load(resolve_path(args.adapter))
+        set_adapter_state(lora_parameters(model), state)
+        adapter_info = {"path": str(resolve_path(args.adapter)), "adapter_sha256": state.sha256()}
+    run_dir = init_run_dir(cfg, args.stage or "eval", {"model": loaded.info, "adapter": adapter_info})
+    results = {}
+    for spec in cfg.eval.benchmarks:
+        r = evaluate_benchmark(model, loaded.tokenizer, spec, cfg.eval, device=device, pad_token_id=loaded.pad_token_id, out_dir=run_dir, tag=args.tag or "")
+        results[f"{spec.name}/{spec.split}"] = {"aggregates": {k: v for k, v in r["aggregates"].items() if k != "per_subject"}, "scoring": r["scoring"], "timing_s": r["timing_s"]}
+    atomic_write_json(run_dir / "eval_summary.json", results)
+    return results
+
+
+def cmd_smoke(args) -> dict:
+
+    from cg_fedllm.evaluation.reference_eval import evaluate_benchmark
+    from cg_fedllm.models.lora import set_adapter_state
+    from cg_fedllm.pipeline import (
+        build_data_bundle,
+        build_model_bundle,
+        client_examples,
+        heldout_examples,
+        init_run_dir,
+        prepare_manifest,
+    )
+    from cg_fedllm.smoke import run_smoke
+
+    cfg = _load(args)
+    manifest, mstatus = prepare_manifest(cfg, write=False)
+    bundle = build_model_bundle(cfg)
+    data = build_data_bundle(cfg)
+    tok = bundle.loaded.tokenizer
+    run_dir = init_run_dir(cfg, args.stage or "smoke", {"model": bundle.loaded.info, "manifest": mstatus})
+    d1 = client_examples(cfg, data, tok, "d1")
+    d2 = client_examples(cfg, data, tok, "d2")
+    heldout = heldout_examples(cfg, data, tok)
+
+    eval_fn = None
+    if cfg.eval is not None and cfg.eval.benchmarks:
+
+        def eval_fn(name, state):
+            if state is None:
+                with bundle.peft_model.disable_adapter():
+                    return _eval_all(name)
+            set_adapter_state(bundle.params, state)
+            return _eval_all(name)
+
+        def _eval_all(name):
+            out = {}
+            for spec in cfg.eval.benchmarks:
+                r = evaluate_benchmark(bundle.peft_model, tok, spec, cfg.eval, device=bundle.device, pad_token_id=bundle.loaded.pad_token_id, out_dir=run_dir / "eval", tag=name)
+                out[f"{spec.name}/{spec.split}"] = {k: v for k, v in r["aggregates"].items() if k != "per_subject"}
+            return out
+
+    tol = None if cfg.run.device == "cpu" else args.gpu_tolerance
+    return run_smoke(cfg, bundle, d1, d2, heldout, run_dir, gpu_tolerance=tol, run_controls=args.controls, eval_fn=eval_fn)
+
+
+def cmd_bench_gpu(args) -> dict:
+    import yaml
+
+    from cg_fedllm.bench import bench_config
+    from cg_fedllm.config import LoRASection, ModelSection, build_dataclass
+
+    spec = yaml.safe_load(Path(args.config).read_text(encoding="utf-8"))
+    configure_determinism(False, None)
+    lora = build_dataclass(LoRASection, spec["lora"], "lora")
+    out: dict[str, Any] = {"label": "LOCAL-MICROBENCH", "environment": collect_environment(), "results": []}
+    for entry in spec["benchmarks"]:
+        mcfg = build_dataclass(ModelSection, entry["model"], "model")
+        for gc_opt in entry["gradient_checkpointing"]:
+            out["results"] += bench_config(mcfg, lora, seq_len=entry["seq_len"], micro_batches=entry["micro_batches"], gradient_checkpointing=gc_opt, steps=spec.get("steps", 5), warmup=spec.get("warmup", 2))
+            atomic_write_json(resolve_path(spec["output"]), out)
+    return out
+
+
+COMMANDS = {
+    "capture-env": cmd_capture_env,
+    "prepare-data": cmd_prepare_data,
+    "run-fl": cmd_run_fl,
+    "collect-tgap": cmd_collect_tgap,
+    "train-ae": cmd_train_ae,
+    "evaluate": cmd_evaluate,
+    "smoke": cmd_smoke,
+    "bench-gpu": cmd_bench_gpu,
+}
+
+
+def build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(prog="cgfed", description="CG-FedLLM reproduction toolkit")
+    sub = p.add_subparsers(dest="command", required=True)
+    for name in COMMANDS:
+        sp = sub.add_parser(name)
+        if name != "capture-env":
+            sp.add_argument("--config", required=True)
+            sp.add_argument("--set", action="append", default=[], help="override, e.g. --set run.seed=7")
+            sp.add_argument("--stage", default=None, help="run sub-directory name")
+        if name == "capture-env":
+            sp.add_argument("--out", default=None)
+        if name == "prepare-data":
+            sp.add_argument("--write", action="store_true", help="(re)write the committed manifest")
+        if name == "train-ae":
+            sp.add_argument("--snapshots", required=True)
+        if name == "evaluate":
+            sp.add_argument("--adapter", default=None)
+            sp.add_argument("--tag", default=None)
+        if name == "smoke":
+            sp.add_argument("--gpu-tolerance", type=float, default=1e-6)
+            sp.add_argument("--controls", action="store_true")
+    return p
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = build_parser().parse_args(argv)
+    result = COMMANDS[args.command](args)
+    print(json.dumps(result, indent=2, default=str, ensure_ascii=False)[:20000])
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
