@@ -63,12 +63,12 @@ The reproduction will be carried out incrementally.
 
 ### Phase 3: CG-FedLLM
 
-- [ ] Reproduce gradient / LoRA update collection
+- [x] Reproduce gradient / LoRA update collection (Tier B, Qwen1.5-1.8B; section 9)
 - [ ] Reproduce TGAP
-- [ ] Train and evaluate the AutoEncoder
+- [x] Train and evaluate the AutoEncoder (Tier B: not viable at 1/64 under the pre-registered gates; section 9)
 - [ ] Reproduce FAF
-- [ ] Measure gradient reconstruction quality
-- [ ] Measure compression ratio
+- [x] Measure gradient reconstruction quality (factor-aware A/B/innovation/aggregate metrics)
+- [x] Measure compression ratio (element ratio exactly 1/64; logical uplink bytes)
 - [ ] Compare against the federated LoRA baseline
 
 ### Phase 4: Experiments
@@ -153,3 +153,26 @@ Documentation: `docs/phase2_validation.md` (exit gates, smoke, evaluator, GPU me
 (resolved / inferred / unknown), `docs/deviations.md`, `docs/discrepancies.md`, `docs/provenance.md`.
 Results: `results/phase2/`. Licenses: Apache-2.0 (`LICENSE`), third-party notices in `NOTICE`; models and
 datasets are downloaded at pinned revisions and never committed.
+
+## 9. Phase-3 Status (Tier-B AutoEncoder diagnosis; Phase 3A only)
+
+Branch `phase3-tierb-diagnosis-core`. Phase 3A asks whether the reconstructed CG-FedLLM compressor can
+reconstruct real federated LoRA states or updates of Qwen1.5-1.8B at the paper's 1/64 ratio. The protocol and
+the minimum-viability gates were pre-registered in `docs/phase3_preregistration.md` before any data were
+collected. The configuration (bf16 + gradient checkpointing, micro-batch 1 x 32) is resource-feasible, NOT
+paper-faithful. Labels: PHASE3-DIAGNOSTIC, PHASE3-SENSITIVITY, DERIVED.
+
+**Outcome (seed 1).**
+* *A5/A6:* none of the three pre-registered AE candidates passes the gate on `federated_pretrain + adapter_state`
+  (`none`, `global_rms`, `factor_rms`). Their reconstructions carry no information about the client's update:
+  innovation cosine about -0.02, aggregate-update cosine about -0.04. The verdict is **NO PRIMARY CODEC IS VIABLE**.
+* *A7, Phase 3B:* consequently the one-round FAF probe, the 20-round core runs, the replicate seeds and the
+  benchmark evaluation were not run.
+* *A8:* the sensitivities (`local_pretrain` state; federated delta with `factor_rms`) fail too.
+* *Interpretation:* the absolute LoRA state is about 99.96 % shared initialisation plus history, and a client
+  update is 3.6e-4 of its energy.
+  * Generic codes at the same element ratio keep at most 17 % of the A energy.
+  * Even a decoder that memorises the training snapshots recovers only 0.15 of the update direction.
+
+Details: `docs/phase3_findings.md`. Evidence: `results/phase3/`. Deviations and discrepancies:
+`docs/deviations.md` (rows 25-34), `docs/discrepancies.md` (section C).
