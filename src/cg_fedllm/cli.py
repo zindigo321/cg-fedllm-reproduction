@@ -500,6 +500,66 @@ def cmd_reference_codes(args) -> dict:
     return {"label": out["label"], "elapsed_s": out["elapsed_s"], "train_pca_rank": out["train_pca_rank"]}
 
 
+def cmd_validate_microbatch(args) -> dict:
+    """F1: physical vs virtual micro-batches on real Dolly batches (PHASE4-DIAGNOSTIC)."""
+    from cg_fedllm.federated.sampling import shepherd_select_clients
+    from cg_fedllm.microbatch_validation import run_validation
+    from cg_fedllm.models.adapter import AdapterState
+    from cg_fedllm.pipeline import (
+        apply_vram_guard,
+        build_data_bundle,
+        build_model_bundle,
+        client_examples,
+        init_run_dir,
+    )
+    from cg_fedllm.utils.seeding import numpy_rng
+
+    cfg = _load(args)
+    cfg.require("federated", "data", "local_train")
+    guard = apply_vram_guard(cfg)
+    bundle = build_model_bundle(cfg)
+    data = build_data_bundle(cfg)
+    d2 = client_examples(cfg, data, bundle.loaded.tokenizer, "d2")
+    round0 = shepherd_select_clients(len(d2), cfg.federated.client_fraction, 0)
+    cid = max(round0, key=lambda c: (len(d2[c]), -c))
+    perm = numpy_rng(cfg.run.seed, "fl", 0, cid, "data_order").permutation(len(d2[cid]))
+    bs = cfg.local_train.batch_size
+    batches = [[d2[cid][int(j)] for j in perm[k * bs : (k + 1) * bs]] for k in range(len(perm) // bs)]
+    if args.adapter:
+        start, start_info = AdapterState.load(resolve_path(args.adapter)), Path(args.adapter).name
+    else:  # warm start on the client's D1 so that B != 0 and A receives gradients
+        d1 = client_examples(cfg, data, bundle.loaded.tokenizer, "d1")
+        start = bundle.trainer.train(bundle.initial_state, d1[cid], ("validate_warmup", 0, cid)).end_state
+        start_info = f"one local round on client {cid}'s D1 from the initial adapter"
+    run_dir = init_run_dir(cfg, args.stage or "microbatch_validation", {"model": bundle.loaded.info, "vram_guard": guard, "start_adapter": start_info})
+    t0 = time.time()
+    res = run_validation(bundle.trainer, start, batches, args.modes.split(","), dropout_batches=args.dropout_batches)
+    out = {
+        "label": cfg.run.result_label,
+        "model": {k: bundle.loaded.info.get(k) for k in ("id", "revision", "dtype", "quantization", "attn_implementation")},
+        "gradient_checkpointing": cfg.model.gradient_checkpointing,
+        "deterministic": cfg.run.deterministic,
+        "logical_micro_batch_size": cfg.local_train.micro_batch_size,
+        "batch_size": bs,
+        "cutoff_len": cfg.data.cutoff_len,
+        "batch_rule": f"consecutive batches of {bs} in the trainer's FL round-0 data order of the round-0 client with the most D2 examples",
+        "client_id": cid,
+        "batches_available": len(batches),
+        "start_adapter": {"description": start_info, "sha256": start.sha256()},
+        "vram_guard": guard,
+        "elapsed_s": None,
+        **res,
+        "provenance": _provenance(),
+    }
+    out["elapsed_s"] = round(time.time() - t0, 1)
+    atomic_write_json(run_dir / "microbatch_validation.json", out)
+    if args.out:
+        atomic_write_json(resolve_path(args.out), out)
+    return {k: out[k] for k in ("label", "elapsed_s", "reference_mode")} | {
+        "acceptance": {m: v.get("vs_reference", {}).get("acceptance", {}).get("pass") for m, v in res["dropout_off"].items()}
+    }
+
+
 COMMANDS = {
     "capture-env": cmd_capture_env,
     "prepare-data": cmd_prepare_data,
@@ -515,6 +575,7 @@ COMMANDS = {
     "ae-viability": cmd_ae_viability,
     "ae-select": cmd_ae_select,
     "reference-codes": cmd_reference_codes,
+    "validate-microbatch": cmd_validate_microbatch,
 }
 
 
@@ -537,8 +598,12 @@ def build_parser() -> argparse.ArgumentParser:
             sp.add_argument("--out", default=None)
         if name == "ae-viability":
             sp.add_argument("--ae-dir", required=True)
-        if name == "microbatch-diag":
-            sp.add_argument("--adapter", default=None, help="start adapter (default: the initial LoRA state)")
+        if name in ("microbatch-diag", "validate-microbatch"):
+            sp.add_argument("--adapter", default=None, help="start adapter (default: the initial LoRA state / a warm start)")
+        if name == "validate-microbatch":
+            sp.add_argument("--modes", required=True, help="comma list, first = reference, e.g. physical:16,virtual:1,virtual:2")
+            sp.add_argument("--dropout-batches", type=int, default=4)
+            sp.add_argument("--out", default=None)
         if name == "ae-select":
             sp.add_argument("--gate", action="append", required=True, help="mode=path/to/viability.json")
             sp.add_argument("--label", required=True, choices=RESULT_LABELS)

@@ -6,6 +6,7 @@ import pytest
 
 from cg_fedllm.config import (
     PHASE2_RESULT_LABELS,
+    PHASE3_RESULT_LABELS,
     RESULT_LABELS,
     ConfigError,
     FederatedSection,
@@ -46,10 +47,12 @@ def test_result_label_is_restricted_to_the_reviewer_labels():
     assert RESULT_LABELS == (
         "PAPER-REPORTED", "PHASE2-SMOKE", "LOCAL-MICROBENCH", "DERIVED", "UNKNOWN",
         "PHASE3-DIAGNOSTIC", "PHASE3-TIERB-CORE", "PHASE3-SENSITIVITY",
+        "PHASE4-FORENSIC", "PHASE4-BASELINE", "PHASE4-DIAGNOSTIC",
     )
-    # migration rule: the schema only grows -- every label a Phase-2 record carries stays valid
+    # migration rule: the schema only grows -- every label an earlier-phase record carries stays valid
     assert PHASE2_RESULT_LABELS == ("PAPER-REPORTED", "PHASE2-SMOKE", "LOCAL-MICROBENCH", "DERIVED", "UNKNOWN")
-    assert set(PHASE2_RESULT_LABELS) <= set(RESULT_LABELS)
+    assert PHASE3_RESULT_LABELS == (*PHASE2_RESULT_LABELS, "PHASE3-DIAGNOSTIC", "PHASE3-TIERB-CORE", "PHASE3-SENSITIVITY")
+    assert set(PHASE2_RESULT_LABELS) <= set(PHASE3_RESULT_LABELS) <= set(RESULT_LABELS)
     for label in RESULT_LABELS:
         assert config_from_dict({"run": {"name": "x", "result_label": label}}).run.result_label == label
     assert config_from_dict(BASE).run.result_label == "UNKNOWN"

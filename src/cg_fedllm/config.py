@@ -32,7 +32,7 @@ Aggregation = Literal["sample_weighted_mean", "uniform_mean", "literal_sum"]
 TGAPSource = Literal["local_pretrain", "federated_pretrain"]
 CodecType = Literal["none", "identity", "autoencoder", "constant_mean", "gaussian_noise"]
 # AE input normalisation (Phase 3, A2): a DIAGNOSTIC/STABILISED variant -- the paper specifies none.
-NormalizationMode = Literal["none", "global_rms", "factor_rms"]
+NormalizationMode = Literal["none", "global_rms", "factor_rms", "global_maxabs_train"]
 # Every reported result carries exactly one of these labels (reviewer scientific-integrity rule). The schema
 # only ever grows: labels written by earlier phases stay valid (tests/unit/test_config.py).
 ResultLabel = Literal[
@@ -44,9 +44,13 @@ ResultLabel = Literal[
     "PHASE3-DIAGNOSTIC",
     "PHASE3-TIERB-CORE",
     "PHASE3-SENSITIVITY",
+    "PHASE4-FORENSIC",
+    "PHASE4-BASELINE",
+    "PHASE4-DIAGNOSTIC",
 ]
 RESULT_LABELS: tuple[str, ...] = get_args(ResultLabel)
 PHASE2_RESULT_LABELS: tuple[str, ...] = ("PAPER-REPORTED", "PHASE2-SMOKE", "LOCAL-MICROBENCH", "DERIVED", "UNKNOWN")
+PHASE3_RESULT_LABELS: tuple[str, ...] = (*PHASE2_RESULT_LABELS, "PHASE3-DIAGNOSTIC", "PHASE3-TIERB-CORE", "PHASE3-SENSITIVITY")
 
 
 def canonical_result_label(value: str) -> str:
@@ -191,12 +195,28 @@ class LocalTrainSection:
     partial_accumulation: Literal["flush_at_epoch_end"] = "flush_at_epoch_end"
     pad_to_multiple_of: int | None = 8
     reset_optimizer_each_round: bool = True
+    # ``physical_microbatch``: each micro-batch is one forward/backward (Phase 2/3). ``virtual_paper_microbatch``
+    # (Phase 4): each LOGICAL micro-batch of ``micro_batch_size`` examples is collated exactly like a real batch
+    # (same padding length, labels, masks) and streamed through the model in chunks of ``physical_chunk_size``
+    # rows; the summed chunk gradients equal the gradient of the logical micro-batch's token-mean loss.
+    microbatch_mode: Literal["physical_microbatch", "virtual_paper_microbatch"] = "physical_microbatch"
+    physical_chunk_size: int | None = None
+    # held-out loss micro-batch (None = micro_batch_size, the Phase-2 behaviour); the held-out loss depends on
+    # padding through the left-padding first-token label, so it is fixed explicitly for comparisons
+    eval_micro_batch_size: int | None = None
 
     def validate(self, path: str) -> None:
         if self.batch_size % self.micro_batch_size != 0:
             raise ConfigError(f"{path}: batch_size must be a multiple of micro_batch_size")
         if not self.reset_optimizer_each_round:
             raise ConfigError(f"{path}: only Shepherd-compatible optimizer reset is implemented in Phase 2")
+        if self.microbatch_mode == "virtual_paper_microbatch":
+            if self.physical_chunk_size is None or not 1 <= self.physical_chunk_size <= self.micro_batch_size:
+                raise ConfigError(f"{path}: virtual_paper_microbatch needs 1 <= physical_chunk_size <= micro_batch_size")
+        elif self.physical_chunk_size is not None:
+            raise ConfigError(f"{path}: physical_chunk_size only applies to virtual_paper_microbatch")
+        if self.eval_micro_batch_size is not None and self.eval_micro_batch_size <= 0:
+            raise ConfigError(f"{path}: eval_micro_batch_size must be positive")
 
 
 @dataclass
