@@ -1,6 +1,6 @@
 # Discrepancy register
 
-## A. Inside the paper (found in Phase 1; unchanged by Phase 2)
+## A. Inside the paper (DR-01..21 found in Phase 1; DR-22..27 in the Phase-4 forensics, `representation_forensics.md`)
 
 | ID | Discrepancy | Handling |
 |---|---|---|
@@ -20,6 +20,12 @@
 | DR-15 | Aggregation written as a raw sum and W + eta B~A~ vs Shepherd's normalised FedAvg + adapter replacement. | `sample_weighted_mean` primary; `literal_sum` diagnostic (R3). |
 | DR-16 | TGAP data from "training without FL" (v1) vs "pre-training of FedLLM" (ECAI/v3). | Both modes (R6). |
 | DR-21 | "PyTorch 2.2.1 with CUDA 12.4" (no official 2.2.1 cu124 wheel). | Recorded as reported. |
+| DR-22 | ResNet AE reconstruction error: Table 1 5.06e-12 vs appendix noise table 4.59e-7..5.25e-7 vs surface appendix "around 10^-7" (Phase 4 forensics). | Recorded; no target taken from either. |
+| DR-23 | Compress-FT reconstruction MSE barely changes (4.59e-7 -> 5.25e-7) while input noise grows from sigma = 5e-5 to 5e-1 (input noise power x10^8, up to ~1.5e5 x the 1.7e-6 per-element signal power): DERIVED, the decoder output is nearly insensitive to its input; the paper reads it as denoising. | `representation_forensics.md` section 3. |
+| DR-24 | Appendix value histograms of the TGAP inputs A and B (Gaussian-like, centred at 0, +-0.01, narrowing over 20 epochs, axis "Gradient Value") are incompatible with Kaiming-uniform A states (flat in +-0.0156) under the absolute-state reading. | Representation ambiguity kept open (Phase-4 screen). |
+| DR-25 | Alg. 1 defines `G_i^t = B_i A_i` (d x d product) but encodes `[A_i, B_i]`; Table 1's shape is the factor stack; v1 named the same object `Delta W_i^t`. | PAPER-LITERAL object = the transmitted factor pair; semantics UNKNOWN. |
+| DR-26 | Security section: the downlink also carries encoded data (clients hold encoder and decoder); the communication analysis / CR count only the uplink. | Communication reports state the downlink assumption explicitly. |
+| DR-27 | Appendix concatenation 2048 x 4096 (blocks of 8 x 4096; "A^T and B are 8 x 4096") vs Table 1 [1, 4096, 2048] (transpose, same elements). | Layout `layer_major_qkvo_AtB` matches Table 1's orientation (R4). |
 
 ## B. Discovered in Phase 2
 
