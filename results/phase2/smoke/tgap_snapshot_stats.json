@@ -1,0 +1,69 @@
+{
+ "label": "DERIVED (from PHASE2-SMOKE snapshots, smoke_final @ 25a3f7f)",
+ "tgap_local": {
+  "num_snapshots": 8,
+  "distinct_start_states": 5,
+  "time_steps": [
+   0,
+   1
+  ],
+  "clients": [
+   0,
+   1,
+   2,
+   3
+  ],
+  "samples_per_snapshot": [
+   3,
+   3,
+   7,
+   7,
+   8,
+   8,
+   6,
+   6
+  ],
+  "relative_A_update_min_median_max": [
+   0.0,
+   0.007186488200688586,
+   0.007190840237339969
+  ],
+  "normA_end_mean": 11.306803177383326,
+  "normB_end_mean": 0.11805361908402706,
+  "norm_delta_mean": 0.09824659991389584,
+  "delta_pairwise_cosine_mean": 0.4481695408562425
+ },
+ "tgap_federated": {
+  "num_snapshots": 8,
+  "distinct_start_states": 2,
+  "time_steps": [
+   0,
+   1
+  ],
+  "clients": [
+   0,
+   1,
+   2,
+   3
+  ],
+  "samples_per_snapshot": [
+   3,
+   7,
+   8,
+   6,
+   3,
+   7,
+   8,
+   6
+  ],
+  "relative_A_update_min_median_max": [
+   0.0,
+   0.007183744550590097,
+   0.007188663675912942
+  ],
+  "normA_end_mean": 11.306512179626388,
+  "normB_end_mean": 0.10835949951564748,
+  "norm_delta_mean": 0.09823552764052486,
+  "delta_pairwise_cosine_mean": 0.46313688036286577
+ }
+}
