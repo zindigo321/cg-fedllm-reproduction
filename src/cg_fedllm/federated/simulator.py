@@ -61,6 +61,8 @@ class SimulatorSpec:
     namespace: str = "fl"
     heldout_eval_every: int = 1
     stop_after_round: int | None = None
+    # LoRA scaling alpha / r; when set, every round also logs gauge-invariant effective (s B A) statistics
+    lora_scaling: float | None = None
 
 
 def round_dir(run_dir: Path, t: int) -> Path:
@@ -165,6 +167,29 @@ class FederatedSimulator:
             rec["recovered_equals_local_bitwise"] = recovered.equal(res.end_state)
         return recovered, res.num_samples, rec
 
+    def _round_extras(self, old: AdapterState, new: AdapterState, records: list[dict], cuda: bool) -> dict[str, Any]:
+        """Effective-update, memory and throughput statistics of one round (observational only)."""
+        out: dict[str, Any] = {}
+        if self.spec.lora_scaling is not None:
+            from cg_fedllm.compression.gauge import effective_update_norm, gauge_diagnostics
+
+            gd = gauge_diagnostics(new, self.spec.lora_scaling)
+            out["effective_global"] = {k: gd[k] for k in ("lora_scaling", "M_fro_sq_total", "M_nuclear_total", "A_sq_total", "B_sq_total", "stable_rank")}
+            out["update_norms"] = effective_update_norm(old, new, self.spec.lora_scaling)
+        label = sum(int(r.get("num_label_tokens", 0)) for r in records)
+        padded = sum(int(r.get("num_padded_tokens", 0)) for r in records)
+        train_s = sum(float(r.get("wall_time_s", 0.0)) for r in records)
+        out["throughput"] = {
+            "label_tokens": label,
+            "padded_tokens": padded,
+            "client_train_wall_s": round(train_s, 3),
+            "label_tokens_per_s": round(label / train_s, 1) if train_s > 0 else None,
+            "padded_tokens_per_s": round(padded / train_s, 1) if train_s > 0 else None,
+        }
+        if cuda:
+            out["memory"] = {"peak_allocated_bytes": int(torch.cuda.max_memory_allocated()), "peak_reserved_bytes": int(torch.cuda.max_memory_reserved())}
+        return out
+
     def run(self, initial: AdapterState) -> dict[str, Any]:
         spec = self.spec
         start_round = self._check_identity(initial)
@@ -173,8 +198,11 @@ class FederatedSimulator:
             atomic_write_json(self.run_dir / "initial_eval.json", {"round": -1, "heldout": self.heldout_fn(initial), "global_hash": initial.sha256()})
         geom = infer_geometry(global_state) if self.codec is not None else None
         status = "complete"
+        cuda = torch.cuda.is_available() and getattr(getattr(self.trainer, "device", None), "type", "cpu") == "cuda"
         for t in range(start_round, spec.num_rounds):
             t0 = time.time()
+            if cuda:
+                torch.cuda.reset_peak_memory_stats()
             selected = shepherd_select_clients(spec.num_clients, spec.client_fraction, t)
             states, counts, records = [], [], []
             rdir = round_dir(self.run_dir, t)
@@ -211,9 +239,12 @@ class FederatedSimulator:
                 "global_l2_sq": {"A": new_global.l2_sq("A"), "B": new_global.l2_sq("B")},
                 "uplink_logical_bytes": sum(r["payload"]["logical_bytes"] for r in records),
                 "uplink_raw_fp32_bytes": sum(r["payload"]["raw_fp32_bytes"] for r in records),
+                # the server sends the uncompressed global adapter (fp32) to every selected client
+                "downlink_logical_bytes": len(selected) * global_state.num_elements() * 4,
                 "heldout": heldout,
                 "wall_time_s": round(time.time() - t0, 3),
             }
+            record.update(self._round_extras(global_state, new_global, records, cuda))
             atomic_write_json(rdir / "round.json", json_safe(record))
             atomic_write_text(rdir / "DONE", "ok\n")
             global_state = new_global
@@ -232,6 +263,7 @@ class FederatedSimulator:
             "heldout_by_round": {r["round"]: r["heldout"] for r in rounds if r.get("heldout") is not None},
             "uplink_logical_bytes_total": sum(r["uplink_logical_bytes"] for r in rounds),
             "uplink_raw_fp32_bytes_total": sum(r["uplink_raw_fp32_bytes"] for r in rounds),
+            "downlink_logical_bytes_total": sum(r.get("downlink_logical_bytes", 0) for r in rounds),
         }
         init_eval = self.run_dir / "initial_eval.json"
         if init_eval.exists():
