@@ -28,4 +28,8 @@ def test_end_to_end_smoke_on_cpu(tiny_cfg, tiny_bundle, tmp_path):
     assert res["faf_constant_mean"]["uplink_logical_bytes_total"] == 0
     summary = json.loads((tmp_path / "smoke" / "smoke_summary.json").read_text(encoding="utf-8"))
     assert summary["label"] == "PHASE2-SMOKE"
+    # every result file written by the pipeline carries the configured reviewer label
+    assert res["ae"]["label"] == "PHASE2-SMOKE"
+    for stage in ("lora_ft", "faf_identity", "faf_autoencoder", "cent_smoke_sample_matched"):
+        assert json.loads((tmp_path / "smoke" / stage / "summary.json").read_text(encoding="utf-8"))["label"] == "PHASE2-SMOKE"
     assert (tmp_path / "smoke" / "smoke_summary.md").exists()

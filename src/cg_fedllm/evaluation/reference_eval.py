@@ -7,7 +7,7 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
-from cg_fedllm.config import BenchmarkSpec, EvalSection
+from cg_fedllm.config import RESULT_LABELS, BenchmarkSpec, EvalSection, ResultLabel
 from cg_fedllm.evaluation.aggregate import aggregate_ceval, aggregate_mmlu
 from cg_fedllm.evaluation.benchmarks import ceval_subject_mapping, data_digest, download_benchmark, load_split
 from cg_fedllm.evaluation.prompts import PROTOCOL_ID, mmlu_display_name
@@ -26,7 +26,10 @@ def evaluate_benchmark(
     out_dir: Path | None = None,
     add_special_tokens: bool = True,
     tag: str = "",
+    label: ResultLabel = "UNKNOWN",
 ) -> dict[str, Any]:
+    if label not in RESULT_LABELS:
+        raise ValueError(f"result label must be one of {RESULT_LABELS}, got {label!r}")
     repo, rev = (eval_cfg.ceval_repo, eval_cfg.ceval_revision) if spec.name == "ceval" else (eval_cfg.mmlu_repo, eval_cfg.mmlu_revision)
     t0 = time.time()
     root = download_benchmark(repo, rev, spec.name, sorted({spec.split, "dev"}))
@@ -46,7 +49,7 @@ def evaluate_benchmark(
     agg = aggregate_ceval(items) if spec.name == "ceval" else aggregate_mmlu(items)
     result = {
         "protocol": PROTOCOL_ID,
-        "label": "evaluation result (see run metadata for model/adapter provenance)",
+        "label": label,  # model/adapter provenance: run_metadata.json of the run directory
         "tag": tag,
         "benchmark": asdict(spec),
         "dataset": {"repo": repo, "revision": rev, **data_digest(root, spec.name, sorted({spec.split, "dev"}))},

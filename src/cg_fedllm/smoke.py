@@ -102,7 +102,7 @@ def run_smoke(
     heldout_fn = make_heldout_fn(cfg, bundle, heldout)
     initial = bundle.initial_state
     timings: dict[str, float] = {}
-    results: dict[str, Any] = {"label": "PHASE2-SMOKE", "num_clients": n}
+    results: dict[str, Any] = {"label": cfg.run.result_label, "num_clients": n}
 
     def timed(name: str, fn: Callable[[], Any]) -> Any:
         t0 = time.time()
@@ -121,6 +121,7 @@ def run_smoke(
             layout=layout if codec is not None else None,
             identity={**ident, "stage": name.split("__")[0]},
             heldout_fn=heldout_fn,
+            result_label=cfg.run.result_label,
         )
         return sim.run(initial)
 
@@ -138,7 +139,7 @@ def run_smoke(
     fed_spec = _spec(cfg, n, namespace="tgap_fed", rounds=t_cfg.num_time_steps, fraction=t_cfg.client_fraction)
     results["tgap_federated"] = timed(
         "tgap_federated",
-        lambda: collect_federated_pretrain(bundle.trainer, initial, d1, spec=fed_spec, run_dir=fed_dir / "fl", identity={**ident, "stage": "tgap_federated"}, writer=w_fed),
+        lambda: collect_federated_pretrain(bundle.trainer, initial, d1, spec=fed_spec, run_dir=fed_dir / "fl", identity={**ident, "stage": "tgap_federated"}, writer=w_fed, result_label=cfg.run.result_label),
     )
 
     # ---- AE training on the default (local_pretrain) snapshots ----------------------------------------
@@ -152,6 +153,7 @@ def run_smoke(
         lambda: train_autoencoder(
             xs, refs, records, ae_cfg, device=bundle.device, out_dir=ae_dir,
             provenance={"smoke": True, "snapshot_source": "local_pretrain", "snapshot_dir": str(local_dir), "num_snapshots": len(records)},
+            label=cfg.run.result_label,
         ),
     )
     ae, _ = load_autoencoder(ae_dir / "autoencoder.safetensors", device=bundle.device)

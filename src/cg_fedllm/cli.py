@@ -74,6 +74,7 @@ def cmd_run_fl(args) -> dict:
         layout=layout_for(cfg) if codec is not None else None,
         identity={"identity_config_sha256": identity_config_sha256(cfg), "manifest_sha256": data.manifest_sha256},
         heldout_fn=make_heldout_fn(cfg, bundle, heldout_examples(cfg, data, tok)),
+        result_label=cfg.run.result_label,
     )
     return sim.run(bundle.initial_state)
 
@@ -109,7 +110,8 @@ def cmd_collect_tgap(args) -> dict:
     spec = simulator_spec(cfg, len(clients), namespace="tgap_fed")
     spec.num_rounds, spec.client_fraction = cfg.tgap.num_time_steps, cfg.tgap.client_fraction
     return collect_federated_pretrain(
-        bundle.trainer, bundle.initial_state, clients, spec=spec, run_dir=run_dir / "fl", identity={"identity_config_sha256": identity_config_sha256(cfg)}, writer=writer
+        bundle.trainer, bundle.initial_state, clients, spec=spec, run_dir=run_dir / "fl", identity={"identity_config_sha256": identity_config_sha256(cfg)}, writer=writer,
+        result_label=cfg.run.result_label,
     )
 
 
@@ -131,6 +133,7 @@ def cmd_train_ae(args) -> dict:
     return train_autoencoder(
         [p[0] for p in pairs], [p[1] for p in pairs], records, cfg.autoencoder, device=torch.device(cfg.run.device), out_dir=run_dir,
         provenance={"smoke": False, "snapshot_dir": str(snap_dir), "num_snapshots": len(records)},
+        label=cfg.run.result_label,
     )
 
 
@@ -158,7 +161,7 @@ def cmd_evaluate(args) -> dict:
     run_dir = init_run_dir(cfg, args.stage or "eval", {"model": loaded.info, "adapter": adapter_info})
     results = {}
     for spec in cfg.eval.benchmarks:
-        r = evaluate_benchmark(model, loaded.tokenizer, spec, cfg.eval, device=device, pad_token_id=loaded.pad_token_id, out_dir=run_dir, tag=args.tag or "")
+        r = evaluate_benchmark(model, loaded.tokenizer, spec, cfg.eval, device=device, pad_token_id=loaded.pad_token_id, out_dir=run_dir, tag=args.tag or "", label=cfg.run.result_label)
         results[f"{spec.name}/{spec.split}"] = {"aggregates": {k: v for k, v in r["aggregates"].items() if k != "per_subject"}, "scoring": r["scoring"], "timing_s": r["timing_s"]}
     atomic_write_json(run_dir / "eval_summary.json", results)
     return results
@@ -201,7 +204,7 @@ def cmd_smoke(args) -> dict:
         def _eval_all(name):
             out = {}
             for spec in cfg.eval.benchmarks:
-                r = evaluate_benchmark(bundle.peft_model, tok, spec, cfg.eval, device=bundle.device, pad_token_id=bundle.loaded.pad_token_id, out_dir=run_dir / "eval", tag=name)
+                r = evaluate_benchmark(bundle.peft_model, tok, spec, cfg.eval, device=bundle.device, pad_token_id=bundle.loaded.pad_token_id, out_dir=run_dir / "eval", tag=name, label=cfg.run.result_label)
                 out[f"{spec.name}/{spec.split}"] = {k: v for k, v in r["aggregates"].items() if k != "per_subject"}
             return out
 

@@ -10,6 +10,7 @@ run:
   device: cpu
   deterministic: true             # [OURS] torch.use_deterministic_algorithms
   num_threads: null
+  result_label: UNKNOWN           # [OURS] PAPER-REPORTED | PHASE2-SMOKE | LOCAL-MICROBENCH | DERIVED | UNKNOWN
 
 lora:
   r: 8                            # [PAPER] rank 8 for Dolly/MMLU runs (16 for C-Eval-dev)

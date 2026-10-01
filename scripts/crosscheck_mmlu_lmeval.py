@@ -16,6 +16,7 @@ import json
 import time
 from pathlib import Path
 
+from cg_fedllm.config import RESULT_LABELS
 from cg_fedllm.utils.io import atomic_write_json, read_jsonl
 
 
@@ -27,6 +28,7 @@ def main() -> None:
     ap.add_argument("--batch-size", default="auto:4")
     ap.add_argument("--out", required=True)
     ap.add_argument("--tolerance-pp", type=float, default=0.5)
+    ap.add_argument("--label", choices=RESULT_LABELS, default="PHASE2-SMOKE", help="result label (Phase 2: evaluator validation = PHASE2-SMOKE)")
     args = ap.parse_args()
 
     import lm_eval
@@ -67,7 +69,7 @@ def main() -> None:
     diffs = {s: 100 * (ours_subject[s] - lm_subject[s]) for s in ours_subject if s in lm_subject}
     delta_pp = 100 * (ours["aggregates"]["overall"] - lm_overall)
     out = {
-        "label": "LOCAL-EVALUATOR-VALIDATION",
+        "label": args.label,
         "gate": f"|ours - lm_eval| <= {args.tolerance_pp} percentage points (overall MMLU test, 5-shot)",
         "ours_overall": ours["aggregates"]["overall"],
         "lm_eval_overall": lm_overall,

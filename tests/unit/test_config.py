@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from cg_fedllm.config import (
+    RESULT_LABELS,
     ConfigError,
     FederatedSection,
     ModelSection,
@@ -38,6 +39,16 @@ def test_literal_values_are_checked():
         config_from_dict({**BASE, "federated": {"aggregation": "fedprox"}})
     with pytest.raises(ConfigError, match="not in allowed"):
         config_from_dict({**BASE, "federated": {"representation": "gradients"}})
+
+
+def test_result_label_is_restricted_to_the_reviewer_labels():
+    assert RESULT_LABELS == ("PAPER-REPORTED", "PHASE2-SMOKE", "LOCAL-MICROBENCH", "DERIVED", "UNKNOWN")
+    assert config_from_dict(BASE).run.result_label == "UNKNOWN"
+    with pytest.raises(ConfigError, match="not in allowed"):
+        config_from_dict({"run": {"name": "x", "result_label": "LOCAL-EVALUATOR-VALIDATION"}})
+    # every Phase-2 config that produces results says so explicitly
+    for rel in ("smoke/llama160m_smoke.yaml", "smoke/tiny_cpu.yaml", "eval/qwen15_0p5b_validation.yaml"):
+        assert load_config(REPO / "configs" / rel).run.result_label == "PHASE2-SMOKE"
 
 
 def test_bool_is_not_an_int_and_types_are_strict():

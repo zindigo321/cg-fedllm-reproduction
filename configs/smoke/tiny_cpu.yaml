@@ -2,6 +2,7 @@
 inherit: ../base/defaults.yaml
 run:
   name: tiny_cpu
+  result_label: PHASE2-SMOKE
   device: cpu
   deterministic: true
   num_threads: 2

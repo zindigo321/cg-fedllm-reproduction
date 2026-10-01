@@ -91,6 +91,7 @@ class FederatedSimulator:
         identity: dict[str, Any],
         heldout_fn: HeldoutFn | None = None,
         snapshot_hook: SnapshotHook | None = None,
+        result_label: str = "UNKNOWN",
     ) -> None:
         if len(client_examples) != spec.num_clients:
             raise ValueError(f"expected data for {spec.num_clients} clients, got {len(client_examples)}")
@@ -105,6 +106,7 @@ class FederatedSimulator:
         self.identity = identity
         self.heldout_fn = heldout_fn
         self.snapshot_hook = snapshot_hook
+        self.result_label = result_label
 
     # ------------------------------------------------------------------------------------------------
     def _check_identity(self, initial: AdapterState) -> int:
@@ -223,6 +225,7 @@ class FederatedSimulator:
     def summarize(self, final_state: AdapterState, status: str) -> dict[str, Any]:
         rounds = [read_json(round_dir(self.run_dir, t) / "round.json") for t in completed_rounds(self.run_dir)]
         summary = {
+            "label": self.result_label,
             "status": status,
             "rounds_completed": len(rounds),
             "final_global_hash": final_state.sha256(),

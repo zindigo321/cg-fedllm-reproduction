@@ -31,6 +31,9 @@ Representation = Literal["adapter_state", "adapter_delta"]
 Aggregation = Literal["sample_weighted_mean", "uniform_mean", "literal_sum"]
 TGAPSource = Literal["local_pretrain", "federated_pretrain"]
 CodecType = Literal["none", "identity", "autoencoder", "constant_mean", "gaussian_noise"]
+# Every reported result carries exactly one of these labels (reviewer scientific-integrity rule).
+ResultLabel = Literal["PAPER-REPORTED", "PHASE2-SMOKE", "LOCAL-MICROBENCH", "DERIVED", "UNKNOWN"]
+RESULT_LABELS: tuple[str, ...] = get_args(ResultLabel)
 
 
 class ConfigError(ValueError):
@@ -50,6 +53,7 @@ class RunSection:
     device: Literal["cpu", "cuda"] = "cpu"
     deterministic: bool = True
     num_threads: int | None = None
+    result_label: ResultLabel = "UNKNOWN"
 
 
 @dataclass

@@ -3,6 +3,7 @@
 inherit: ../base/shepherd_dolly.yaml
 run:
   name: phase2_smoke_llama160m
+  result_label: PHASE2-SMOKE
   device: cuda
   deterministic: true
 model:

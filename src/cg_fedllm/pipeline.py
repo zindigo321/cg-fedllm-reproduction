@@ -55,6 +55,7 @@ def init_run_dir(cfg: ExperimentConfig, stage: str, extra_meta: dict[str, Any] |
     atomic_write_json(run_dir / "config.sha256.json", {"config_sha256": cfg.sha256(), "identity_config_sha256": identity_config_sha256(cfg)})
     meta = {
         "stage": stage,
+        "result_label": cfg.run.result_label,
         "config_sha256": cfg.sha256(),
         "environment": collect_environment(),
         "seeds": {

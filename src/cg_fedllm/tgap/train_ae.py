@@ -24,7 +24,7 @@ import torch.nn.functional as F
 from cg_fedllm.compression.autoencoder import ResNetAutoEncoder, config_from_section, save_autoencoder
 from cg_fedllm.compression.codecs import AutoEncoderCodec, CodecContext
 from cg_fedllm.compression.metrics import json_safe, reconstruction_metrics
-from cg_fedllm.config import AESection
+from cg_fedllm.config import RESULT_LABELS, AESection, ResultLabel
 from cg_fedllm.utils.io import atomic_write_json, save_tensors_atomic
 from cg_fedllm.utils.seeding import derive_seed, numpy_rng
 
@@ -87,8 +87,11 @@ def train_autoencoder(
     device: str | torch.device,
     out_dir: Path,
     provenance: dict[str, Any],
+    label: ResultLabel = "UNKNOWN",
 ) -> dict[str, Any]:
     """Train the ResNet AE on ``xs`` (each ``[1, d, W]``) and write checkpoint + metrics to ``out_dir``."""
+    if label not in RESULT_LABELS:
+        raise ValueError(f"result label must be one of {RESULT_LABELS}, got {label!r}")
     out_dir = Path(out_dir)
     device = torch.device(device)
     train_idx, val_idx = split_indices(records, cfg.split, cfg.val_fraction, cfg.split_seed)
@@ -138,7 +141,7 @@ def train_autoencoder(
     codec = AutoEncoderCodec(ae, device=device)
     probe = codec.encode(xs[train_idx[0]], CodecContext(0, 0, 0))
     metrics = {
-        "label": "PHASE2-SMOKE" if provenance.get("smoke", True) else "RUN",
+        "label": label,
         "num_snapshots": len(xs),
         "train_indices": train_idx,
         "val_indices": val_idx,

@@ -62,6 +62,7 @@ def collect_federated_pretrain(
     run_dir: Path,
     identity: dict[str, Any],
     writer: SnapshotWriter,
+    result_label: str = "UNKNOWN",
 ) -> dict[str, Any]:
     counter = {"n": 0}
 
@@ -69,6 +70,6 @@ def collect_federated_pretrain(
         writer.write(t, cid, start, end, n_samples, {k: v for k, v in rec.items() if k != "payload"})
         counter["n"] += 1
 
-    sim = FederatedSimulator(trainer, spec, client_examples, run_dir, codec=None, layout=None, identity=identity, snapshot_hook=hook)
+    sim = FederatedSimulator(trainer, spec, client_examples, run_dir, codec=None, layout=None, identity=identity, snapshot_hook=hook, result_label=result_label)
     summary = sim.run(initial)
     return {"source_mode": "federated_pretrain", "num_snapshots": counter["n"], "fl_summary": summary}
