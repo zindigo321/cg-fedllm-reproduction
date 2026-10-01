@@ -1,5 +1,6 @@
 # Bounded GPU feasibility micro-benchmarks (LOCAL-MICROBENCH). No FL, no TGAP, no evaluation.
-# Qwen1.5-1.8B is only benchmarked after all smoke gates are green (reviewer R8/R19).
+# Qwen1.5-1.8B is only benchmarked after all smoke gates are green (reviewer R8/R19). int8 = the 8-bit
+# (LLM.int8) base quantization family used by Shepherd/the paper; nf4 = QLoRA-style 4-bit.
 output: results/phase2/gpu_microbench.json
 steps: 5
 warmup: 2
@@ -21,6 +22,11 @@ benchmarks:
     micro_batches: [1, 2, 4, 8]
     gradient_checkpointing: [false, true]
   - model: {kind: hf, id: Qwen/Qwen1.5-1.8B, revision: 7846de7ed421727b318d6605a0bfab659da2c067, dtype: bfloat16, quantization: nf4, attn_implementation: sdpa,
+            allow_patterns: [config.json, generation_config.json, model.safetensors, tokenizer.json, tokenizer_config.json, vocab.json, merges.txt, LICENSE]}
+    seq_len: 512
+    micro_batches: [1, 4, 8]
+    gradient_checkpointing: [true]
+  - model: {kind: hf, id: Qwen/Qwen1.5-1.8B, revision: 7846de7ed421727b318d6605a0bfab659da2c067, dtype: bfloat16, quantization: int8, attn_implementation: sdpa,
             allow_patterns: [config.json, generation_config.json, model.safetensors, tokenizer.json, tokenizer_config.json, vocab.json, merges.txt, LICENSE]}
     seq_len: 512
     micro_batches: [1, 4, 8]
