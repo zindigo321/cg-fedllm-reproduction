@@ -1,6 +1,6 @@
 # Discrepancy register
 
-## A. Inside the paper (DR-01..21 found in Phase 1; DR-22..27 in the Phase-4 forensics, `representation_forensics.md`)
+## A. Inside the paper (DR-01..21 found in Phase 1; DR-22..27 in the Phase-4 forensics, `representation_forensics.md`; DR-28 in `phase4_findings.md`)
 
 | ID | Discrepancy | Handling |
 |---|---|---|
@@ -26,6 +26,7 @@
 | DR-25 | Alg. 1 defines `G_i^t = B_i A_i` (d x d product) but encodes `[A_i, B_i]`; Table 1's shape is the factor stack; v1 named the same object `Delta W_i^t`. | PAPER-LITERAL object = the transmitted factor pair; semantics UNKNOWN. |
 | DR-26 | Security section: the downlink also carries encoded data (clients hold encoder and decoder); the communication analysis / CR count only the uplink. | Communication reports state the downlink assumption explicitly. |
 | DR-27 | Appendix concatenation 2048 x 4096 (blocks of 8 x 4096; "A^T and B are 8 x 4096") vs Table 1 [1, 4096, 2048] (transpose, same elements). | Layout `layer_major_qkvo_AtB` matches Table 1's orientation (R4). |
+| DR-28 | Relative to the paper's own signal power, its reported reconstruction error is not small. The appendix noise-table MSE (4.59e-7..5.25e-7) is 27-31 % of the per-element mean square implied by `‖G‖² = 14.29` over 8,388,608 elements (1.70e-6), i.e. a relative squared error of about 0.3 if both refer to the same object (DERIVED). Table 1's 5.06e-12 would be 3e-6. | Recorded (Phase 4); no target taken from either. |
 
 ## B. Discovered in Phase 2
 
@@ -49,3 +50,15 @@
 | P3-D5 | **The absolute LoRA state is about 99.96 % shared initialisation plus history.** A client round's innovation is 3.6e-4 of the state energy, so a state codec needs a relative error <= 8.5e-5 for innovation cosine 0.9. No A5 AE comes close, and no generic 1/64 code (best: 0.83 on A). A decoder that memorises the training span reaches 4.7e-4 on the state but only 0.15 innovation cosine. This is consistent with DR-10 (the paper's ‖G‖² = 14.29 is far below a raw PEFT A initialisation). | `results/phase3/ae_viability/`, `results/phase3/reference_codes/` | A6: NO PRIMARY CODEC IS VIABLE; Phase 3B not entered. |
 | P3-D6 | One committed Phase-2 record (`tgap_snapshot_stats.json`) carries an annotated label, `"DERIVED (from PHASE2-SMOKE snapshots, ...)"`. | Label-migration test | Read-side canonicalisation; reviewed evidence not rewritten (deviation 34). |
 | P3-D7 | CI failed on `eb771bb`: the CPU CI requirements lacked `scipy`, so collection of `test_compressibility.py` errored. | Check-run annotation | Fixed in `1429a70` (`scipy==1.17.1`, the verified lock version). |
+
+## D. Discovered in Phase 4 (`phase4_findings.md`)
+
+| ID | Finding | Evidence | Consequence |
+|---|---|---|---|
+| P4-D1 | **"Innovation is tiny" is largely a gauge artefact.** The raw factor increment is 3.6e-4 of the raw state energy (P3-D5, PEFT gauge: A ≈ Kaiming-uniform, B ≈ 0). In gauge-invariant effective terms, the per-round `‖dM‖²` is about 3 % of `‖M‖²` (validation median 0.0715 vs 2.34). A random well-conditioned gauge changes the raw factor energy of one snapshot from 263 to 310 while the singular values move by <= 9.4e-16 relative. | `results/phase4/forensics/f4_*_stats.json` | P3-D5 stands as stated (raw terms) and is qualified here. Norm comparisons state their gauge (R5). |
+| P4-D2 | **The virtual paper micro-batch is exact in code but not to 1e-5 after an Adam step on the GPU.** fp32 reductions depend on kernel shape. Adam's first step `lr·g/(|g|+eps)` turns rounding at near-zero gradients (|g| <= 1.9e-7) into full-size updates: 9 of 589,824 elements flip, giving adapter rel. L2 5.0e-5 against a 1e-5 criterion. Chunk 16 is bitwise identical to physical 16. On bf16 Qwen, chunk 2 vs chunk 1 differ by 6.4 % (gradient rel. L2, kernel noise) and micro-batch 1 vs logical 16 by 66 % (semantic). | `results/phase4/microbatch/` | The pre-registered F7 rule selected micro-batch 1 for the baseline (deviation 35). |
+| P4-D3 | **The evaluator retained a KV cache per batch.** HF forwards return a KV cache by default (192 KiB/token for Qwen1.5-1.8B bf16). The scorer kept the previous batch's cache alive during the next forward, causing an OOM under the 6.69 GiB cap. | Two failed timing runs, preserved | `use_cache=False` (logits bitwise unchanged, tested); halved batch budget kept as margin (deviation 43). |
+| P4-D4 | **safetensors file bytes are not a stable identity.** The header's metadata map is serialised in a per-process order, so two files holding identical tensors can hash differently (the LoRA-FT / FAF-Identity initial adapters). | Header byte comparison | Identity checks use tensor-content hashes; file hashes are reported, never gated. |
+| P4-D5 | **The fixed AE cannot represent small-scale inputs under `none`.** The randomly initialised ResNet-3 outputs about 0.44 RMS. With inputs of 0.001-0.004 RMS (R2-R4), its training MSE after 3,000 Adam steps at 2e-4 stays 4-93 times above the zero predictor. The pre-registered F6 scale rule only guarded against values above Tanh's range. | `results/phase4/screen/f6_r{2,3,4}_*.json` (training curves) | F6 FAILs of R2-R4 are pre-registered outcomes, but uninformative about intrinsic 1/64 compressibility. A scale-normalised re-screen is a reviewer decision (Phase 5). |
+| P4-D6 | **F1 validation provenance.** Both F1 result files were produced from an uncommitted working tree at `62dac71` (the virtual micro-batch code was committed afterwards as `7f1cd5f`). | `provenance` field of both files | Both were rerun from a clean commit (`3c73e66`) with the same commands; every deterministic field (217 + 117 numbers) is reproduced bitwise (`results/phase4/microbatch/*_rerun_clean.json`). The Qwen rerun uses the committed config whose resolved SHA-256 equals the original run's (`33a71083…`). |
+| P4-D7 | **Process control on Windows.** Stopping a background shell task killed the wrapper but not the chained `run_f7.sh` and its Python child. The chain then ran FAF-Identity and Cent itself, with the planned commands. | Process table (parent `run_f7.sh`) | Each run's commit, tree state and config hash are recorded in its run directory. No result was affected. |
