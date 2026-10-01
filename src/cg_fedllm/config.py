@@ -265,6 +265,7 @@ class EvalSection:
     max_context: int | None = None
     max_batch_tokens: int = 16384
     max_batch_size: int = 32
+    max_batch_attention: int | None = 4_000_000  # B * L_max^2 bound (scoring numerics are unaffected)
     save_predictions: bool = True
 
 

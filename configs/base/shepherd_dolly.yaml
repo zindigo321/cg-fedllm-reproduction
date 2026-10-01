@@ -1,0 +1,29 @@
+# Databricks-Dolly-15k exactly as shipped by FedIT/Shepherd, partitioned with Shepherd semantics.
+inherit: defaults.yaml
+data:
+  source_name: shepherd_dolly_v1
+  source_url: "https://raw.githubusercontent.com/JayZhang42/FederatedGPT-Shepherd/bcffa00e9642990ecc6210363a7f0dab91bef4dc/new-databricks-dolly-15k.json"
+  source_sha256: 52e0c44e2155bfc920927f94f28cb06fd27122338ce3f0bafb2955d86f58e066
+  source_revision: bcffa00e9642990ecc6210363a7f0dab91bef4dc
+  source_license: "CC BY-SA 3.0 (databricks-dolly-15k); file distributed in Shepherd (Apache-2.0 repo)"
+  source_num_records: 15015
+  cache_dir: "${CGFED_CACHE:-cache}/data"
+  manifest_path: manifests/dolly_shepherd_dirichlet100_seed42.json
+  prompt_template:                # [SHEPHERD] templates/alpaca.json (alpaca-lora, Apache-2.0)
+    prompt_input: "Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n\n### Instruction:\n{instruction}\n\n### Input:\n{input}\n\n### Response:\n"
+    prompt_no_input: "Below is an instruction that describes a task. Write a response that appropriately completes the request.\n\n### Instruction:\n{instruction}\n\n### Response:\n"
+  subset_per_category: null
+  subset_seed: 0
+  holdout_per_category: 10        # [SHEPHERD] 10 per category -> 80 held-out records (global_test)
+  num_clients: 100                # [PAPER] 100 clients
+  partition_mode: dirichlet       # [PAPER] Dirichlet allocation (Shepherd diff_quantity=1)
+  dirichlet_alpha: 0.5            # [PAPER] alpha = 0.5
+  min_require_size: 40            # [SHEPHERD]
+  shards_per_client: 2            # [SHEPHERD] only used by partition_mode=shards
+  partition_seed: 42              # [SHEPHERD] np.random.seed(42); random.seed(42)
+  d1_fraction: 0.3                # [PAPER] 3:7 split; granularity [INFERRED] per client (reviewer R7)
+  d1d2_split_seed: 42             # [OURS]
+  cutoff_len: 512                 # [SHEPHERD]
+  train_on_inputs: true           # [SHEPHERD] default
+  add_eos_token: true             # [SHEPHERD]
+  heldout_max_examples: null

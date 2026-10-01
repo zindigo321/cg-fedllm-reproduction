@@ -7,3 +7,5 @@
 *.parquet binary
 *.bat text eol=crlf
 *.ps1 text eol=crlf
+# verbatim third-party copy: keep upstream bytes (CRLF) so its SHA-256 matches the pinned source
+src/cg_fedllm/evaluation/resources/ceval_subject_mapping.json -text
