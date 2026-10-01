@@ -217,11 +217,13 @@ def cmd_bench_gpu(args) -> dict:
 
     from cg_fedllm.bench import bench_config
     from cg_fedllm.config import LoRASection, ModelSection, build_dataclass
+    from cg_fedllm.utils.gpu import cap_allocator_to_free_vram
 
     spec = yaml.safe_load(Path(args.config).read_text(encoding="utf-8"))
     configure_determinism(False, None)
     lora = build_dataclass(LoRASection, spec["lora"], "lora")
-    out: dict[str, Any] = {"label": "LOCAL-MICROBENCH", "environment": collect_environment(), "results": []}
+    vram_guard = cap_allocator_to_free_vram()
+    out: dict[str, Any] = {"label": "LOCAL-MICROBENCH", "environment": collect_environment(), "vram_guard": vram_guard, "results": []}
     for entry in spec["benchmarks"]:
         mcfg = build_dataclass(ModelSection, entry["model"], "model")
         for gc_opt in entry["gradient_checkpointing"]:

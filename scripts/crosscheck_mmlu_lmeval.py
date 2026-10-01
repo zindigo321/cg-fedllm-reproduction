@@ -29,11 +29,22 @@ def main() -> None:
     ap.add_argument("--out", required=True)
     ap.add_argument("--tolerance-pp", type=float, default=0.5)
     ap.add_argument("--label", choices=RESULT_LABELS, default="PHASE2-SMOKE", help="result label (Phase 2: evaluator validation = PHASE2-SMOKE)")
+    ap.add_argument("--limit", type=int, default=None, help="questions per subject (script smoke test only; never passes the gate)")
+    ap.add_argument("--vram-margin-mb", type=int, default=256, help="allocator cap = free dedicated VRAM - margin (WDDM spill guard)")
     args = ap.parse_args()
 
     import lm_eval
     from huggingface_hub import HfApi
     from lm_eval import simple_evaluate
+
+    from cg_fedllm.utils.gpu import cap_allocator_to_free_vram
+    from cg_fedllm.utils.provenance import collect_environment
+
+    environment = collect_environment()  # Git state / packages at start
+
+    # lm-eval keeps fp32 logits and a full-vocabulary log-softmax for every position (2 x 1.9 GB at 3k tokens
+    # with Qwen's 152k vocabulary); without the cap the allocator grows into WDDM shared memory and crawls.
+    vram_guard = cap_allocator_to_free_vram(args.vram_margin_mb * 2**20)
 
     ours = json.loads(Path(args.ours).read_text(encoding="utf-8"))
     preds_path = Path(args.ours).with_name(Path(args.ours).stem + "_predictions.jsonl")
@@ -52,6 +63,7 @@ def main() -> None:
         numpy_random_seed=0,
         torch_random_seed=0,
         fewshot_random_seed=0,
+        limit=args.limit,
     )
     elapsed = time.time() - t0
 
@@ -74,7 +86,8 @@ def main() -> None:
         "ours_overall": ours["aggregates"]["overall"],
         "lm_eval_overall": lm_overall,
         "delta_pp": delta_pp,
-        "pass": abs(delta_pp) <= args.tolerance_pp,
+        "pass": abs(delta_pp) <= args.tolerance_pp and args.limit is None,
+        "limit": args.limit,
         "per_subject_max_abs_delta_pp": max(abs(v) for v in diffs.values()) if diffs else None,
         "per_subject_delta_pp": diffs,
         "question_level_agreement": agree / total if total else None,
@@ -87,7 +100,9 @@ def main() -> None:
             "batch_size": args.batch_size,
             "cais_mmlu_main_sha_at_run": HfApi().dataset_info("cais/mmlu").sha,
             "elapsed_s": round(elapsed, 1),
+            "vram_guard": vram_guard,
         },
+        "environment": environment,
         "ours": {"protocol": ours["protocol"], "dataset": {k: ours["dataset"][k] for k in ("repo", "revision", "digest")}, "timing_s": ours["timing_s"]},
     }
     atomic_write_json(Path(args.out), out)

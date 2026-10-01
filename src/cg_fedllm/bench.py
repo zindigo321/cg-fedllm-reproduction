@@ -4,6 +4,11 @@ For each (model, dtype/quantization, gradient checkpointing, micro-batch) config
 LoRA training steps on synthetic token sequences of fixed length using the *same* loss computation as
 :class:`cg_fedllm.federated.client.LocalTrainer` (full-vocabulary logits cast to float32), and record
 peak allocated/reserved CUDA memory and training throughput. Out-of-memory is recorded, not hidden.
+
+On Windows (WDDM) device allocations beyond dedicated VRAM silently spill into shared system memory, which
+makes an oversized configuration look feasible but run >10x slower; ``cgfed bench-gpu`` therefore caps the
+allocator first (:func:`cg_fedllm.utils.gpu.cap_allocator_to_free_vram`), so such configurations fail with
+a recorded OOM.
 """
 
 from __future__ import annotations
@@ -43,15 +48,17 @@ def bench_config(
     device = torch.device("cuda")
     _cleanup()
     torch.cuda.reset_peak_memory_stats()
-    t_load = time.time()
-    loaded = load_model(replace(model_cfg, gradient_checkpointing=gradient_checkpointing), device, with_tokenizer=False)
+    t_load = time.perf_counter()
+    # no tokenizer is needed (synthetic ids, no padding); the pad id is irrelevant but required by the loader
+    pad = 0 if model_cfg.pad_token_id is None else model_cfg.pad_token_id
+    loaded = load_model(replace(model_cfg, gradient_checkpointing=gradient_checkpointing, pad_token_id=pad), device, with_tokenizer=False)
     model = loaded.model
     if gradient_checkpointing:
         model.config.use_cache = False
         model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
     peft_model = attach_lora(model, lora_cfg)
     params = lora_parameters(peft_model)
-    load_s = time.time() - t_load
+    load_s = time.perf_counter() - t_load
     torch.cuda.synchronize()
     weights_alloc = torch.cuda.memory_allocated()
     vocab = int(peft_model.get_input_embeddings().weight.shape[0])
@@ -89,7 +96,7 @@ def bench_config(
             times = []
             for i in range(warmup + steps):
                 torch.cuda.synchronize()
-                t0 = time.time()
+                t0 = time.perf_counter()
                 loss, _ = trainer._loss(batch)
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(list(params.values()), 1.0)
@@ -97,7 +104,7 @@ def bench_config(
                 opt.zero_grad(set_to_none=True)
                 torch.cuda.synchronize()
                 if i >= warmup:
-                    times.append(time.time() - t0)
+                    times.append(time.perf_counter() - t0)
             step_s = sum(times) / len(times)
             rec.update(
                 {
