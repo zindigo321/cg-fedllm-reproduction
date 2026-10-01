@@ -87,6 +87,15 @@ def update_run_metadata(run_dir: Path, **fields: Any) -> None:
     atomic_write_json(path, meta)
 
 
+def apply_vram_guard(cfg: ExperimentConfig) -> dict[str, Any] | None:
+    """Cap the CUDA allocator before anything is loaded when ``run.allocator_cap_margin_mb`` is set."""
+    if cfg.run.device != "cuda" or cfg.run.allocator_cap_margin_mb is None:
+        return None
+    from cg_fedllm.utils.gpu import cap_allocator_to_free_vram
+
+    return cap_allocator_to_free_vram(margin_bytes=int(cfg.run.allocator_cap_margin_mb) * 2**20)
+
+
 # --------------------------------------------------------------------------------------------------
 # Model
 # --------------------------------------------------------------------------------------------------
@@ -210,10 +219,14 @@ def build_codec(cfg: ExperimentConfig, device: torch.device) -> Codec | None:
         return IdentityCodec()
     if c.type == "autoencoder":
         from cg_fedllm.compression.autoencoder import load_autoencoder
+        from cg_fedllm.compression.normalization import Normalizer
 
         ckpt = resolve_path(c.ae_checkpoint)
         ae, meta = load_autoencoder(ckpt, device=c.device or device)
-        return AutoEncoderCodec(ae, device=c.device or device, latent_dtype=c.latent_dtype, info={"checkpoint": str(ckpt), "checkpoint_sha256": sha256_file(ckpt), "ae_metadata": meta})
+        # the frozen TGAP-fitted normaliser travels with the checkpoint (Phase-2 checkpoints carry none)
+        norm = Normalizer.from_dict(meta.get("normalization"))
+        info = {"checkpoint": str(ckpt), "checkpoint_sha256": sha256_file(ckpt), "ae_metadata": meta}
+        return AutoEncoderCodec(ae, device=c.device or device, latent_dtype=c.latent_dtype, info=info, normalizer=norm)
     if c.type == "constant_mean":
         path = resolve_path(c.mean_path)
         return ConstantMeanCodec(load_tensors(path)["x"], {"mean_path": str(path), "mean_sha256": sha256_file(path)})

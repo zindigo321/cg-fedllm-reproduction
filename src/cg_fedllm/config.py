@@ -31,9 +31,31 @@ Representation = Literal["adapter_state", "adapter_delta"]
 Aggregation = Literal["sample_weighted_mean", "uniform_mean", "literal_sum"]
 TGAPSource = Literal["local_pretrain", "federated_pretrain"]
 CodecType = Literal["none", "identity", "autoencoder", "constant_mean", "gaussian_noise"]
-# Every reported result carries exactly one of these labels (reviewer scientific-integrity rule).
-ResultLabel = Literal["PAPER-REPORTED", "PHASE2-SMOKE", "LOCAL-MICROBENCH", "DERIVED", "UNKNOWN"]
+# AE input normalisation (Phase 3, A2): a DIAGNOSTIC/STABILISED variant -- the paper specifies none.
+NormalizationMode = Literal["none", "global_rms", "factor_rms"]
+# Every reported result carries exactly one of these labels (reviewer scientific-integrity rule). The schema
+# only ever grows: labels written by earlier phases stay valid (tests/unit/test_config.py).
+ResultLabel = Literal[
+    "PAPER-REPORTED",
+    "PHASE2-SMOKE",
+    "LOCAL-MICROBENCH",
+    "DERIVED",
+    "UNKNOWN",
+    "PHASE3-DIAGNOSTIC",
+    "PHASE3-TIERB-CORE",
+    "PHASE3-SENSITIVITY",
+]
 RESULT_LABELS: tuple[str, ...] = get_args(ResultLabel)
+PHASE2_RESULT_LABELS: tuple[str, ...] = ("PAPER-REPORTED", "PHASE2-SMOKE", "LOCAL-MICROBENCH", "DERIVED", "UNKNOWN")
+
+
+def canonical_result_label(value: str) -> str:
+    """Read-side migration for committed records: an exact label, or the historical annotated form
+    ``"<LABEL> (<annotation>)"`` (one Phase-2 record uses it), maps to ``<LABEL>``. Writers always emit exact labels."""
+    head = value.split(" (", 1)[0] if value.endswith(")") else value
+    if head not in RESULT_LABELS:
+        raise ValueError(f"{value!r} is not a result label of the current schema {RESULT_LABELS}")
+    return head
 
 
 class ConfigError(ValueError):
@@ -54,6 +76,9 @@ class RunSection:
     deterministic: bool = True
     num_threads: int | None = None
     result_label: ResultLabel = "UNKNOWN"
+    # cap the CUDA caching allocator at (free dedicated VRAM - margin) before loading anything, so that an
+    # over-sized job raises OOM instead of spilling into WDDM shared memory (utils/gpu.py); None = no cap
+    allocator_cap_margin_mb: int | None = None
 
 
 @dataclass
@@ -220,6 +245,9 @@ class TGAPSection:
     client_fraction: float = 0.05
     client_split: Literal["d1", "d2", "all"] = "d1"
     layout: str = "layer_major_qkvo_AtB"
+    # local_pretrain only: which K clients run the local trajectories. ``shepherd_round0`` uses the clients
+    # the FL sampler selects in round 0, so time index 0 matches the federated schedule exactly.
+    local_client_selection: Literal["seeded_random", "shepherd_round0"] = "seeded_random"
 
 
 @dataclass
@@ -246,7 +274,14 @@ class AESection:
     split_seed: int = 0
     init_seed: int = 0
     eval_every: int = 50
-    checkpoint_policy: Literal["final"] = "final"
+    # ``final_and_best_val`` also keeps the AE with the lowest D1-validation loss (evaluated at multiples of
+    # eval_every); compressor selection on D1 validation never touches D2 or benchmark results
+    checkpoint_policy: Literal["final", "final_and_best_val"] = "final"
+    normalization: NormalizationMode = "none"
+
+    def validate(self, path: str) -> None:
+        if self.eval_every <= 0 or self.iterations <= 0 or self.batch_size <= 0:
+            raise ConfigError(f"{path}: eval_every, iterations and batch_size must be positive")
 
 
 @dataclass

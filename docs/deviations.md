@@ -43,6 +43,21 @@ reconstructed baseline), **ENVIRONMENT** (forced by hardware/software), **SCOPE*
 | 23 | GPU micro-benchmark memory | PyTorch allocator capped at the dedicated VRAM free at start minus 256 MiB, so a configuration that does not fit raises a recorded OOM instead of silently spilling into shared memory (WDDM, P2-D5) | ENVIRONMENT |
 | 24 | GPU micro-benchmark numerics | synthetic random tokens at a fixed length of 512 (the `cutoff_len` upper bound), non-deterministic kernels allowed; loss values are meaningless, only memory and time are reported | OURS |
 
+## Phase 3 (Tier B; pre-registered in `phase3_preregistration.md`)
+
+| # | Topic | Our choice | Paper / Shepherd | Label | Configurable |
+|---|---|---|---|---|---|
+| 25 | Tier-B base precision | Qwen1.5-1.8B bf16, no quantization | the paper appears to use an 8-bit base | ENVIRONMENT (resource-feasible, reviewer D2) | `model.dtype`, `model.quantization` |
+| 26 | Local micro-batch | 2 x 16 accumulation = effective batch 32 (A3 may switch to 1) | paper: 16 x 2 | ENVIRONMENT (8 GB); changes example weighting (diagnostic) | `local_train.micro_batch_size` |
+| 27 | AE input normalisation | `none` (paper-literal) plus `global_rms` / `factor_rms` as DIAGNOSTIC variants, fitted on the D1 training split only, frozen, 0 uplink bytes, no clipping | paper silent | PAPER-SILENT (reviewer A2) | `autoencoder.normalization` |
+| 28 | AE checkpoint | final + best-D1-validation; the best-validation AE is gated and probed | paper silent | PAPER-SILENT (reviewer D9) | `autoencoder.checkpoint_policy` |
+| 29 | AE budget | 3000 iterations, eval every 50, batch 4, Adam betas 0.9/0.999, no weight decay | paper: MSE/Adam/2e-4 only | PAPER-SILENT (reviewer D9) | `autoencoder.*` |
+| 30 | Local-TGAP clients | the 5 clients the FL sampler selects in round 0 | v1 wording only | OURS (aligns time index 0 with the federated schedule) | `tgap.local_client_selection` |
+| 31 | Scientific seeds | seed s sets `run.seed`, `lora.init_seed`, `autoencoder.init_seed`; partition, D1/D2 split and sampler are seed-independent | paper silent | OURS | `run.seed`, ... |
+| 32 | Training memory guard | allocator capped at free VRAM - 256 MiB in every Phase-3 GPU command | n/a | ENVIRONMENT | `run.allocator_cap_margin_mb` |
+| 33 | Left-padding label shift | the last pad position of a left-padded example predicts its first real token (one extra label token per padded example; the count depends on micro-batch composition) | identical in Shepherd/HF Trainer with left padding | — (inherited, documented, unchanged) | — |
+| 34 | Result-label schema | three Phase-3 labels added; one Phase-2 record's annotated label (`"DERIVED (...)"`) is accepted by a read-side migration rule instead of rewriting reviewed evidence | n/a | OURS | `canonical_result_label` |
+
 ## Scope (reviewer decisions)
 
 U-Former and 1-D CNN AEs, DP, all 7B experiments, Qwen-7B rows, formal replicate policy and mechanistic

@@ -1,4 +1,4 @@
-# Phase-2 architecture
+# Architecture (Phase 2 foundation + Phase 3 diagnostics)
 
 ```
 src/cg_fedllm/
@@ -23,6 +23,9 @@ src/cg_fedllm/
     macs.py              meta-device MAC counting (input/output-grid conventions)
     codecs.py            Identity / AutoEncoder / ConstantMean / GaussianNoise codecs, payload accounting
     metrics.py           MSE, paper-style SNR, standard SNR (dB), cosine, innovation ratio
+    normalization.py     [P3] frozen D1-train-fitted AE input normalisation: none | global_rms | factor_rms
+    diagnostics.py       [P3] factor-aware report: transmitted/state/innovation x {A,B,all}, B*A product,
+                         offline FedAvg replay, shift control
   federated/
     sampling.py          Shepherd round-seeded sampler
     aggregation.py       sample_weighted_mean | uniform_mean | literal_sum (diagnostic)
@@ -31,11 +34,16 @@ src/cg_fedllm/
   tgap/
     snapshots.py         common snapshot schema, writer/reader, tamper checks
     collect.py           local_pretrain | federated_pretrain
-    train_ae.py          AE training + metrics vs zero/train-mean baselines
+    train_ae.py          AE training (+ normaliser, final + best-D1-validation checkpoints) vs baselines
+    stats.py             [P3] TGAP snapshot-set statistics (participation, distributions, cosines, split)
+    viability.py         [P3] A1 report for AE / zero / train-mean / identity / Tanh-range ceiling, A6 gate
   pipeline.py            config -> model bundle / data bundle / codec / run directories
   smoke.py               Tier-C end-to-end pipeline + equivalence checks + summaries
   bench.py               bounded GPU micro-benchmarks
-  cli.py                 `cgfed` command line
+  calibration.py         [P3] realistic-sequence timing/memory, micro-batch decision rule, loss-normalisation
+                         diagnostic
+  cli.py                 `cgfed` command line (P3: calibrate-train, microbatch-diag, tgap-stats, ae-viability,
+                         ae-select)
 ```
 
 ## Data flow of one FAF round

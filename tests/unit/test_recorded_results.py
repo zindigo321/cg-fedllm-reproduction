@@ -5,7 +5,9 @@ from __future__ import annotations
 
 import json
 
-from cg_fedllm.config import RESULT_LABELS
+import pytest
+
+from cg_fedllm.config import PHASE2_RESULT_LABELS, RESULT_LABELS, canonical_result_label
 from tests.conftest import REPO
 
 RESULTS = REPO / "results" / "phase2"
@@ -13,6 +15,43 @@ RESULTS = REPO / "results" / "phase2"
 
 def _load(name: str) -> dict:
     return json.loads((RESULTS / name).read_text(encoding="utf-8"))
+
+
+def _labels(obj) -> list[str]:
+    """Every value stored under a ``label`` / ``result_label`` key anywhere in a JSON document."""
+    out = []
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            if k in ("label", "result_label") and isinstance(v, str):
+                out.append(v)
+            out += _labels(v)
+    elif isinstance(obj, list):
+        for v in obj:
+            out += _labels(v)
+    return out
+
+
+def test_every_committed_result_stays_valid_under_the_current_label_schema():
+    """Label-schema migration regression: committed Phase-2 records (and every later record) carry only labels
+    that the current schema accepts; Phase-2 records carry only Phase-2-era labels."""
+    files = sorted((REPO / "results").rglob("*.json"))
+    assert files
+    annotated = []
+    for path in files:
+        labels = _labels(json.loads(path.read_text(encoding="utf-8")))
+        assert labels, f"{path} carries no result label"
+        canonical = {canonical_result_label(v) for v in labels}  # raises on anything outside the schema
+        if path.is_relative_to(RESULTS):
+            assert canonical <= set(PHASE2_RESULT_LABELS), path
+        else:
+            assert set(labels) <= set(RESULT_LABELS), path  # post-Phase-2 writers emit exact labels only
+        annotated += [(path.name, v) for v in labels if v not in RESULT_LABELS]
+    # the one historical annotated label (Phase 2), accepted by the read-side migration rule
+    assert annotated == [("tgap_snapshot_stats.json", "DERIVED (from PHASE2-SMOKE snapshots, smoke_final @ 25a3f7f)")]
+    with pytest.raises(ValueError):
+        canonical_result_label("LOCAL-EVALUATOR-VALIDATION")
+    with pytest.raises(ValueError):
+        canonical_result_label("PHASE2-SMOKE-ISH (annotated)")
 
 
 def test_mmlu_scorer_agrees_with_lm_eval_within_half_a_point():

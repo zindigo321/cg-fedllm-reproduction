@@ -1,0 +1,9 @@
+# A4 SENSITIVITY collection: local_pretrain + adapter_state. Each of the K = 5 FL round-0 clients runs 20
+# sequential local rounds on its own D1 from the shared initial adapter (continuing from its own state, fresh
+# optimizer, no aggregation). Time index 0 therefore matches the federated schedule's round 0 exactly; later
+# time indices cannot follow the per-round FL schedule without changing the implemented local semantics.
+inherit: tierb_seed1.yaml
+run:
+  result_label: PHASE3-SENSITIVITY
+tgap:
+  source: local_pretrain
