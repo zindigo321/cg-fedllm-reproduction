@@ -1026,6 +1026,30 @@ def cmd_gradient_shape(args) -> dict:
     return out["families"]
 
 
+def cmd_eval_compare(args) -> dict:
+    """F8 (DERIVED): paired per-question comparison of two `evaluate` runs on identical questions."""
+    from cg_fedllm.evaluation.aggregate import paired_comparison
+
+    (na, da), (nb, db) = ((n, resolve_path(p)) for n, p in (x.split("=", 1) for x in (args.a, args.b)))
+
+    def correct(d: Path, stem: str) -> dict[str, bool]:
+        rows = (json.loads(line) for line in (d / f"{stem}_predictions.jsonl").read_text(encoding="utf-8").splitlines() if line.strip())
+        return {r["qid"]: r["pred"] == r["answer"] for r in rows}
+
+    stems = sorted(p.name[: -len("_predictions.jsonl")] for p in da.glob("*_predictions.jsonl"))
+    out = {
+        "label": "DERIVED",
+        "pair": [na, nb],
+        "runs": {na: Path(args.a.split("=", 1)[1]).as_posix(), nb: Path(args.b.split("=", 1)[1]).as_posix()},
+        "note": "question-level paired comparison (question-weighted); the C-Eval headline is a subject macro average",
+        "benchmarks": {stem: paired_comparison(correct(da, stem), correct(db, stem)) for stem in stems},
+        "provenance": _provenance(),
+    }
+    if args.out:
+        atomic_write_json(resolve_path(args.out), out)
+    return out["benchmarks"]
+
+
 COMMANDS = {
     "capture-env": cmd_capture_env,
     "prepare-data": cmd_prepare_data,
@@ -1050,6 +1074,7 @@ COMMANDS = {
     "eval-cost": cmd_eval_cost,
     "eval-projection": cmd_eval_projection,
     "gradient-shape": cmd_gradient_shape,
+    "eval-compare": cmd_eval_compare,
 }
 
 
@@ -1058,7 +1083,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="command", required=True)
     for name in COMMANDS:
         sp = sub.add_parser(name)
-        if name not in ("capture-env", "ae-select", "baseline-summary", "screen-reuse", "eval-projection", "gradient-shape"):
+        if name not in ("capture-env", "ae-select", "baseline-summary", "screen-reuse", "eval-projection", "gradient-shape", "eval-compare"):
             sp.add_argument("--config", required=True)
             sp.add_argument("--set", action="append", default=[], help="override, e.g. --set run.seed=7")
             sp.add_argument("--stage", default=None, help="run sub-directory name")
@@ -1089,6 +1114,10 @@ def build_parser() -> argparse.ArgumentParser:
             sp.add_argument("--label", required=True, choices=RESULT_LABELS)
             sp.add_argument("--out", default=None)
         if name == "eval-cost":
+            sp.add_argument("--out", default=None)
+        if name == "eval-compare":
+            sp.add_argument("--a", required=True, help="name=evaluate run dir")
+            sp.add_argument("--b", required=True, help="name=evaluate run dir")
             sp.add_argument("--out", default=None)
         if name == "gradient-shape":
             sp.add_argument("--forensics", required=True, help="F5 run directory (snapshots + gradients/)")

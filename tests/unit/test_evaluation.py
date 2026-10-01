@@ -261,3 +261,18 @@ def test_scoring_without_kv_cache_is_bitwise_unchanged(tiny_hf_llama, toy_tokeni
     finally:
         tiny_hf_llama.forward = orig
     assert [it.logprobs for it in plain_items] == [it.logprobs for it in cached_items]
+
+
+def test_paired_comparison_counts_and_exact_mcnemar():
+    from cg_fedllm.evaluation.aggregate import paired_comparison
+
+    a = {f"q{i}": i < 60 for i in range(100)}  # 60 correct
+    b = {f"q{i}": 10 <= i < 75 for i in range(100)}  # 65 correct; 10 a-only, 15 b-only
+    r = paired_comparison(a, b)
+    assert (r["both_correct"], r["a_only_correct"], r["b_only_correct"], r["neither_correct"]) == (50, 10, 15, 25)
+    assert r["accuracy_a"] == 0.60 and r["accuracy_b"] == 0.65
+    # exact two-sided binomial test on 25 discordant pairs, k = 10: 2 * P(X <= 10 | Bin(25, 1/2)) = 0.4244
+    assert abs(r["mcnemar_exact_two_sided_p"] - 0.42435622215270996) < 1e-12
+    assert paired_comparison(a, a)["mcnemar_exact_two_sided_p"] == 1.0
+    with pytest.raises(ValueError):
+        paired_comparison(a, {"q0": True})
