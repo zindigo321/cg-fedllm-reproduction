@@ -1,0 +1,302 @@
+{
+  "batch_rule": "consecutive batches of 32 in the trainer's FL round-0 data order of the round-0 client with the most D2 examples",
+  "batch_size": 32,
+  "batches_available": 5,
+  "client_id": 26,
+  "cutoff_len": 512,
+  "deterministic": true,
+  "dropout_off": {
+    "physical:1": {
+      "clip_norm": 0.27476194500923157,
+      "loss": 1.6521162753924727,
+      "stats": {
+        "forward_chunks": 32,
+        "label_tokens": 8731,
+        "padded_tokens": 8832,
+        "peak_allocated_bytes": 4792016896,
+        "peak_reserved_bytes": 6215958528,
+        "wall_s": 7.127
+      },
+      "vs_reference": {
+        "acceptance": {
+          "checks": {
+            "adapter_rel_l2": false,
+            "grad_cosine": false,
+            "grad_rel_l2": false,
+            "loss": false
+          },
+          "pass": false,
+          "thresholds": {
+            "adapter_rel_l2_max": 1e-05,
+            "grad_cosine_min": 0.99999,
+            "grad_rel_l2_max": 0.0001,
+            "loss_rel_diff_max": 1e-06
+          }
+        },
+        "clip_norm_a": 0.27476194500923157,
+        "clip_norm_b": 0.2118377685546875,
+        "end_bitwise_equal": false,
+        "gradient": {
+          "A": {
+            "cosine": 0.9203598212212171,
+            "norm_ratio": 1.2854677004549953,
+            "rel_l2": 0.5350154791779577
+          },
+          "B": {
+            "cosine": 0.8657207709427751,
+            "norm_ratio": 1.2972052530681046,
+            "rel_l2": 0.6608376540974276
+          },
+          "all": {
+            "cosine": 0.8664887176725214,
+            "norm_ratio": 1.297039433283465,
+            "rel_l2": 0.6592201611442978
+          }
+        },
+        "loss_a": 1.6521162753924727,
+        "loss_b": 1.6065665906866382,
+        "loss_rel_diff": 0.028352192165509205,
+        "state_rel_l2": 0.01224622589063054,
+        "update_flips": {
+          "all_grad_abs_median": 1.5210608580673579e-05,
+          "elements": 3145728,
+          "flipped": 444806,
+          "flipped_fraction": 0.14140001932779947,
+          "flipped_grad_abs_max": 0.0016620741225779057,
+          "flipped_grad_abs_median": 5.726721155951964e-06
+        },
+        "update_rel_l2": 0.7470895529775136
+      }
+    },
+    "virtual:1": {
+      "clip_norm": 0.2118377685546875,
+      "loss": 1.6065665906866382,
+      "stats": {
+        "forward_chunks": 32,
+        "label_tokens": 8734,
+        "padded_tokens": 16384,
+        "peak_allocated_bytes": 4791459840,
+        "peak_reserved_bytes": 5440012288,
+        "wall_s": 9.503
+      }
+    },
+    "virtual:2": {
+      "clip_norm": 0.2139689028263092,
+      "loss": 1.606292140916977,
+      "stats": {
+        "forward_chunks": 16,
+        "label_tokens": 8734,
+        "padded_tokens": 16384,
+        "peak_allocated_bytes": 5778187776,
+        "peak_reserved_bytes": 6685720576,
+        "wall_s": 8.375
+      },
+      "vs_reference": {
+        "acceptance": {
+          "checks": {
+            "adapter_rel_l2": false,
+            "grad_cosine": false,
+            "grad_rel_l2": false,
+            "loss": false
+          },
+          "pass": false,
+          "thresholds": {
+            "adapter_rel_l2_max": 1e-05,
+            "grad_cosine_min": 0.99999,
+            "grad_rel_l2_max": 0.0001,
+            "loss_rel_diff_max": 1e-06
+          }
+        },
+        "clip_norm_a": 0.2139689028263092,
+        "clip_norm_b": 0.2118377685546875,
+        "end_bitwise_equal": false,
+        "gradient": {
+          "A": {
+            "cosine": 0.9987976526093646,
+            "norm_ratio": 1.003320089702293,
+            "rel_l2": 0.0492311037770133
+          },
+          "B": {
+            "cosine": 0.9980132381905249,
+            "norm_ratio": 1.0101568425521992,
+            "rel_l2": 0.06416419190719057
+          },
+          "all": {
+            "cosine": 0.9980239753925715,
+            "norm_ratio": 1.0100601487060337,
+            "rel_l2": 0.06397666769523105
+          }
+        },
+        "loss_a": 1.606292140916977,
+        "loss_b": 1.6065665906866382,
+        "loss_rel_diff": 0.00017082999936148284,
+        "state_rel_l2": 0.004118859476857155,
+        "update_flips": {
+          "all_grad_abs_median": 1.5210608580673579e-05,
+          "elements": 3145728,
+          "flipped": 55241,
+          "flipped_fraction": 0.017560640970865887,
+          "flipped_grad_abs_max": 0.00019761754083447158,
+          "flipped_grad_abs_median": 6.73446265864186e-07
+        },
+        "update_rel_l2": 0.25127389554846496
+      }
+    }
+  },
+  "dropout_on": {
+    "lora_dropout_p": [
+      0.05
+    ],
+    "loss_ratio_to_reference": {
+      "physical:1": {
+        "max_abs_dev": 0.04247564731770537,
+        "mean": 0.984201038555914,
+        "per_batch": [
+          1.0287938549491014,
+          0.9575243526822946,
+          0.9901802388816953,
+          0.9603057077105648
+        ]
+      },
+      "virtual:2": {
+        "max_abs_dev": 0.00035404615038370224,
+        "mean": 1.0000165864321011,
+        "per_batch": [
+          0.999745091709684,
+          1.0003540461503837,
+          1.000078111929156,
+          0.9998890959391803
+        ]
+      }
+    },
+    "reproducibility": {
+      "physical:1": {
+        "bitwise_reproducible": true,
+        "loss": 1.6529078306630254
+      },
+      "virtual:1": {
+        "bitwise_reproducible": true,
+        "loss": 1.6218538125417974
+      },
+      "virtual:2": {
+        "bitwise_reproducible": true,
+        "loss": 1.6218911280646466
+      }
+    }
+  },
+  "elapsed_s": 186.5,
+  "gradient_checkpointing": true,
+  "label": "PHASE4-DIAGNOSTIC",
+  "logical_micro_batch_size": 16,
+  "model": {
+    "attn_implementation": "sdpa",
+    "dtype": "bfloat16",
+    "id": "Qwen/Qwen1.5-1.8B",
+    "quantization": "none",
+    "revision": "7846de7ed421727b318d6605a0bfab659da2c067"
+  },
+  "modes": [
+    "virtual:1",
+    "virtual:2",
+    "physical:1"
+  ],
+  "noise_floor": {
+    "acceptance": {
+      "checks": {
+        "adapter_rel_l2": true,
+        "grad_cosine": true,
+        "grad_rel_l2": true,
+        "loss": true
+      },
+      "pass": true,
+      "thresholds": {
+        "adapter_rel_l2_max": 1e-05,
+        "grad_cosine_min": 0.99999,
+        "grad_rel_l2_max": 0.0001,
+        "loss_rel_diff_max": 1e-06
+      }
+    },
+    "clip_norm_a": 0.2118377685546875,
+    "clip_norm_b": 0.2118377685546875,
+    "description": "virtual:1 with the rows of every micro-batch reversed (same objective, different reduction order) vs virtual:1",
+    "end_bitwise_equal": false,
+    "gradient": {
+      "A": {
+        "cosine": 0.9999999999998948,
+        "norm_ratio": 0.9999999952272992,
+        "rel_l2": 1.232916443063699e-07
+      },
+      "B": {
+        "cosine": 0.9999999999998789,
+        "norm_ratio": 1.0000000005900713,
+        "rel_l2": 1.324308642097694e-07
+      },
+      "all": {
+        "cosine": 0.9999999999998808,
+        "norm_ratio": 1.0000000005139782,
+        "rel_l2": 1.3230558914007173e-07
+      }
+    },
+    "loss_a": 1.6065665906866382,
+    "loss_b": 1.6065665906866382,
+    "loss_rel_diff": 0.0,
+    "state_rel_l2": 4.542771377189724e-08,
+    "update_flips": {
+      "elements": 3145728,
+      "flipped": 0,
+      "flipped_fraction": 0.0
+    },
+    "update_rel_l2": 2.771360595971902e-06
+  },
+  "pairwise": {
+    "virtual:2 vs physical:1": {
+      "grad_cosine": 0.878220782014242,
+      "grad_rel_l2": 0.4884916811351673,
+      "loss_rel_diff": 0.027736627958955155,
+      "state_rel_l2": 0.012047100025099186,
+      "update_flips": 430766,
+      "update_rel_l2": 0.7345000641785866
+    }
+  },
+  "provenance": {
+    "git": {
+      "available": true,
+      "branch": "phase4-representation-forensics",
+      "commit": "3c73e66332add1d6836b2d0097c0e5fbc16b4395",
+      "dirty": true,
+      "dirty_files": [
+        "?? results/phase4/eval/f8_eval_base_full.json",
+        "?? results/phase4/eval/f8_eval_lora_ft_full.json",
+        "?? results/phase4/microbatch/f1_llama160m_validation_rerun_clean.json"
+      ]
+    },
+    "packages": {
+      "PyYAML": "6.0.3",
+      "accelerate": "1.15.0",
+      "bitsandbytes": "0.50.2",
+      "datasets": "5.0.1",
+      "huggingface_hub": "1.33.0",
+      "lm_eval": "0.4.13",
+      "numpy": "2.4.6",
+      "pandas": "3.0.6",
+      "peft": "0.21.1",
+      "pyarrow": "25.0.1",
+      "safetensors": "0.8.0",
+      "tokenizers": "0.23.2",
+      "torch": "2.14.0+cu130",
+      "transformers": "5.17.0"
+    }
+  },
+  "reference_mode": "virtual:1",
+  "start_adapter": {
+    "description": "global_adapter.safetensors",
+    "sha256": "9f9f657257fe1ade69ac78b0284dc8ba5984da80bc288c5519ecd422a8b10a66"
+  },
+  "vram_guard": {
+    "allocator_cap_bytes": 7182745600,
+    "allocator_cap_fraction": 0.836641,
+    "device_total_bytes": 8585216000,
+    "free_at_start_bytes": 7451181056,
+    "margin_bytes": 268435456
+  }
+}
