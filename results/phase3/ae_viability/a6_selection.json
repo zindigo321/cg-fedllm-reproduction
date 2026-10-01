@@ -1,0 +1,79 @@
+{
+  "gates": {
+    "factor_rms": {
+      "criteria": {
+        "A_pooled_rel_sq_error_lt_1": true,
+        "B_norm_ratio_in_0_5_2_0": false,
+        "B_pooled_rel_sq_error_lt_1": true,
+        "aggregate_update_cosine_ge_0_90": false,
+        "finite_outputs": true,
+        "innovation_cosine_ge_0_90": false,
+        "input_dependent": false
+      },
+      "pass": false
+    },
+    "global_rms": {
+      "criteria": {
+        "A_pooled_rel_sq_error_lt_1": true,
+        "B_norm_ratio_in_0_5_2_0": true,
+        "B_pooled_rel_sq_error_lt_1": false,
+        "aggregate_update_cosine_ge_0_90": false,
+        "finite_outputs": true,
+        "innovation_cosine_ge_0_90": false,
+        "input_dependent": false
+      },
+      "pass": false
+    },
+    "none": {
+      "criteria": {
+        "A_pooled_rel_sq_error_lt_1": false,
+        "B_norm_ratio_in_0_5_2_0": false,
+        "B_pooled_rel_sq_error_lt_1": false,
+        "aggregate_update_cosine_ge_0_90": false,
+        "finite_outputs": true,
+        "innovation_cosine_ge_0_90": false,
+        "input_dependent": false
+      },
+      "pass": false
+    }
+  },
+  "inputs": {
+    "factor_rms": "results/phase3/ae_viability/a5_federated_state_factor_rms.json",
+    "global_rms": "results/phase3/ae_viability/a5_federated_state_global_rms.json",
+    "none": "results/phase3/ae_viability/a5_federated_state_none.json"
+  },
+  "label": "PHASE3-DIAGNOSTIC",
+  "provenance": {
+    "git": {
+      "available": true,
+      "branch": "phase3-tierb-diagnosis-core",
+      "commit": "eb771bb907dbccfd3cc1e9a6dd2ee8a0322aaaa1",
+      "dirty": true,
+      "dirty_files": [
+        "?? results/phase3/README.md",
+        "?? results/phase3/ae_viability/",
+        "?? results/phase3/reference_codes/"
+      ]
+    },
+    "packages": {
+      "PyYAML": "6.0.3",
+      "accelerate": "1.15.0",
+      "bitsandbytes": "0.50.2",
+      "datasets": "5.0.1",
+      "huggingface_hub": "1.33.0",
+      "lm_eval": "0.4.13",
+      "numpy": "2.4.6",
+      "pandas": "3.0.6",
+      "peft": "0.21.1",
+      "pyarrow": "25.0.1",
+      "safetensors": "0.8.0",
+      "tokenizers": "0.23.2",
+      "torch": "2.14.0+cu130",
+      "transformers": "5.17.0"
+    }
+  },
+  "rule": "first passing mode in the order none -> global_rms -> factor_rms",
+  "selected": null,
+  "verdict": "NO PRIMARY CODEC IS VIABLE",
+  "viable": false
+}
