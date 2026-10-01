@@ -1,0 +1,47 @@
+{
+  "benchmarks": {
+    "ceval/val": {
+      "attention_elements": 168914191,
+      "context_tokens": 277309,
+      "dataset_revision": "617524a00b307ff6f9933702f724131fe12ca7ce",
+      "multi_token_forward_tokens": 0,
+      "multi_token_requests": 0,
+      "padded_tokens": 279169,
+      "questions": 520,
+      "single_token_batches": 103,
+      "spec": {
+        "limit_per_subject": 10,
+        "name": "ceval",
+        "num_shots": 5,
+        "split": "val",
+        "subjects": null,
+        "subset_fraction": null,
+        "subset_seed": 0
+      }
+    },
+    "mmlu/test": {
+      "attention_elements": 326153223,
+      "context_tokens": 345108,
+      "dataset_revision": "c30699e8356da336a370243923dbaf21066bb9fe",
+      "multi_token_forward_tokens": 0,
+      "multi_token_requests": 0,
+      "padded_tokens": 347161,
+      "questions": 570,
+      "single_token_batches": 133,
+      "spec": {
+        "limit_per_subject": 10,
+        "name": "mmlu",
+        "num_shots": 5,
+        "split": "test",
+        "subjects": null,
+        "subset_fraction": null,
+        "subset_seed": 0
+      }
+    }
+  },
+  "label": "PHASE4-DIAGNOSTIC",
+  "model": {
+    "id": "Qwen/Qwen1.5-1.8B",
+    "revision": "7846de7ed421727b318d6605a0bfab659da2c067"
+  }
+}
