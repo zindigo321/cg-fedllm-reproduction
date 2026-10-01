@@ -1,0 +1,25 @@
+# Phase 4, F8 (PHASE4-BASELINE): reference_eval_v1 on Qwen1.5-1.8B in bf16 (the training precision; the Phase-2
+# fp32 Qwen1.5-0.5B lm-eval cross-check remains the evaluator correctness evidence). Full MMLU test and full
+# C-Eval val, 5-shot; C-Eval test is not run in Phase 4. Base = no adapter; LoRA-FT = --adapter <final_adapter>.
+inherit: ../eval/reference_eval_v1.yaml
+run:
+  name: phase4_eval_qwen15_1p8b_seed1
+  result_label: PHASE4-BASELINE
+  allocator_cap_margin_mb: 256
+model:
+  kind: hf
+  id: Qwen/Qwen1.5-1.8B
+  revision: 7846de7ed421727b318d6605a0bfab659da2c067
+  license: tongyi-qianwen-research (non-commercial research use)
+  dtype: bfloat16
+  quantization: none
+  attn_implementation: sdpa
+  allow_patterns: [config.json, generation_config.json, model.safetensors, tokenizer.json, tokenizer_config.json, vocab.json, merges.txt, LICENSE]
+  padding_side: left
+  pad_token_id: null
+lora:
+  init_seed: 1
+eval:
+  benchmarks:
+    - {name: mmlu, split: test, num_shots: 5}
+    - {name: ceval, split: val, num_shots: 5}

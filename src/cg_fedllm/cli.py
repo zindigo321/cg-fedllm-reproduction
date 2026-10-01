@@ -826,6 +826,91 @@ def cmd_forensic_screen(args) -> dict:
     return {"candidate": kind, "modes": modes, "passes_screen": result["passes_screen"], "gates": {m: v["gate"]["criteria"] for m, v in result["modes"].items()}}
 
 
+def cmd_baseline_summary(args) -> dict:
+    """F7: condense the seed-1 baseline run directories into one labelled record (+ the Identity regression)."""
+    from cg_fedllm.compression.metrics import json_safe
+    from cg_fedllm.models.adapter import AdapterState
+
+    runs = {name: resolve_path(p) for name, p in (item.split("=", 1) for item in args.run)}
+
+    def rounds_of(d: Path) -> list[dict]:
+        out, t = [], 0
+        while (d / "rounds" / f"r{t:04d}" / "DONE").exists():
+            out.append(read_json(d / "rounds" / f"r{t:04d}" / "round.json"))
+            t += 1
+        return out
+
+    summary: dict[str, Any] = {"label": args.label, "runs": {}}
+    for name, d in runs.items():
+        rs = rounds_of(d)
+        sm = read_json(d / "summary.json")
+        meta = read_json(d / "run_metadata.json") if (d / "run_metadata.json").exists() else {}
+        init = read_json(d / "initial_eval.json") if (d / "initial_eval.json").exists() else None
+        per_round = []
+        for r in rs:
+            per_round.append({
+                "round": r["round"],
+                "clients": r["selected_clients"],
+                "sample_counts": r["sample_counts"],
+                "client_mean_train_loss": [c.get("mean_loss") for c in r["clients"]],
+                "client_optimizer_steps": [c.get("num_optimizer_steps") for c in r["clients"]],
+                "heldout_loss": (r.get("heldout") or {}).get("loss"),
+                "global_A_sq": r["global_l2_sq"]["A"],
+                "global_B_sq": r["global_l2_sq"]["B"],
+                "effective_global": r.get("effective_global"),
+                "update_norms": r.get("update_norms"),
+                "uplink_logical_bytes": r["uplink_logical_bytes"],
+                "downlink_logical_bytes": r.get("downlink_logical_bytes"),
+                "memory": r.get("memory"),
+                "throughput": r.get("throughput"),
+                "wall_time_s": r["wall_time_s"],
+                "global_hash": r["global_hash"],
+            })
+        up = sum(x["uplink_logical_bytes"] for x in per_round)
+        down = sum((x["downlink_logical_bytes"] or 0) for x in per_round)
+        per_client = rs[0]["clients"][0]["payload"]["logical_bytes"] if rs else None
+        summary["runs"][name] = {
+            "status": sm["status"],
+            "rounds_completed": sm["rounds_completed"],
+            "final_global_hash": sm["final_global_hash"],
+            "initial_heldout_loss": (init or {}).get("heldout", {}).get("loss"),
+            "final_heldout_loss": per_round[-1]["heldout_loss"] if per_round else None,
+            "git_commit": meta.get("environment", {}).get("git", {}).get("commit"),
+            "git_dirty_files": [f for f in meta.get("environment", {}).get("git", {}).get("dirty_files", []) if not f.startswith("?? results/")],
+            "config_sha256": meta.get("config_sha256"),
+            "vram_guard": meta.get("vram_guard"),
+            "wall_time_s": round(sum(x["wall_time_s"] for x in per_round), 1),
+            "communication": {
+                "uplink_per_client_bytes": per_client,
+                "downlink_per_client_bytes": per_client,
+                "uplink_total_bytes": up,
+                "downlink_total_bytes": down,
+                "two_way_total_bytes": up + down,
+                "per_round_two_way_bytes": [x["uplink_logical_bytes"] + (x["downlink_logical_bytes"] or 0) for x in per_round],
+                "note": "logical fp32 bytes of the uncompressed adapter state (12,582,912 B per client); no compression",
+            },
+            "per_round": per_round,
+        }
+    if args.identity_pair:
+        a, b = args.identity_pair.split(",")
+        ra, rb = summary["runs"][a]["per_round"], summary["runs"][b]["per_round"]
+        fa = AdapterState.load(runs[a] / "final_adapter.safetensors")
+        fb = AdapterState.load(runs[b] / "final_adapter.safetensors")
+        summary["identity_regression"] = {
+            "pair": [a, b],
+            "rounds_compared": min(len(ra), len(rb)),
+            "round_hashes_equal": [x["global_hash"] for x in ra] == [x["global_hash"] for x in rb],
+            "final_adapter_bitwise_equal": fa.equal(fb),
+            "final_relative_l2": fa.relative_l2_diff(fb),
+            "heldout_trajectories_equal": [x["heldout_loss"] for x in ra] == [x["heldout_loss"] for x in rb],
+        }
+    summary["provenance"] = _provenance()
+    out = json_safe(summary)
+    if args.out:
+        atomic_write_json(resolve_path(args.out), out)
+    return {"identity_regression": out.get("identity_regression"), "runs": {k: {kk: v[kk] for kk in ("status", "rounds_completed", "initial_heldout_loss", "final_heldout_loss", "wall_time_s")} for k, v in out["runs"].items()}}
+
+
 COMMANDS = {
     "capture-env": cmd_capture_env,
     "prepare-data": cmd_prepare_data,
@@ -845,6 +930,7 @@ COMMANDS = {
     "forensic-stats": cmd_forensic_stats,
     "gradient-forensics": cmd_gradient_forensics,
     "forensic-screen": cmd_forensic_screen,
+    "baseline-summary": cmd_baseline_summary,
 }
 
 
@@ -853,7 +939,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="command", required=True)
     for name in COMMANDS:
         sp = sub.add_parser(name)
-        if name not in ("capture-env", "ae-select"):
+        if name not in ("capture-env", "ae-select", "baseline-summary"):
             sp.add_argument("--config", required=True)
             sp.add_argument("--set", action="append", default=[], help="override, e.g. --set run.seed=7")
             sp.add_argument("--stage", default=None, help="run sub-directory name")
@@ -878,6 +964,11 @@ def build_parser() -> argparse.ArgumentParser:
         if name == "forensic-screen":
             sp.add_argument("--candidate", required=True, choices=["balanced_effective_state", "balanced_effective_delta_r8", "mean_step_gradient"])
             sp.add_argument("--gradients", default=None, help="F5 gradient directory (mean_step_gradient)")
+        if name == "baseline-summary":
+            sp.add_argument("--run", action="append", required=True, help="name=run_dir")
+            sp.add_argument("--identity-pair", default=None, help="lora_ft,faf_identity")
+            sp.add_argument("--label", required=True, choices=RESULT_LABELS)
+            sp.add_argument("--out", default=None)
         if name == "validate-microbatch":
             sp.add_argument("--modes", required=True, help="comma list, first = reference, e.g. physical:16,virtual:1,virtual:2")
             sp.add_argument("--dropout-batches", type=int, default=4)

@@ -37,3 +37,26 @@ def test_round_records_effective_and_communication_statistics(tiny_cfg, tiny_bun
     assert math.isclose(rnd["effective_global"]["M_fro_sq_total"], dense_new, rel_tol=1e-9)
     assert math.isclose(rnd["update_norms"]["M_update_fro"], math.sqrt(dense_upd), rel_tol=1e-9)
     assert math.isclose(rnd["update_norms"]["B_update_fro"], math.sqrt(new.sub(old).l2_sq("B")), rel_tol=1e-12)
+
+
+def test_baseline_summary_and_identity_regression(tiny_cfg, tiny_bundle, tmp_path):
+    from cg_fedllm.cli import main
+    from cg_fedllm.compression.codecs import IdentityCodec
+    from cg_fedllm.compression.layout import get_layout
+
+    clients = synthetic_clients([6, 9, 5, 8], seed=41)
+    for name, codec in (("lora_ft", None), ("faf_identity", IdentityCodec())):
+        spec = simulator_spec(tiny_cfg, 4)
+        sim = FederatedSimulator(tiny_bundle.trainer, spec, clients, tmp_path / name, codec=codec, layout=get_layout("layer_major_qkvo_AtB") if codec else None,
+                                 identity={"t": name}, heldout_fn=None)
+        sim.run(tiny_bundle.initial_state)
+    out = tmp_path / "baseline.json"
+    assert main(["baseline-summary", "--run", f"lora_ft={(tmp_path / 'lora_ft').as_posix()}", "--run", f"faf_identity={(tmp_path / 'faf_identity').as_posix()}",
+                 "--identity-pair", "lora_ft,faf_identity", "--label", "PHASE4-BASELINE", "--out", out.as_posix()]) == 0
+    s = json.loads(out.read_text(encoding="utf-8"))
+    reg = s["identity_regression"]
+    assert reg["round_hashes_equal"] is True and reg["final_adapter_bitwise_equal"] is True and reg["rounds_compared"] == 2
+    com = s["runs"]["lora_ft"]["communication"]
+    n = tiny_bundle.initial_state.num_elements() * 4
+    assert com["uplink_per_client_bytes"] == n and com["two_way_total_bytes"] == com["uplink_total_bytes"] + com["downlink_total_bytes"] == 2 * 2 * 2 * n
+    assert s["label"] == "PHASE4-BASELINE" and len(s["runs"]["lora_ft"]["per_round"]) == 2
