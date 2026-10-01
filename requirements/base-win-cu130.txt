@@ -14,6 +14,7 @@ lm-eval==0.4.13
 huggingface_hub==1.33.0
 tokenizers==0.23.2
 numpy==2.4.6
+scipy==1.17.1                   # direct since Phase 3 (reference codes); same version as the verified lock
 pyarrow==25.0.1
 PyYAML==6.0.3
 pytest==9.1.1

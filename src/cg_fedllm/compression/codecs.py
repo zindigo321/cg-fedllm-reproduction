@@ -5,7 +5,10 @@ a :class:`Payload` (the tensors that would be transmitted); ``decode`` reconstru
 federated simulator calls the same code path for every codec (reviewer decision R16):
 
 * :class:`IdentityCodec`      -- transmits X unchanged (lossless control).
-* :class:`AutoEncoderCodec`   -- CG-FedLLM: client encoder -> latent; server decoder -> X_hat.
+* :class:`AutoEncoderCodec`   -- CG-FedLLM: client encoder -> latent; server decoder -> X_hat. An optional
+                                 frozen :class:`~cg_fedllm.compression.normalization.Normalizer` (fitted on
+                                 the D1 AE-training split, known to both sides) is applied before the encoder
+                                 and inverted after the decoder; it transmits nothing.
 * :class:`ConstantMeanCodec`  -- transmits nothing; the server "decodes" a fixed tensor (e.g. the TGAP
                                  training mean). Control for an input-independent decoder.
 * :class:`GaussianNoiseCodec` -- transmits X + N(0, sigma^2) (seeded per round/client). Control for
@@ -27,6 +30,7 @@ from cg_fedllm.utils.seeding import torch_generator
 
 if TYPE_CHECKING:  # the codec only needs the AE's encode/decode methods at runtime
     from cg_fedllm.compression.autoencoder import ResNetAutoEncoder
+    from cg_fedllm.compression.normalization import Normalizer
 
 LATENT_DTYPES = {"float32": torch.float32, "float16": torch.float16, "bfloat16": torch.bfloat16}
 
@@ -81,24 +85,40 @@ class IdentityCodec(Codec):
 class AutoEncoderCodec(Codec):
     codec_id = "autoencoder"
 
-    def __init__(self, ae: ResNetAutoEncoder, device: str | torch.device = "cpu", latent_dtype: str = "float32", info: dict | None = None):
+    def __init__(
+        self,
+        ae: ResNetAutoEncoder,
+        device: str | torch.device = "cpu",
+        latent_dtype: str = "float32",
+        info: dict | None = None,
+        normalizer: Normalizer | None = None,
+    ):
         self.ae = ae.to(device).eval()
         self.device = torch.device(device)
         self.latent_dtype = LATENT_DTYPES[latent_dtype]
         self.info = info or {}
+        self.normalizer = normalizer if normalizer is not None and not normalizer.is_identity else None
 
     @torch.no_grad()
     def encode(self, x: torch.Tensor, ctx: CodecContext) -> Payload:
-        z = self.ae.encode(x.to(self.device, torch.float32).unsqueeze(0))  # [1, 1, d, W] -> [1, C, h, w]
+        x = x.to(self.device, torch.float32)
+        if self.normalizer is not None:
+            x = self.normalizer.normalize(x)
+        z = self.ae.encode(x.unsqueeze(0))  # [1, 1, d, W] -> [1, C, h, w]
         return Payload({"z": z[0].to("cpu", self.latent_dtype).contiguous()}, {"input_shape": list(x.shape)})
 
     @torch.no_grad()
     def decode(self, payload: Payload, ctx: CodecContext) -> torch.Tensor:
         z = payload.tensors["z"].to(self.device, torch.float32).unsqueeze(0)
-        return self.ae.decode(z)[0].to("cpu", torch.float32)
+        y = self.ae.decode(z)[0]
+        if self.normalizer is not None:
+            y = self.normalizer.denormalize(y)
+        return y.to("cpu", torch.float32)
 
     def describe(self) -> dict[str, Any]:
-        return {"codec_id": self.codec_id, "latent_dtype": str(self.latent_dtype), **self.info}
+        norm = self.normalizer.to_dict() if self.normalizer is not None else {"mode": "none"}
+        norm = {k: v for k, v in norm.items() if k != "fit"}
+        return {"codec_id": self.codec_id, "latent_dtype": str(self.latent_dtype), "normalization": norm, **self.info}
 
 
 class ConstantMeanCodec(Codec):

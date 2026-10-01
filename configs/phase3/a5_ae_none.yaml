@@ -1,0 +1,6 @@
+# A5 AE diagnostic ladder, candidate 'none': federated_pretrain + adapter_state (PRIMARY data), fixed ResNet-3,
+# latent 1/64, MSE / Adam 2e-4 / batch 4 / 3000 iterations / eval every 50 / best-D1-validation checkpoint.
+# Normalisation is a DIAGNOSTIC / STABILISED variant, never presented as paper behaviour ('none' = paper-literal).
+inherit: tierb_seed1.yaml
+autoencoder:
+  normalization: none

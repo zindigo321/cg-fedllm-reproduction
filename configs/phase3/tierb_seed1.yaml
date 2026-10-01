@@ -1,0 +1,53 @@
+# PHASE 3, Tier B, scientific seed 1 -- base configuration for every Phase-3A stage
+# (docs/phase3_preregistration.md). RESOURCE-FEASIBLE reproduction configuration, NOT paper-faithful:
+#   * bf16 base, no quantization (the paper appears to use an 8-bit base; int8 is a deferred sensitivity),
+#   * micro-batch 1 x 32 accumulation = effective batch 32 (the paper's micro-batch 16 does not fit 8 GB; the
+#     planned micro-batch 2 was replaced by the pre-registered A3 rule; micro-batch decomposition changes example
+#     weighting, see the micro-batch diagnostic),
+#   * LoRA alpha 16 / dropout 0.05 are INFERRED from Shepherd defaults (paper silent),
+#   * sample-weighted FedAvg is the Shepherd baseline, not something CG-FedLLM specifies explicitly.
+# Scientific seed s sets run.seed = lora.init_seed = autoencoder.init_seed = s. The data partition (seed 42),
+# the per-client D1/D2 split (seed 42) and the Shepherd client sampler (RandomState(round)) do not depend on s.
+inherit: ../feasible/tierB_qwen15_1p8b_candidate.yaml
+run:
+  name: phase3_tierb_qwen15_1p8b_seed1
+  seed: 1
+  result_label: PHASE3-DIAGNOSTIC
+  deterministic: true             # verified: bf16 + SDPA + gradient checkpointing is bitwise repeatable on this GPU
+  allocator_cap_margin_mb: 256    # WDDM guard (P2-D5): over-sized jobs raise OOM instead of spilling
+lora:
+  init_seed: 1
+local_train:
+  batch_size: 32                  # [PAPER] effective batch
+  micro_batch_size: 1             # [ENVIRONMENT] A3 rule TRIGGERED: at micro-batch 2 the peak reserved memory came within
+                                  # 256 MiB of the allocator cap in 3 of 6 real-data measurements (headroom 0.094 GiB;
+                                  # results/phase3/calibration/a3_calibration_mb2.json) -> micro-batch 1 x 32 accumulation
+  precision: bf16
+federated:
+  num_rounds: 20                  # [PAPER]
+  client_fraction: 0.05           # [PAPER] K = 5 of 100
+  aggregation: sample_weighted_mean
+  representation: adapter_state   # D5: paper-literal candidate
+tgap:
+  source: federated_pretrain      # D6: PRIMARY Tier-B interpretation (ECAI/v3 wording); NOT conclusively the paper's
+  representation: adapter_state
+  num_time_steps: 20              # one time index per D1 FL round
+  client_fraction: 0.05           # same Shepherd schedule as the FL baseline
+  client_split: d1
+  local_client_selection: shepherd_round0   # local_pretrain sensitivity only: the FL round-0 clients
+autoencoder:
+  representation: adapter_state
+  layout: layer_major_qkvo_AtB    # [INFERRED] R4; Phi input [1, 2048, 1536] -> latent [64, 32, 24] (CR 1/64)
+  batch_size: 4                   # D9
+  iterations: 3000                # D9 maximum budget; no early stopping
+  learning_rate: 2.0e-4           # [PAPER]
+  adam_beta1: 0.9                 # D9
+  adam_beta2: 0.999               # D9
+  adam_epsilon: 1.0e-8
+  weight_decay: 0.0               # D9
+  split: temporal                 # D9: first 80 % of time indices train, last 20 % validation
+  val_fraction: 0.2
+  init_seed: 1
+  eval_every: 50                  # D9
+  checkpoint_policy: final_and_best_val   # D9: the best-D1-validation AE is used for the viability probe
+  normalization: none             # paper-literal; the A5 ladder overrides it per candidate

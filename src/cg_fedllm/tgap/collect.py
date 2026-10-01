@@ -19,16 +19,22 @@ from typing import Any
 
 from cg_fedllm.data.formatting import TokenizedExample
 from cg_fedllm.federated.client import LocalTrainer
-from cg_fedllm.federated.sampling import num_selected
+from cg_fedllm.federated.sampling import num_selected, shepherd_select_clients
 from cg_fedllm.federated.simulator import FederatedSimulator, SimulatorSpec
 from cg_fedllm.models.adapter import AdapterState
 from cg_fedllm.tgap.snapshots import SnapshotWriter
 from cg_fedllm.utils.seeding import numpy_rng
 
 
-def local_pretrain_clients(num_clients: int, fraction: float, seed: int) -> list[int]:
+def local_pretrain_clients(num_clients: int, fraction: float, seed: int, selection: str = "seeded_random") -> list[int]:
+    """The K clients whose local trajectories are collected. ``shepherd_round0`` = the clients the FL sampler
+    selects in round 0 (so time index 0 matches the federated schedule); ``seeded_random`` = a seeded draw."""
     if fraction >= 1.0:
         return list(range(num_clients))
+    if selection == "shepherd_round0":
+        return shepherd_select_clients(num_clients, fraction, 0)
+    if selection != "seeded_random":
+        raise ValueError(f"unknown local client selection {selection!r}")
     k = num_selected(num_clients, fraction)
     return sorted(int(c) for c in numpy_rng(seed, "tgap_local_clients").choice(num_clients, size=k, replace=False))
 

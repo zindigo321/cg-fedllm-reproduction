@@ -2,12 +2,19 @@
 
 Paper-specified: reconstruction loss = MSE (squared L2), optimizer Adam, learning rate 2e-4.
 UNKNOWN in the paper (all configurable, defaults recorded in docs/deviations.md): batch size, iteration
-budget, betas, train/validation split, input normalisation (none), stopping rule (final iteration --
-no selection on validation loss, mirroring the final-round checkpoint policy R14).
+budget, betas, train/validation split, input normalisation, stopping rule.
+
+* ``autoencoder.normalization`` (Phase 3, A2): ``none`` (paper-literal), ``global_rms`` or ``factor_rms``;
+  the scales are fitted on the TRAINING split only and stored in the checkpoint metadata. The AE is trained
+  and validated in the normalised space; reconstructions are always reported in the original space.
+* ``autoencoder.checkpoint_policy``: ``final`` (Phase 2) or ``final_and_best_val`` (Phase 3, D9), which
+  also keeps the AE with the lowest D1-validation MSE among the evaluations at multiples of ``eval_every``
+  (ties keep the earliest). D1 validation is compressor-training data: no D2 or benchmark result is used.
 
 Metrics are computed per snapshot in eval mode (BatchNorm running statistics) for the AE and for two
 trivial reconstruction baselines: ``zero`` (X_hat = 0) and ``train_mean`` (X_hat = mean of the training
-snapshots, i.e. an input-independent decoder).
+snapshots, i.e. an input-independent decoder). The factor-aware Phase-3 report is
+:mod:`cg_fedllm.tgap.viability`.
 """
 
 from __future__ import annotations
@@ -23,7 +30,9 @@ import torch.nn.functional as F
 
 from cg_fedllm.compression.autoencoder import ResNetAutoEncoder, config_from_section, save_autoencoder
 from cg_fedllm.compression.codecs import AutoEncoderCodec, CodecContext
+from cg_fedllm.compression.layout import Layout, LoRAGeometry
 from cg_fedllm.compression.metrics import json_safe, reconstruction_metrics
+from cg_fedllm.compression.normalization import Normalizer, fit_normalizer, range_report
 from cg_fedllm.config import RESULT_LABELS, AESection, ResultLabel
 from cg_fedllm.utils.io import atomic_write_json, save_tensors_atomic
 from cg_fedllm.utils.seeding import derive_seed, numpy_rng
@@ -51,8 +60,16 @@ def split_indices(records: Sequence[dict], split: str, val_fraction: float, seed
     return train, val
 
 
-def _eval_set(ae: ResNetAutoEncoder, xs: Sequence[torch.Tensor], refs: Sequence[torch.Tensor], idx: Sequence[int], mean: torch.Tensor, device) -> dict[str, Any]:
-    codec = AutoEncoderCodec(ae, device=device)
+def _eval_set(
+    ae: ResNetAutoEncoder,
+    xs: Sequence[torch.Tensor],
+    refs: Sequence[torch.Tensor],
+    idx: Sequence[int],
+    mean: torch.Tensor,
+    device,
+    normalizer: Normalizer | None = None,
+) -> dict[str, Any]:
+    codec = AutoEncoderCodec(ae, device=device, normalizer=normalizer)
     per = {"autoencoder": [], "zero": [], "train_mean": []}
     for i in idx:
         x, ref = xs[i], refs[i]
@@ -88,8 +105,10 @@ def train_autoencoder(
     out_dir: Path,
     provenance: dict[str, Any],
     label: ResultLabel = "UNKNOWN",
+    layout: Layout | None = None,
+    geom: LoRAGeometry | None = None,
 ) -> dict[str, Any]:
-    """Train the ResNet AE on ``xs`` (each ``[1, d, W]``) and write checkpoint + metrics to ``out_dir``."""
+    """Train the ResNet AE on ``xs`` (each ``[1, d, W]``) and write checkpoint(s) + metrics to ``out_dir``."""
     if label not in RESULT_LABELS:
         raise ValueError(f"result label must be one of {RESULT_LABELS}, got {label!r}")
     out_dir = Path(out_dir)
@@ -99,17 +118,22 @@ def train_autoencoder(
     if len(shapes) != 1:
         raise ValueError(f"all snapshots must share one shape, got {shapes}")
     height, width = xs[0].shape[-2], xs[0].shape[-1]
+    normalizer = fit_normalizer(xs, train_idx, cfg.normalization, layout=layout, geom=geom)
+    xs_n = xs if normalizer.is_identity else [normalizer.normalize(x) for x in xs]
     with torch.random.fork_rng(devices=[]):
         torch.manual_seed(derive_seed(cfg.init_seed, "ae_init"))
         ae = ResNetAutoEncoder(config_from_section(cfg))
     ae.check_input_hw(height, width)
     ae.to(device)
     opt = torch.optim.Adam(ae.parameters(), lr=cfg.learning_rate, betas=(cfg.adam_beta1, cfg.adam_beta2), eps=cfg.adam_epsilon, weight_decay=cfg.weight_decay)
-    stack = torch.stack([xs[i] for i in train_idx])  # [N, 1, d, W] on CPU
-    mean = stack.mean(dim=0)
+    stack = torch.stack([xs_n[i] for i in train_idx])  # [N, 1, d, W] on CPU, in the (normalised) training space
+    # the train-mean predictor always lives in the original space
+    mean = stack.mean(dim=0) if normalizer.is_identity else torch.stack([xs[i] for i in train_idx]).mean(dim=0)
     order_rng = numpy_rng(cfg.init_seed, "ae_batches")
     curve: list[dict[str, Any]] = []
     perm: list[int] = []
+    keep_best = cfg.checkpoint_policy == "final_and_best_val"
+    best: dict[str, Any] = {"iteration": None, "val_mse": math.inf, "state": None}
     t0 = time.time()
     bs = min(cfg.batch_size, len(train_idx))
     for it in range(1, cfg.iterations + 1):
@@ -128,19 +152,23 @@ def train_autoencoder(
         if it == 1 or it % cfg.eval_every == 0 or it == cfg.iterations:
             ae.eval()
             with torch.no_grad():
-                val = [F.mse_loss(ae(xs[i].unsqueeze(0).to(device))[0], xs[i].unsqueeze(0).to(device)).item() for i in val_idx]
-            curve.append({"iteration": it, "train_mse_batch": float(loss.item()), "val_mse": sum(val) / len(val)})
+                val = [F.mse_loss(ae(xs_n[i].unsqueeze(0).to(device))[0], xs_n[i].unsqueeze(0).to(device)).item() for i in val_idx]
+            val_mse = sum(val) / len(val)
+            curve.append({"iteration": it, "train_mse_batch": float(loss.item()), "val_mse": val_mse})
+            if keep_best and it % cfg.eval_every == 0 and val_mse < best["val_mse"]:
+                best = {"iteration": it, "val_mse": val_mse, "state": {k: v.detach().to("cpu").clone() for k, v in ae.state_dict().items()}}
     train_time = time.time() - t0
     ae.eval()
+    meta = {**provenance, "height": height, "width": width, "normalization": normalizer.to_dict()}
     ckpt = out_dir / "autoencoder.safetensors"
-    save_autoencoder(ckpt, ae.cpu(), {**provenance, "height": height, "width": width})
+    save_autoencoder(ckpt, ae.cpu(), {**meta, "checkpoint": "final", "iteration": cfg.iterations})
     ae.to(device)
     save_tensors_atomic(out_dir / "train_mean.safetensors", {"x": mean}, {"role": "tgap_train_mean", "representation": cfg.representation, "layout": cfg.layout})
     latent = ae.latent_shape(height, width)
     latent_numel = latent[0] * latent[1] * latent[2]
-    codec = AutoEncoderCodec(ae, device=device)
+    codec = AutoEncoderCodec(ae, device=device, normalizer=normalizer)
     probe = codec.encode(xs[train_idx[0]], CodecContext(0, 0, 0))
-    metrics = {
+    metrics: dict[str, Any] = {
         "label": label,
         "num_snapshots": len(xs),
         "train_indices": train_idx,
@@ -153,14 +181,35 @@ def train_autoencoder(
         "latent_logical_bytes_fp32": probe.logical_nbytes(),
         "latent_serialized_bytes": probe.serialized_nbytes(),
         "raw_logical_bytes_fp32": height * width * 4,
+        "normalization_uplink_bytes": 0,
         "parameters": ae.num_parameters(),
         "train_time_s": round(train_time, 2),
         "curve": curve,
-        "train": _eval_set(ae, xs, refs, train_idx, mean, device),
-        "val": _eval_set(ae, xs, refs, val_idx, mean, device),
+        "normalization": normalizer.to_dict(),
+        "train": _eval_set(ae, xs, refs, train_idx, mean, device, normalizer),
+        "val": _eval_set(ae, xs, refs, val_idx, mean, device, normalizer),
         "config": {k: getattr(cfg, k) for k in cfg.__dataclass_fields__},
         "provenance": provenance,
     }
+    if layout is not None and geom is not None:
+        metrics["normalized_range"] = {
+            "train": range_report(xs, train_idx, normalizer, layout, geom),
+            "val": range_report(xs, val_idx, normalizer, layout, geom),
+        }
+    if keep_best:
+        best_ae = ResNetAutoEncoder(config_from_section(cfg))
+        best_ae.load_state_dict(best["state"], strict=True)
+        best_ae.eval()
+        save_autoencoder(
+            out_dir / "autoencoder_best_val.safetensors", best_ae, {**meta, "checkpoint": "best_val", "iteration": best["iteration"], "val_mse": best["val_mse"]}
+        )
+        metrics["best_val"] = {
+            "iteration": best["iteration"],
+            "val_mse": best["val_mse"],
+            "selection": f"lowest D1-validation MSE (training space) at multiples of eval_every={cfg.eval_every}; ties keep the earliest",
+            "train": _eval_set(best_ae, xs, refs, train_idx, mean, device, normalizer),
+            "val": _eval_set(best_ae, xs, refs, val_idx, mean, device, normalizer),
+        }
     metrics = json_safe(metrics)
     atomic_write_json(out_dir / "ae_metrics.json", metrics)
     return metrics

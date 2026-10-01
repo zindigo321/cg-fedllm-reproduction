@@ -1,0 +1,9 @@
+# A8 SENSITIVITY: local_pretrain + adapter_state with the normalisation selected in A6; pre-registered rule:
+# if A6 selects no mode, the paper-literal 'none' is used (docs/phase3_preregistration.md, section 6).
+inherit: tierb_seed1.yaml
+run:
+  result_label: PHASE3-SENSITIVITY
+tgap:
+  source: local_pretrain          # provenance only: the snapshot directory determines the data
+autoencoder:
+  normalization: none             # rule-determined after A6; see results/phase3/ae_viability/a6_selection.json

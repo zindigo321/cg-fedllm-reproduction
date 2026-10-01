@@ -1,0 +1,8 @@
+# A8 SENSITIVITY: federated_pretrain + adapter_delta with factor_rms (same AE protocol as A5). Never used to
+# redefine the primary (paper-literal) interpretation.
+inherit: tierb_seed1.yaml
+run:
+  result_label: PHASE3-SENSITIVITY
+autoencoder:
+  representation: adapter_delta
+  normalization: factor_rms
