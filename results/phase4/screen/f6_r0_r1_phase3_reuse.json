@@ -1,0 +1,226 @@
+{
+  "candidates": {
+    "R0_adapter_state_factor_rms": {
+      "criteria": {
+        "S1_finite_outputs": true,
+        "S2_representation_cosine_ge_0_90": false,
+        "S3_representation_rel_sq_error_le_0_50": false,
+        "S4_product_cosine_ge_0_90": false,
+        "S5_product_rel_fro_error_le_0_50": false,
+        "S6_input_dependent": false,
+        "S7_materially_better_than_train_mean": false
+      },
+      "normalization": "factor_rms",
+      "pass": false,
+      "phase3_gate_pass": false,
+      "phase3_label": "PHASE3-DIAGNOSTIC",
+      "representation": "adapter_state",
+      "source": "results/phase3/ae_viability/a5_federated_state_factor_rms.json",
+      "source_mode": "federated_pretrain",
+      "source_sha256": "a50ad48d78bc0b04104f3011e7798c9849ca13d25c8591c924c4b25dec268d48",
+      "thresholds": {
+        "product_cosine_min": 0.9,
+        "product_rel_fro_error_max": 0.5,
+        "rep_cosine_min": 0.9,
+        "rep_rel_sq_error_max": 0.5,
+        "train_mean_factor": 0.8
+      },
+      "values": {
+        "product_cosine": 0.03348633673556754,
+        "product_rel_fro_error": 0.9994483264195945,
+        "representation_cosine": 0.16991774966193024,
+        "representation_rel_sq_error": 0.9712002299342778,
+        "shift_matched": 2692.194698702458,
+        "shift_relative_margin": -1.3757167038993584e-08,
+        "shift_shifted": 2692.1946616654864,
+        "train_mean_representation_rel_sq_error": 0.004153775281245154,
+        "train_mean_update_rel_sq_error": 7.20527036962871,
+        "update_cosine": -0.04471521744322425,
+        "update_rel_sq_error": 34.687786883136184
+      }
+    },
+    "R0_adapter_state_global_rms": {
+      "criteria": {
+        "S1_finite_outputs": true,
+        "S2_representation_cosine_ge_0_90": false,
+        "S3_representation_rel_sq_error_le_0_50": false,
+        "S4_product_cosine_ge_0_90": false,
+        "S5_product_rel_fro_error_le_0_50": false,
+        "S6_input_dependent": true,
+        "S7_materially_better_than_train_mean": false
+      },
+      "normalization": "global_rms",
+      "pass": false,
+      "phase3_gate_pass": false,
+      "phase3_label": "PHASE3-DIAGNOSTIC",
+      "representation": "adapter_state",
+      "source": "results/phase3/ae_viability/a5_federated_state_global_rms.json",
+      "source_mode": "federated_pretrain",
+      "source_sha256": "399641700f894af869c76e39ed274cf1a05e52e8385b444bfdb87a9291819491",
+      "thresholds": {
+        "product_cosine_min": 0.9,
+        "product_rel_fro_error_max": 0.5,
+        "rep_cosine_min": 0.9,
+        "rep_rel_sq_error_max": 0.5,
+        "train_mean_factor": 0.8
+      },
+      "values": {
+        "product_cosine": 0.0033583522003227304,
+        "product_rel_fro_error": 1.0263593770270396,
+        "representation_cosine": 0.1862480555746048,
+        "representation_rel_sq_error": 0.9653134656338375,
+        "shift_matched": 2675.8764203972423,
+        "shift_relative_margin": 1.0039605241274671e-07,
+        "shift_shifted": 2675.8766890446987,
+        "train_mean_representation_rel_sq_error": 0.004153775281245154,
+        "train_mean_update_rel_sq_error": 7.20527036962871,
+        "update_cosine": -0.04350296168266645,
+        "update_rel_sq_error": 36.580935782563714
+      }
+    },
+    "R0_adapter_state_none": {
+      "criteria": {
+        "S1_finite_outputs": true,
+        "S2_representation_cosine_ge_0_90": false,
+        "S3_representation_rel_sq_error_le_0_50": false,
+        "S4_product_cosine_ge_0_90": false,
+        "S5_product_rel_fro_error_le_0_50": false,
+        "S6_input_dependent": false,
+        "S7_materially_better_than_train_mean": false
+      },
+      "normalization": "none",
+      "pass": false,
+      "phase3_gate_pass": false,
+      "phase3_label": "PHASE3-DIAGNOSTIC",
+      "representation": "adapter_state",
+      "source": "results/phase3/ae_viability/a5_federated_state_none.json",
+      "source_mode": "federated_pretrain",
+      "source_sha256": "8e945ba6ccbd6ce0d099a5543d700c4db6f2c18a35dc9c1a5d8a011d3f17d24a",
+      "thresholds": {
+        "product_cosine_min": 0.9,
+        "product_rel_fro_error_max": 0.5,
+        "rep_cosine_min": 0.9,
+        "rep_rel_sq_error_max": 0.5,
+        "train_mean_factor": 0.8
+      },
+      "values": {
+        "product_cosine": -5.1326690248438453e-05,
+        "product_rel_fro_error": 70.21779419272926,
+        "representation_cosine": 4.0313956164536936e-05,
+        "representation_rel_sq_error": 2.2172594095833356,
+        "shift_matched": 6146.306234433595,
+        "shift_relative_margin": -3.3850861232025884e-08,
+        "shift_shifted": 6146.3060263758425,
+        "train_mean_representation_rel_sq_error": 0.004153775281245154,
+        "train_mean_update_rel_sq_error": 7.20527036962871,
+        "update_cosine": -0.0006395238991152159,
+        "update_rel_sq_error": 171218.33406801042
+      }
+    },
+    "R0_local_state_none_sensitivity": {
+      "criteria": {
+        "S1_finite_outputs": true,
+        "S2_representation_cosine_ge_0_90": false,
+        "S3_representation_rel_sq_error_le_0_50": false,
+        "S4_product_cosine_ge_0_90": false,
+        "S5_product_rel_fro_error_le_0_50": false,
+        "S6_input_dependent": false,
+        "S7_materially_better_than_train_mean": false
+      },
+      "normalization": "none",
+      "pass": false,
+      "phase3_gate_pass": false,
+      "phase3_label": "PHASE3-SENSITIVITY",
+      "representation": "adapter_state",
+      "source": "results/phase3/ae_viability/a8_local_state_none.json",
+      "source_mode": "local_pretrain",
+      "source_sha256": "8befe3a45e4b268869d4458b708264f5efc8af89cef2054c79c8dd1e33e5c9cf",
+      "thresholds": {
+        "product_cosine_min": 0.9,
+        "product_rel_fro_error_max": 0.5,
+        "rep_cosine_min": 0.9,
+        "rep_rel_sq_error_max": 0.5,
+        "train_mean_factor": 0.8
+      },
+      "values": {
+        "product_cosine": 2.2250560966712627e-06,
+        "product_rel_fro_error": 41.59040328264101,
+        "representation_cosine": 0.0005159590739066345,
+        "representation_rel_sq_error": 2.1412175024418754,
+        "shift_matched": 6027.586350103188,
+        "shift_relative_margin": -0.0009037570502555521,
+        "shift_shifted": 6022.143795190632,
+        "train_mean_representation_rel_sq_error": 0.02146093343877133,
+        "train_mean_update_rel_sq_error": 55.88207041276637,
+        "update_cosine": -0.008702666011626765,
+        "update_rel_sq_error": 146207.99875994478
+      }
+    },
+    "R1_adapter_delta_factor_rms": {
+      "criteria": {
+        "S1_finite_outputs": true,
+        "S2_representation_cosine_ge_0_90": false,
+        "S3_representation_rel_sq_error_le_0_50": false,
+        "S4_product_cosine_ge_0_90": false,
+        "S5_product_rel_fro_error_le_0_50": false,
+        "S6_input_dependent": true,
+        "S7_materially_better_than_train_mean": false
+      },
+      "normalization": "factor_rms",
+      "pass": false,
+      "phase3_gate_pass": false,
+      "phase3_label": "PHASE3-SENSITIVITY",
+      "representation": "adapter_delta",
+      "source": "results/phase3/ae_viability/a8_federated_delta_factor_rms.json",
+      "source_mode": "federated_pretrain",
+      "source_sha256": "ee44803b07a1c65adcc250bcbbc36533c010e532fc34431f600cc9959927eb5a",
+      "thresholds": {
+        "product_cosine_min": 0.9,
+        "product_rel_fro_error_max": 0.5,
+        "rep_cosine_min": 0.9,
+        "rep_rel_sq_error_max": 0.5,
+        "train_mean_factor": 0.8
+      },
+      "values": {
+        "product_cosine": -5.2966585967703715e-05,
+        "product_rel_fro_error": 1.000000102239508,
+        "representation_cosine": 0.0001418842674669754,
+        "representation_rel_sq_error": 1.0000000510914842,
+        "shift_matched": 1.0000000510914948,
+        "shift_relative_margin": 3.5969802891028745e-08,
+        "shift_shifted": 1.0000000870613008,
+        "train_mean_representation_rel_sq_error": 1.0985123712063687,
+        "train_mean_update_rel_sq_error": 1.097901042049359,
+        "update_cosine": -5.2966585967703715e-05,
+        "update_rel_sq_error": 1.0000002044790266
+      }
+    }
+  },
+  "label": "DERIVED",
+  "note": "Phase-3 best-val AE metrics (validation, rounds 16-19) mapped onto the Phase-4 S1-S7 criteria; R0/R1 were not retrained (reviewer R2)",
+  "provenance": {
+    "git": {
+      "available": true,
+      "branch": "phase4-representation-forensics",
+      "commit": "76992211bd29c58cdb7df28a04a5566f9d0bde57",
+      "dirty": false,
+      "dirty_files": []
+    },
+    "packages": {
+      "PyYAML": "6.0.3",
+      "accelerate": "1.15.0",
+      "bitsandbytes": "0.50.2",
+      "datasets": "5.0.1",
+      "huggingface_hub": "1.33.0",
+      "lm_eval": "0.4.13",
+      "numpy": "2.4.6",
+      "pandas": "3.0.6",
+      "peft": "0.21.1",
+      "pyarrow": "25.0.1",
+      "safetensors": "0.8.0",
+      "tokenizers": "0.23.2",
+      "torch": "2.14.0+cu130",
+      "transformers": "5.17.0"
+    }
+  }
+}
