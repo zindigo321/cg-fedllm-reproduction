@@ -115,6 +115,23 @@ def _batches(
     return batches
 
 
+def batch_plan(requests: list[ScoreRequest], max_batch_tokens: int = 16384, max_batch_size: int = 32, max_batch_attention: int | None = None) -> dict[str, int]:
+    """The forward passes ``score_requests`` will run (same order and budgets), as cost statistics; no model needed."""
+    fast = [i for i, r in enumerate(requests) if all(len(c) == 1 for c in r.continuation_ids)]
+    lengths = [len(r.context_ids) for r in requests]
+    batches = _batches(sorted(fast, key=lambda i: (-lengths[i], i)), lengths, max_batch_tokens, max_batch_size, max_batch_attention)
+    slow = [r for r in requests if not all(len(c) == 1 for c in r.continuation_ids)]
+    return {
+        "questions": len(requests),
+        "context_tokens": sum(lengths),
+        "single_token_batches": len(batches),
+        "padded_tokens": sum(len(b) * max(lengths[i] for i in b) for b in batches),
+        "attention_elements": sum(len(b) * max(lengths[i] for i in b) ** 2 for b in batches),
+        "multi_token_requests": len(slow),
+        "multi_token_forward_tokens": sum(len(r.context_ids) + len(c) - 1 for r in slow for c in r.continuation_ids),
+    }
+
+
 def _left_pad(seqs: Sequence[Sequence[int]], pad_id: int, device) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     length = max(len(s) for s in seqs)
     ids = torch.full((len(seqs), length), pad_id, dtype=torch.long)

@@ -10,6 +10,7 @@ any model or CUDA work.
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import json
 import sys
 import time
@@ -724,8 +725,6 @@ def _codec_predictor(codec, ctx_cls):
 
 def cmd_forensic_screen(args) -> dict:
     """F6: one pre-registered candidate through the fixed ResNet-3 AE screen."""
-    import dataclasses
-
     import torch
 
     from cg_fedllm.compression.autoencoder import load_autoencoder
@@ -933,6 +932,30 @@ def cmd_screen_reuse(args) -> dict:
     return {k: {"pass": v["pass"], "criteria": v["criteria"]} for k, v in out["candidates"].items()}
 
 
+def cmd_eval_cost(args) -> dict:
+    """F8 planning (CPU, tokenizer only): the forward passes each benchmark of an eval config will need."""
+    from transformers import AutoTokenizer
+
+    from cg_fedllm.evaluation.reference_eval import prepare_requests
+    from cg_fedllm.evaluation.scorer import batch_plan
+    from cg_fedllm.models.loading import snapshot_model
+
+    cfg = _load(args)
+    cfg.require("model", "eval")
+    tok = AutoTokenizer.from_pretrained(snapshot_model(cfg.model))
+    out: dict[str, Any] = {"label": cfg.run.result_label, "model": {"id": cfg.model.id, "revision": cfg.model.revision}, "benchmarks": {}}
+    for spec in cfg.eval.benchmarks:
+        requests, _, rev, _ = prepare_requests(tok, spec, cfg.eval)
+        out["benchmarks"][f"{spec.name}/{spec.split}"] = {
+            "spec": dataclasses.asdict(spec),
+            "dataset_revision": rev,
+            **batch_plan(requests, cfg.eval.max_batch_tokens, cfg.eval.max_batch_size, cfg.eval.max_batch_attention),
+        }
+    if args.out:
+        atomic_write_json(resolve_path(args.out), out)
+    return out
+
+
 COMMANDS = {
     "capture-env": cmd_capture_env,
     "prepare-data": cmd_prepare_data,
@@ -954,6 +977,7 @@ COMMANDS = {
     "forensic-screen": cmd_forensic_screen,
     "baseline-summary": cmd_baseline_summary,
     "screen-reuse": cmd_screen_reuse,
+    "eval-cost": cmd_eval_cost,
 }
 
 
@@ -991,6 +1015,8 @@ def build_parser() -> argparse.ArgumentParser:
             sp.add_argument("--run", action="append", required=True, help="name=run_dir")
             sp.add_argument("--identity-pair", default=None, help="lora_ft,faf_identity")
             sp.add_argument("--label", required=True, choices=RESULT_LABELS)
+            sp.add_argument("--out", default=None)
+        if name == "eval-cost":
             sp.add_argument("--out", default=None)
         if name == "screen-reuse":
             sp.add_argument("--phase3", action="append", required=True, help="id=path/to/phase3 a5/a8 report")

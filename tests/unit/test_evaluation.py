@@ -175,3 +175,37 @@ def test_stratified_subset_is_seeded_per_subject_and_keeps_order():
         build_dataclass(BenchmarkSpec, {"name": "mmlu", "split": "test", "subset_fraction": 0.2, "limit_per_subject": 5})
     with pytest.raises(ConfigError):
         build_dataclass(BenchmarkSpec, {"name": "mmlu", "split": "test", "subset_fraction": 0.0})
+
+
+def test_batch_plan_counts_the_forward_passes_of_the_scorer(tiny_hf_llama, toy_tokenizer):
+    from cg_fedllm.evaluation.scorer import batch_plan
+
+    class Ascii(type(toy_tokenizer)):  # ids inside the tiny model's vocabulary (C-Eval template is not ASCII)
+        def _enc(self, text):
+            return [3 + (ord(c) % 120) for c in text]
+
+    tok = Ascii()
+    model, orig = tiny_hf_llama, tiny_hf_llama.forward
+    for bench, display in (("ceval", "s"), ("mmlu", "s")):  # per-character ids: C-Eval single-token, MMLU multi-token
+        questions = {"s": [q(bench, "s", i, question="x " * (3 + 5 * i)) for i in range(7)]}
+        dev = {"s": [q(bench, "s", 100 + i) for i in range(5)]}
+        reqs = build_requests(tok, bench, questions, dev, {"s": display}, 2, None)
+        calls = []
+
+        def spy(*a, calls=calls, **k):
+            calls.append(tuple(k["input_ids"].shape))
+            return orig(*a, **k)
+
+        model.forward = spy
+        try:
+            score_requests(model, reqs, 0, "cpu", max_batch_tokens=200, max_batch_size=3)
+        finally:
+            model.forward = orig
+        plan = batch_plan(reqs, max_batch_tokens=200, max_batch_size=3)
+        assert plan["questions"] == 7 and plan["context_tokens"] == sum(len(r.context_ids) for r in reqs)
+        if bench == "ceval":
+            assert plan["multi_token_requests"] == 0 and plan["single_token_batches"] == len(calls) >= 3
+            assert plan["padded_tokens"] == sum(b * n for b, n in calls) >= plan["context_tokens"]
+        else:
+            assert plan["single_token_batches"] == 0 and plan["multi_token_requests"] == 7
+            assert plan["multi_token_forward_tokens"] == sum(b * n for b, n in calls) and len(calls) == 7 * 4

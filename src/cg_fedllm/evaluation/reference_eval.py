@@ -27,6 +27,25 @@ def stratified_subset(questions: dict[str, list], fraction: float, seed: int, *k
     return out
 
 
+def prepare_requests(tokenizer, spec: BenchmarkSpec, eval_cfg: EvalSection, add_special_tokens: bool = True) -> tuple[list, str, str, Path]:
+    """Question selection (subjects, limit, seeded subset) and prompt/request building for one benchmark spec."""
+    repo, rev = (eval_cfg.ceval_repo, eval_cfg.ceval_revision) if spec.name == "ceval" else (eval_cfg.mmlu_repo, eval_cfg.mmlu_revision)
+    root = download_benchmark(repo, rev, spec.name, sorted({spec.split, "dev"}))
+    questions = load_split(root, spec.name, spec.split, spec.subjects)
+    dev = load_split(root, spec.name, "dev", sorted(questions))
+    if spec.limit_per_subject is not None:
+        questions = {s: qs[: spec.limit_per_subject] for s, qs in questions.items()}
+    if spec.subset_fraction is not None:
+        questions = stratified_subset(questions, spec.subset_fraction, spec.subset_seed, spec.name, spec.split)
+    if spec.name == "ceval":
+        mapping = ceval_subject_mapping()
+        display = {s: mapping[s][1] for s in questions}
+    else:
+        display = {s: mmlu_display_name(s) for s in questions}
+    requests = build_requests(tokenizer, spec.name, questions, dev, display, spec.num_shots, eval_cfg.max_context, add_special_tokens)
+    return requests, repo, rev, root
+
+
 def evaluate_benchmark(
     model,
     tokenizer,
@@ -42,21 +61,8 @@ def evaluate_benchmark(
 ) -> dict[str, Any]:
     if label not in RESULT_LABELS:
         raise ValueError(f"result label must be one of {RESULT_LABELS}, got {label!r}")
-    repo, rev = (eval_cfg.ceval_repo, eval_cfg.ceval_revision) if spec.name == "ceval" else (eval_cfg.mmlu_repo, eval_cfg.mmlu_revision)
     t0 = time.time()
-    root = download_benchmark(repo, rev, spec.name, sorted({spec.split, "dev"}))
-    questions = load_split(root, spec.name, spec.split, spec.subjects)
-    dev = load_split(root, spec.name, "dev", sorted(questions))
-    if spec.limit_per_subject is not None:
-        questions = {s: qs[: spec.limit_per_subject] for s, qs in questions.items()}
-    if spec.subset_fraction is not None:
-        questions = stratified_subset(questions, spec.subset_fraction, spec.subset_seed, spec.name, spec.split)
-    if spec.name == "ceval":
-        mapping = ceval_subject_mapping()
-        display = {s: mapping[s][1] for s in questions}
-    else:
-        display = {s: mmlu_display_name(s) for s in questions}
-    requests = build_requests(tokenizer, spec.name, questions, dev, display, spec.num_shots, eval_cfg.max_context, add_special_tokens)
+    requests, repo, rev, root = prepare_requests(tokenizer, spec, eval_cfg, add_special_tokens)
     t1 = time.time()
     items = score_requests(model, requests, pad_token_id, device, eval_cfg.max_batch_tokens, eval_cfg.max_batch_size, eval_cfg.max_batch_attention)
     t2 = time.time()
