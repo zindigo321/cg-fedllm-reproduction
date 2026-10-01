@@ -22,8 +22,10 @@ Full transitive freeze: `requirements/lock-win-py311-cu130.txt`. CI (Linux, CPU)
 | Rebuild/verify the committed partition manifest | `cgfed prepare-data --config configs/base/shepherd_dolly.yaml` |
 | Tier-C end-to-end smoke (GPU) | `cgfed smoke --config configs/smoke/llama160m_smoke.yaml` |
 | Evaluator validation | `cgfed evaluate --config configs/eval/qwen15_0p5b_validation.yaml` |
-| MMLU cross-check vs lm-eval | `python scripts/crosscheck_mmlu_lmeval.py --ours <run>/mmlu_test_5shot.json --model-path <snapshot> --dtype float32 --batch-size 1 --out results/phase2/mmlu_lmeval_crosscheck.json` |
+| MMLU cross-check vs lm-eval | `python scripts/crosscheck_mmlu_lmeval.py run ...` per device part, then `... compare --ours <run>/mmlu_test_5shot.json --parts <parts> --out results/phase2/mmlu_lmeval_crosscheck.json` (see the script docstring) |
 | GPU micro-benchmarks | `cgfed bench-gpu --config configs/feasible/gpu_microbench.yaml` |
+| Model-level evaluator regression (local cache) | `CGFED_RUN_MODEL_TESTS=1 HF_HUB_OFFLINE=1 pytest -q -m model` |
+| GPU-marked tests | `pytest -q -m "gpu and not model"` |
 | Federated / centralized run | `cgfed run-fl --config <cfg>` (`federated.pooled: true` for centralized) |
 | TGAP collection / AE training | `cgfed collect-tgap --config <cfg>`; `cgfed train-ae --config <cfg> --snapshots <dir>` |
 
@@ -46,6 +48,10 @@ Overrides: `--set key.path=value` (repeatable). A run directory is `<output_root
 * **Correctness oracles:** MMLU agreement with lm-eval within 0.5 pp (hard gate); C-Eval validated by
   structure checks, prompt fixtures and batching-invariance tests. Published model scores are sanity
   references only.
+* **Memory on an 8 GB WDDM GPU:** `eval.max_batch_attention` bounds B * L_max^2 per batch; the unmodified
+  lm-eval fp32 reference needs ~7.5 GB at MMLU's longest contexts, so its two longest subjects run on the CPU
+  (`scripts/crosscheck_mmlu_lmeval.py`). `cgfed bench-gpu` and the cross-check cap the allocator at the free
+  dedicated VRAM (`cg_fedllm.utils.gpu`), turning a silent shared-memory spill into an explicit OOM.
 
 ## 4. Gates and tolerances
 

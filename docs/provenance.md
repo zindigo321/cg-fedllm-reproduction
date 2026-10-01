@@ -64,6 +64,10 @@ Committed derivatives (labels and integer IDs only): `tests/fixtures/dolly_categ
 | `Qwen/Qwen1.5-0.5B` | `8f445e3628f3500ee69f24e1303c9f10f5342a39` | config, generation_config, model.safetensors, tokenizer/vocab/merges, LICENSE | Tongyi Qianwen **Research** License (non-commercial research use; no use of outputs to improve other LLMs) | Evaluator validation, micro-benchmark |
 | `Qwen/Qwen1.5-1.8B` | `7846de7ed421727b318d6605a0bfab659da2c067` | same pattern | Tongyi Qianwen Research License | Bounded micro-benchmark only (R8) |
 
+Downloaded bytes (allow-listed files only, single safetensors file each): llama-160m 652,029,182; Qwen1.5-0.5B
+1,250,659,408; Qwen1.5-1.8B 3,685,176,753 (downloaded only for the bounded micro-benchmark, after the GPU smoke
+gates were green; 120 s).
+
 No 7B model, no Alpaca, no original LLaMA weights were downloaded (R9/R19).
 
 ## 5. Evaluation resources (committed, small)

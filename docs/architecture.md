@@ -3,7 +3,8 @@
 ```
 src/cg_fedllm/
   config.py              strict dataclass schema, YAML inherit/overrides, ${VAR:-default} paths, hashing
-  utils/                 hashing (canonical JSON, tensors), atomic IO, seed derivation, provenance
+  utils/                 hashing (canonical JSON, tensors), atomic IO, seed derivation, provenance,
+                         GPU allocator cap against silent WDDM shared-memory spill (gpu.py)
   data/
     dolly.py             pinned source fetch + SHA-256 verification, records by source_id
     partition.py         Shepherd-compatible partition (pandas<3 semantics), per-client D1/D2 split
@@ -61,3 +62,11 @@ bitwise equal to it (CPU and, in the smoke run, GPU), which validates the machin
 * Run outputs, checkpoints, snapshots, models and datasets live outside Git (`CGFED_RUNS`, `CGFED_CACHE`,
   `HF_HOME`); only manifests/fixtures with integer IDs and lightweight result summaries are committed.
 * Every run writes its resolved config, config hashes and environment/Git/model/data provenance.
+
+## Scripts (thin wrappers / audit tools)
+
+`scripts/run_smoke.py`, `run_fl.py`, `collect_tgap.py`, `train_ae.py`, `evaluate.py`, `bench_gpu.py`, `capture_env.py` wrap the
+`cgfed` commands. Audit tools: `prepare_data.py` (rebuild/verify manifests), `make_shepherd_oracle.py`
+(re-run pinned Shepherd code under pandas < 3 to regenerate the partition oracle),
+`crosscheck_mmlu_lmeval.py` (lm-eval reference, device-split), `summarize_eval_run.py` (condense an evaluation
+run into a labelled, hash-referenced result file).
