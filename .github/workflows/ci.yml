@@ -25,4 +25,10 @@ jobs:
       - name: Tests (gpu/model-marked tests are skipped; the Hub is offline)
         env:
           HF_HUB_OFFLINE: "1"
-        run: pytest -q -m "not gpu and not model"
+        run: |
+          set -o pipefail
+          echo "::notice title=runner-cpu::$(lscpu | sed -n 's/^Model name: *//p') avx512f=$(grep -q avx512f /proc/cpuinfo && echo yes || echo no)"
+          pytest -q -m "not gpu and not model" 2>&1 | tee pytest.log
+      - name: Surface failing tests as annotations (job logs need authentication to read)
+        if: failure()
+        run: grep -E "^(FAILED|ERROR) " pytest.log | sed 's/^/::error title=pytest::/' || true
