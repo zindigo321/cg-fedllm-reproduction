@@ -114,6 +114,31 @@ def _flat(st):
     return torch.cat([st.tensors[k].reshape(-1).double() for k in st.keys()])
 
 
+def test_forensic_screen_cli_mean_step_gradient(tiny_cfg, tiny_bundle, tmp_path):
+    lay = get_layout("layer_major_qkvo_AtB")
+    root = tmp_path / "gf"
+    w = SnapshotWriter(root, run_id="g", source_mode="federated_pretrain", representation="adapter_state", layout=lay)
+    spec = simulator_spec(tiny_cfg, 4, namespace="tgap_fed")
+    spec.num_rounds, spec.client_fraction = 2, 0.5
+
+    def hook(t, cid, start, end, n, rec):
+        w.write(t, cid, start, end, n, {})
+
+    sim = FederatedSimulator(tiny_bundle.trainer, spec, synthetic_clients([6, 9, 5, 8], seed=33), root / "fl", codec=None, layout=None, identity={"t": 3},
+                             snapshot_hook=hook, observer_factory=lambda t, cid: GradientDumper(root / "gradients", t, cid))
+    sim.run(tiny_bundle.initial_state)
+    common = ["--config", TINY, "--set", f"run.output_root={tmp_path.as_posix()}", "--set", "run.result_label=PHASE4-FORENSIC"]
+    ae = ["--set", "autoencoder.iterations=10", "--set", "autoencoder.eval_every=5", "--set", "autoencoder.checkpoint_policy=final_and_best_val"]
+    out = tmp_path / "r4.json"
+    assert main(["forensic-screen", *common, *ae, "--snapshots", root.as_posix(), "--gradients", (root / "gradients").as_posix(),
+                 "--candidate", "mean_step_gradient", "--out", out.as_posix()]) == 0
+    sc = json.loads(out.read_text(encoding="utf-8"))
+    assert sc["split"] == {"train": 2, "val": 2, "val_time_indices": [1]}  # round 0 trains, round 1 validates
+    assert sc["scale_rule"]["modes_run"] == ["none"]  # gradients are far inside the Tanh range
+    ident = sc["modes"]["none"]["val"]["identity"]
+    assert ident["product"]["rel_fro_error"] < 1e-6 and ident["aggregate_gradient_space"]["all"]["rel_sq_error"] < 1e-12
+
+
 def test_forensic_cli_on_tiny_snapshots(tiny_cfg, tiny_bundle, tmp_path):
     _snapshots(tiny_cfg, tiny_bundle, tmp_path / "s")
     common = ["--config", TINY, "--set", f"run.output_root={tmp_path.as_posix()}", "--set", "run.result_label=PHASE4-FORENSIC"]
