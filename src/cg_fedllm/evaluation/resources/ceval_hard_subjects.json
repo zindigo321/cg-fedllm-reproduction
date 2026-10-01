@@ -1,0 +1,13 @@
+{
+  "_source": "C-Eval paper (Huang et al., 2023, arXiv:2305.08322) and the CG-FedLLM v1 text: C-Eval Hard = these 8 subjects",
+  "hard_subjects": [
+    "advanced_mathematics",
+    "college_chemistry",
+    "college_physics",
+    "discrete_mathematics",
+    "high_school_chemistry",
+    "high_school_mathematics",
+    "high_school_physics",
+    "probability_and_statistics"
+  ]
+}

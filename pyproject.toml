@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cg-fedllm-repro"
+version = "0.2.0.dev0"
+description = "Independent, auditable reproduction of CG-FedLLM (ECAI 2025): federated LoRA fine-tuning with learned update compression."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+authors = [{ name = "cg-fedllm-reproduction contributors" }]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+# Minimal runtime requirements. Exact, verified versions live in requirements/.
+dependencies = [
+    "torch>=2.3",
+    "transformers>=5.0",
+    "peft>=0.17",
+    "accelerate>=1.0",
+    "safetensors>=0.4",
+    "numpy>=1.26",
+    "pyyaml>=6.0",
+    "huggingface_hub>=0.30",
+    "pyarrow>=15",
+]
+
+[project.optional-dependencies]
+eval = ["lm-eval>=0.4.13,<0.5", "datasets>=3.0"]
+quant = ["bitsandbytes>=0.45"]
+dev = ["pytest>=8", "ruff>=0.5"]
+
+[project.scripts]
+cgfed = "cg_fedllm.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+cg_fedllm = ["evaluation/resources/*.json", "evaluation/resources/*.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = [
+    "slow: CPU tests that take more than a few seconds",
+    "gpu: requires a CUDA device",
+    "model: requires a pinned pretrained model/dataset in the local HF cache (never run in CI)",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning:jieba.*",
+]
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+src = ["src", "tests", "scripts"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501", "B905"]

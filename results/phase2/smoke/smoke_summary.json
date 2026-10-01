@@ -1,0 +1,509 @@
+{
+  "ae": {
+    "compression_ratio_elements": 0.015625,
+    "config": {
+      "adam_beta1": 0.9,
+      "adam_beta2": 0.999,
+      "adam_epsilon": 1e-08,
+      "arch": "resnet3",
+      "batch_size": 2,
+      "checkpoint_policy": "final",
+      "down_channels": [
+        2,
+        4,
+        8,
+        16,
+        32,
+        64
+      ],
+      "eval_every": 100,
+      "final_kernel": 7,
+      "init_seed": 0,
+      "iterations": 600,
+      "layout": "layer_major_qkvo_AtB",
+      "learning_rate": 0.0002,
+      "norm": "batch",
+      "num_res_blocks": 3,
+      "output_activation": "tanh",
+      "representation": "adapter_state",
+      "split": "temporal",
+      "split_seed": 0,
+      "stem_channels": 1,
+      "stem_kernel": 3,
+      "val_fraction": 0.2,
+      "weight_decay": 0.0
+    },
+    "curve": [
+      {
+        "iteration": 1,
+        "train_mse_batch": 0.05604277178645134,
+        "val_mse": 0.00497772847302258
+      },
+      {
+        "iteration": 100,
+        "train_mse_batch": 0.002867535687983036,
+        "val_mse": 0.002997613570187241
+      },
+      {
+        "iteration": 200,
+        "train_mse_batch": 0.001558446791023016,
+        "val_mse": 0.0015650250716134906
+      },
+      {
+        "iteration": 300,
+        "train_mse_batch": 0.0011325401719659567,
+        "val_mse": 0.0011277652229182422
+      },
+      {
+        "iteration": 400,
+        "train_mse_batch": 0.0008959936094470322,
+        "val_mse": 0.0008929497271310538
+      },
+      {
+        "iteration": 500,
+        "train_mse_batch": 0.0007394048734568059,
+        "val_mse": 0.0007344675104832277
+      },
+      {
+        "iteration": 600,
+        "train_mse_batch": 0.0005714495782740414,
+        "val_mse": 0.0005700873589375988
+      }
+    ],
+    "input_numel": 589824,
+    "input_shape": [
+      1,
+      768,
+      768
+    ],
+    "label": "PHASE2-SMOKE",
+    "latent_logical_bytes_fp32": 36864,
+    "latent_numel": 9216,
+    "latent_serialized_bytes": 36944,
+    "latent_shape": [
+      64,
+      12,
+      12
+    ],
+    "num_snapshots": 8,
+    "parameters": {
+      "decoder": 246698,
+      "encoder": 246785,
+      "total": 493483
+    },
+    "provenance": {
+      "num_snapshots": 8,
+      "smoke": true,
+      "snapshot_dir": "D:\\cgfed-runs\\phase2_smoke_llama160m\\smoke_final\\tgap_local",
+      "snapshot_source": "local_pretrain"
+    },
+    "raw_logical_bytes_fp32": 2359296,
+    "train": {
+      "autoencoder": {
+        "mean_cosine": 0.005073046655486462,
+        "mean_delta_cosine": -7.394481248441647e-05,
+        "mean_innovation_ratio": 50634.1908025089,
+        "mean_mse": 0.0005694361012524706,
+        "mean_rel_sq_error": 2.628335132127924,
+        "mean_snr_db": -4.196807378219984,
+        "mean_snr_paper": 224409.74104426574,
+        "mean_snr_standard": 0.380468989129411,
+        "n": 4,
+        "pooled_rel_sq_error": 2.6283351321279995,
+        "pooled_snr_db": -4.196807401702422
+      },
+      "train_mean": {
+        "mean_cosine": 0.9999898336852266,
+        "mean_delta_cosine": 0.7799352154949699,
+        "mean_innovation_ratio": 0.3917013100002654,
+        "mean_mse": 4.405098179113882e-09,
+        "mean_rel_sq_error": 2.033252594968975e-05,
+        "mean_snr_db": 46.932332943272826,
+        "mean_snr_paper": 29201389111.043694,
+        "mean_snr_standard": 49508.64853082225,
+        "n": 4,
+        "pooled_rel_sq_error": 2.0332525948341185e-05,
+        "pooled_snr_db": 46.918086647814505
+      },
+      "zero": {
+        "mean_cosine": null,
+        "mean_delta_cosine": 0.0,
+        "mean_innovation_ratio": 19264.73919239673,
+        "mean_mse": 0.00021665277547442492,
+        "mean_rel_sq_error": 1.0,
+        "mean_snr_db": 0.0,
+        "mean_snr_paper": 589824.0,
+        "mean_snr_standard": 1.0,
+        "n": 4,
+        "pooled_rel_sq_error": 1.0,
+        "pooled_snr_db": 0.0
+      }
+    },
+    "train_indices": [
+      0,
+      2,
+      4,
+      6
+    ],
+    "train_time_s": 25.5,
+    "val": {
+      "autoencoder": {
+        "mean_cosine": 0.004824525100854259,
+        "mean_delta_cosine": -0.030064317687337062,
+        "mean_innovation_ratio": 25403.90284472696,
+        "mean_mse": 0.000570087344332614,
+        "mean_rel_sq_error": 2.628375871399757,
+        "mean_snr_db": -4.196874492217682,
+        "mean_snr_paper": 224406.28354070697,
+        "mean_snr_standard": 0.3804631272052459,
+        "n": 4,
+        "pooled_rel_sq_error": 2.628375825948026,
+        "pooled_snr_db": -4.196874641851734
+      },
+      "train_mean": {
+        "mean_cosine": 0.9999254727561536,
+        "mean_delta_cosine": -0.2766737030501846,
+        "mean_innovation_ratio": 1.4430255394076064,
+        "mean_mse": 3.2382791959923224e-08,
+        "mean_rel_sq_error": 0.00014929969280174296,
+        "mean_snr_db": 38.26726299405979,
+        "mean_snr_paper": 3965258870.901721,
+        "mean_snr_standard": 6722.783187699588,
+        "n": 4,
+        "pooled_rel_sq_error": 0.00014930018778755238,
+        "pooled_snr_db": 38.259396460255005
+      },
+      "zero": {
+        "mean_cosine": null,
+        "mean_delta_cosine": -0.05033637541435905,
+        "mean_innovation_ratio": 9665.24791262329,
+        "mean_mse": 0.00021689719510602706,
+        "mean_rel_sq_error": 1.0,
+        "mean_snr_db": 0.0,
+        "mean_snr_paper": 589824.0,
+        "mean_snr_standard": 1.0,
+        "n": 4,
+        "pooled_rel_sq_error": 1.0,
+        "pooled_snr_db": 0.0
+      }
+    },
+    "val_indices": [
+      1,
+      3,
+      5,
+      7
+    ]
+  },
+  "cent": {
+    "final_global_hash": "179e1f52d71d8f88287452bee188568fcd471f58ba9e718906e7a28ff47485b3",
+    "heldout_by_round": {
+      "0": {
+        "loss": 3.4666561283792268,
+        "num_examples": 16.0,
+        "tokens": 2987.0
+      }
+    },
+    "initial_heldout": {
+      "loss": 3.5882388952387427,
+      "num_examples": 16.0,
+      "tokens": 2987.0
+    },
+    "label": "PHASE2-SMOKE",
+    "rounds_completed": 1,
+    "status": "complete",
+    "uplink_logical_bytes_total": 2359296,
+    "uplink_raw_fp32_bytes_total": 2359296
+  },
+  "checks": {
+    "identity_delta_vs_lora_ft": {
+      "a": "faf_identity_delta",
+      "b": "lora_ft",
+      "bitwise_equal": false,
+      "max_abs_diff": 1.363157934974879e-06,
+      "pass": true,
+      "relative_l2": 1.8607916775778678e-07,
+      "round_hashes_equal": false,
+      "tolerance": 1e-06
+    },
+    "identity_state_vs_lora_ft": {
+      "a": "faf_identity",
+      "b": "lora_ft",
+      "bitwise_equal": true,
+      "max_abs_diff": 0.0,
+      "pass": true,
+      "relative_l2": 0.0,
+      "round_hashes_equal": true,
+      "tolerance": 1e-06
+    },
+    "n1_fl_vs_local": {
+      "bitwise_equal": true,
+      "pass": true,
+      "relative_l2": 0.0,
+      "tolerance": 1e-06
+    },
+    "resume_vs_uninterrupted": {
+      "a": "resume_check",
+      "b": "faf_identity",
+      "bitwise_equal": true,
+      "max_abs_diff": 0.0,
+      "pass": true,
+      "relative_l2": 0.0,
+      "round_hashes_equal": true,
+      "tolerance": null
+    }
+  },
+  "eval": {
+    "base": {
+      "ceval/val": {
+        "aggregation": "category/average/hard = unweighted mean over subjects (official C-Eval)",
+        "average": 0.6000000000000001,
+        "categories": {
+          "Humanities": null,
+          "Other": null,
+          "STEM": 0.6000000000000001,
+          "Social Science": null
+        },
+        "complete": false,
+        "hard": 0.4,
+        "num_hard_subjects": 1,
+        "num_questions": 10,
+        "num_subjects": 2,
+        "secondary_question_weighted_overall": 0.6
+      },
+      "mmlu/test": {
+        "aggregation": "overall/categories = question-weighted (official evaluate.py; lm-eval weight_by_size)",
+        "categories": {
+          "STEM": 0.0,
+          "social sciences": 0.2
+        },
+        "complete": false,
+        "num_questions": 10,
+        "num_subjects": 2,
+        "overall": 0.1,
+        "secondary_categories_subject_macro": {
+          "STEM": 0.0,
+          "social sciences": 0.2
+        },
+        "secondary_subject_macro_average": 0.1
+      }
+    },
+    "faf_autoencoder": {
+      "ceval/val": {
+        "aggregation": "category/average/hard = unweighted mean over subjects (official C-Eval)",
+        "average": 0.30000000000000004,
+        "categories": {
+          "Humanities": null,
+          "Other": null,
+          "STEM": 0.30000000000000004,
+          "Social Science": null
+        },
+        "complete": false,
+        "hard": 0.2,
+        "num_hard_subjects": 1,
+        "num_questions": 10,
+        "num_subjects": 2,
+        "secondary_question_weighted_overall": 0.3
+      },
+      "mmlu/test": {
+        "aggregation": "overall/categories = question-weighted (official evaluate.py; lm-eval weight_by_size)",
+        "categories": {
+          "STEM": 0.0,
+          "social sciences": 0.2
+        },
+        "complete": false,
+        "num_questions": 10,
+        "num_subjects": 2,
+        "overall": 0.1,
+        "secondary_categories_subject_macro": {
+          "STEM": 0.0,
+          "social sciences": 0.2
+        },
+        "secondary_subject_macro_average": 0.1
+      }
+    },
+    "lora_ft": {
+      "ceval/val": {
+        "aggregation": "category/average/hard = unweighted mean over subjects (official C-Eval)",
+        "average": 0.6000000000000001,
+        "categories": {
+          "Humanities": null,
+          "Other": null,
+          "STEM": 0.6000000000000001,
+          "Social Science": null
+        },
+        "complete": false,
+        "hard": 0.4,
+        "num_hard_subjects": 1,
+        "num_questions": 10,
+        "num_subjects": 2,
+        "secondary_question_weighted_overall": 0.6
+      },
+      "mmlu/test": {
+        "aggregation": "overall/categories = question-weighted (official evaluate.py; lm-eval weight_by_size)",
+        "categories": {
+          "STEM": 0.0,
+          "social sciences": 0.4
+        },
+        "complete": false,
+        "num_questions": 10,
+        "num_subjects": 2,
+        "overall": 0.2,
+        "secondary_categories_subject_macro": {
+          "STEM": 0.0,
+          "social sciences": 0.4
+        },
+        "secondary_subject_macro_average": 0.2
+      }
+    }
+  },
+  "faf_autoencoder": {
+    "final_global_hash": "d1a04b2c3e2878e02df9d631ebddd767796985e64b3b6b1ebc5290b90b4729b2",
+    "heldout_by_round": {
+      "0": {
+        "loss": 3.589519305336144,
+        "num_examples": 16.0,
+        "tokens": 2987.0
+      },
+      "1": {
+        "loss": 8.02149263017346,
+        "num_examples": 16.0,
+        "tokens": 2987.0
+      }
+    },
+    "initial_heldout": {
+      "loss": 3.5882388952387427,
+      "num_examples": 16.0,
+      "tokens": 2987.0
+    },
+    "label": "PHASE2-SMOKE",
+    "rounds_completed": 2,
+    "status": "complete",
+    "uplink_logical_bytes_total": 147456,
+    "uplink_raw_fp32_bytes_total": 9437184
+  },
+  "faf_identity": {
+    "final_global_hash": "28c3e9a06b753f89db1ff87390842fe9f766c327960f5c7bf3d4c017abbdfd04",
+    "heldout_by_round": {
+      "0": {
+        "loss": 3.536889509489036,
+        "num_examples": 16.0,
+        "tokens": 2987.0
+      },
+      "1": {
+        "loss": 3.4785504438504353,
+        "num_examples": 16.0,
+        "tokens": 2987.0
+      }
+    },
+    "initial_heldout": {
+      "loss": 3.5882388952387427,
+      "num_examples": 16.0,
+      "tokens": 2987.0
+    },
+    "label": "PHASE2-SMOKE",
+    "rounds_completed": 2,
+    "status": "complete",
+    "uplink_logical_bytes_total": 9437184,
+    "uplink_raw_fp32_bytes_total": 9437184
+  },
+  "faf_identity_delta": {
+    "final_global_hash": "ff2a45ed9f09aa243091f394435cdb7b36febcb312462af40de8dab47522b333",
+    "heldout_by_round": {
+      "0": {
+        "loss": 3.536889509489036,
+        "num_examples": 16.0,
+        "tokens": 2987.0
+      },
+      "1": {
+        "loss": 3.4785503621160445,
+        "num_examples": 16.0,
+        "tokens": 2987.0
+      }
+    },
+    "initial_heldout": {
+      "loss": 3.5882388952387427,
+      "num_examples": 16.0,
+      "tokens": 2987.0
+    },
+    "label": "PHASE2-SMOKE",
+    "rounds_completed": 2,
+    "status": "complete",
+    "uplink_logical_bytes_total": 9437184,
+    "uplink_raw_fp32_bytes_total": 9437184
+  },
+  "label": "PHASE2-SMOKE",
+  "lora_ft": {
+    "final_global_hash": "28c3e9a06b753f89db1ff87390842fe9f766c327960f5c7bf3d4c017abbdfd04",
+    "heldout_by_round": {
+      "0": {
+        "loss": 3.536889509489036,
+        "num_examples": 16.0,
+        "tokens": 2987.0
+      },
+      "1": {
+        "loss": 3.4785504438504353,
+        "num_examples": 16.0,
+        "tokens": 2987.0
+      }
+    },
+    "initial_heldout": {
+      "loss": 3.5882388952387427,
+      "num_examples": 16.0,
+      "tokens": 2987.0
+    },
+    "label": "PHASE2-SMOKE",
+    "rounds_completed": 2,
+    "status": "complete",
+    "uplink_logical_bytes_total": 9437184,
+    "uplink_raw_fp32_bytes_total": 9437184
+  },
+  "num_clients": 4,
+  "resume": {
+    "first": "stopped_after_round_0",
+    "second": "complete"
+  },
+  "stage_status": {
+    "cent": "complete",
+    "faf_autoencoder": "complete",
+    "faf_identity": "complete",
+    "faf_identity_delta": "complete",
+    "lora_ft": "complete"
+  },
+  "tgap_federated": {
+    "fl_summary": {
+      "final_global_hash": "45792c2ab4fe223e6c40a81793832320dbff1a74bafbd0a9a3f622fedc7dcb7a",
+      "heldout_by_round": {},
+      "label": "PHASE2-SMOKE",
+      "rounds_completed": 2,
+      "status": "complete",
+      "uplink_logical_bytes_total": 18874368,
+      "uplink_raw_fp32_bytes_total": 18874368
+    },
+    "num_snapshots": 8,
+    "source_mode": "federated_pretrain"
+  },
+  "tgap_local": {
+    "clients": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "num_snapshots": 8,
+    "num_time_steps": 2,
+    "source_mode": "local_pretrain"
+  },
+  "timings_s": {
+    "ae": 25.78,
+    "cent": 4.15,
+    "eval": 5.64,
+    "faf_autoencoder": 6.26,
+    "faf_identity": 6.23,
+    "faf_identity_delta": 6.27,
+    "lora_ft": 6.18,
+    "resume": 6.28,
+    "tgap_federated": 4.03,
+    "tgap_local": 4.02
+  },
+  "total_time_s": 74.84
+}

@@ -1,0 +1,17 @@
+# Evaluator validation on the base Qwen1.5-0.5B (approved Phase-2 download, reviewer R19).
+# float32 so that the lm-eval cross-check compares scorers, not bf16 rounding.
+inherit: reference_eval_v1.yaml
+run:
+  name: phase2_eval_validation_qwen15_0p5b
+  result_label: PHASE2-SMOKE   # evaluator validation (Phase-2 correctness evidence, base model)
+model:
+  kind: hf
+  id: Qwen/Qwen1.5-0.5B
+  revision: 8f445e3628f3500ee69f24e1303c9f10f5342a39
+  license: tongyi-qianwen-research (non-commercial research use)
+  dtype: float32
+  quantization: none
+  attn_implementation: sdpa
+  allow_patterns: [config.json, generation_config.json, model.safetensors, tokenizer.json, tokenizer_config.json, vocab.json, merges.txt, LICENSE]
+  padding_side: left
+  pad_token_id: null

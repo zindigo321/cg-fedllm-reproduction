@@ -1,0 +1,14 @@
+# CPU-only CI (GitHub Actions, Linux). Mirrors the verified versions of requirements/base-win-cu130.txt
+# but omits GPU-only / evaluation-harness packages. torch is installed separately from the CPU index:
+#   python -m pip install torch==2.14.0 --index-url https://download.pytorch.org/whl/cpu
+transformers==5.17.0
+peft==0.21.1
+accelerate==1.15.0
+safetensors==0.8.0
+huggingface_hub==1.33.0
+tokenizers==0.23.2
+numpy==2.4.6
+pyarrow==25.0.1
+PyYAML==6.0.3
+pytest==9.1.1
+ruff==0.16.9

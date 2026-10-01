@@ -1,0 +1,23 @@
+# reference_eval_v1: OUR stable reference protocol (NOT a recovered CG-FedLLM protocol).
+# C-Eval: official answer-only prompt, 5-shot from dev, logit scoring, subject-macro category/average/Hard.
+# MMLU: lm-eval-harness 0.4.x template, 5-shot from dev, logit scoring, question-weighted averages.
+inherit: ../base/defaults.yaml
+run:
+  name: reference_eval_v1
+  device: cuda
+  deterministic: true
+eval:
+  protocol: reference_eval_v1
+  ceval_repo: ceval/ceval-exam
+  ceval_revision: 617524a00b307ff6f9933702f724131fe12ca7ce   # CC BY-NC-SA 4.0; test labels public since 2025-07-27
+  mmlu_repo: cais/mmlu
+  mmlu_revision: c30699e8356da336a370243923dbaf21066bb9fe    # MIT
+  max_context: null
+  max_batch_tokens: 16384
+  max_batch_size: 16
+  max_batch_attention: 4000000   # B * L_max^2; avoids WDDM shared-memory spill on 8 GB (numerics unaffected)
+  save_predictions: true
+  benchmarks:
+    - {name: mmlu, split: test, num_shots: 5}
+    - {name: ceval, split: val, num_shots: 5}
+    - {name: ceval, split: test, num_shots: 5}

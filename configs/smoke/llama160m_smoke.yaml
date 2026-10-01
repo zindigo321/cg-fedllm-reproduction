@@ -1,0 +1,58 @@
+# Tier-C end-to-end smoke (correctness only). All outputs are PHASE2-SMOKE, never paper results.
+# Small deterministic Dolly subset, 4 clients, 2 communication rounds, llama-160m (pinned, Apache-2.0).
+inherit: ../base/shepherd_dolly.yaml
+run:
+  name: phase2_smoke_llama160m
+  result_label: PHASE2-SMOKE
+  device: cuda
+  deterministic: true
+model:
+  kind: hf
+  id: JackFram/llama-160m
+  revision: aca9b687d1425f863dcf5de9a4c96e3fe36266dd
+  license: apache-2.0
+  dtype: float32
+  quantization: none
+  attn_implementation: eager      # deterministic attention kernels for the equivalence gates
+  gradient_checkpointing: false
+  allow_patterns: [config.json, generation_config.json, model.safetensors, special_tokens_map.json, tokenizer.json, tokenizer.model, tokenizer_config.json]
+  padding_side: left              # [SHEPHERD] tokenizer.padding_side = "left"
+  pad_token_id: 0                 # [SHEPHERD] tokenizer.pad_token_id = 0
+data:
+  manifest_path: manifests/dolly_smoke_subset12_4clients.json
+  subset_per_category: 12         # 96 records
+  subset_seed: 0
+  holdout_per_category: 2         # 16 held-out records
+  num_clients: 4
+  partition_mode: dirichlet
+  dirichlet_alpha: 0.5
+  min_require_size: 8
+  cutoff_len: 256
+  heldout_max_examples: 16
+local_train:
+  batch_size: 8
+  micro_batch_size: 4
+  precision: fp32
+federated:
+  num_rounds: 2
+  client_fraction: 0.5            # 2 of 4 clients per round; K*T/N = 1 -> Cent = 1 pooled pass
+tgap:
+  source: local_pretrain          # reviewer R6: smoke default (NOT a claim about the paper)
+  num_time_steps: 2
+  client_fraction: 1.0
+autoencoder:
+  batch_size: 2
+  iterations: 600                 # paper-like budget (TGAP loss curve spans ~600 iterations)
+  eval_every: 100
+eval:
+  protocol: reference_eval_v1
+  ceval_repo: ceval/ceval-exam
+  ceval_revision: 617524a00b307ff6f9933702f724131fe12ca7ce
+  mmlu_repo: cais/mmlu
+  mmlu_revision: c30699e8356da336a370243923dbaf21066bb9fe
+  max_context: 2048
+  max_batch_tokens: 8192
+  max_batch_size: 8
+  benchmarks:
+    - {name: mmlu, split: test, num_shots: 5, subjects: [abstract_algebra, high_school_geography], limit_per_subject: 5}
+    - {name: ceval, split: val, num_shots: 5, subjects: [computer_network, high_school_physics], limit_per_subject: 5}

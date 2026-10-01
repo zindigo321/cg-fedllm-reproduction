@@ -1,0 +1,872 @@
+{
+  "environment": {
+    "captured_utc": "2026-10-01T02:08:32+00:00",
+    "cuda": {
+      "bf16_supported": true,
+      "compute_capability": "8.9",
+      "cuda_available": true,
+      "cudnn_version": 92400,
+      "device_name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+      "device_total_memory_bytes": 8585216000,
+      "nvidia_smi": "NVIDIA GeForce RTX 4060 Laptop GPU, 595.97, 8188 MiB",
+      "torch_cuda_version": "13.0",
+      "torch_version": "2.14.0+cu130"
+    },
+    "env": {
+      "CUBLAS_WORKSPACE_CONFIG": null,
+      "CUDA_VISIBLE_DEVICES": null,
+      "HF_HOME": "D:\\cgfed-cache\\hf",
+      "HF_HUB_OFFLINE": "1",
+      "PYTHONHASHSEED": null
+    },
+    "git": {
+      "available": true,
+      "branch": "phase2-foundation-smoke",
+      "commit": "e13249171ec412f4df0dac0a4d5c11af9720d2df",
+      "dirty": true,
+      "dirty_files": [
+        "M docs/architecture.md",
+        " M docs/discrepancies.md",
+        " M docs/phase2_validation.md",
+        " M docs/provenance.md",
+        " M docs/reproduction_protocol.md",
+        "?? results/phase2/gpu_microbench.json"
+      ]
+    },
+    "machine": "AMD64",
+    "packages": {
+      "PyYAML": "6.0.3",
+      "accelerate": "1.15.0",
+      "bitsandbytes": "0.50.2",
+      "datasets": "5.0.1",
+      "huggingface_hub": "1.33.0",
+      "lm_eval": "0.4.13",
+      "numpy": "2.4.6",
+      "pandas": "3.0.6",
+      "peft": "0.21.1",
+      "pyarrow": "25.0.1",
+      "safetensors": "0.8.0",
+      "tokenizers": "0.23.2",
+      "torch": "2.14.0+cu130",
+      "transformers": "5.17.0"
+    },
+    "platform": "Windows-10-10.0.26100-SP0",
+    "processor": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+    "python": "3.11.16 | packaged by Anaconda, Inc. | (main, Aug 27 2026, 14:36:16) [MSC v.1942 64 bit (AMD64)]",
+    "python_executable": "D:\\conda_envs\\cgfedllm\\python.exe"
+  },
+  "label": "LOCAL-MICROBENCH",
+  "results": [
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "final_loss": 12.753089904785156,
+      "gradient_checkpointing": false,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 1,
+      "model": "JackFram/llama-160m",
+      "model_load_s": 5.06,
+      "peak_allocated_bytes": 843723264,
+      "peak_reserved_bytes": 891289600,
+      "quantization": "none",
+      "revision": "aca9b687d1425f863dcf5de9a4c96e3fe36266dd",
+      "seq_len": 512,
+      "status": "ok",
+      "step_time_s": 0.0618,
+      "tokens_per_s": 8287.2,
+      "trainable_params": 589824,
+      "weights_allocated_bytes": 337287680
+    },
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "final_loss": 12.266998291015625,
+      "gradient_checkpointing": false,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 4,
+      "model": "JackFram/llama-160m",
+      "model_load_s": 5.06,
+      "peak_allocated_bytes": 2290339328,
+      "peak_reserved_bytes": 2466250752,
+      "quantization": "none",
+      "revision": "aca9b687d1425f863dcf5de9a4c96e3fe36266dd",
+      "seq_len": 512,
+      "status": "ok",
+      "step_time_s": 0.1191,
+      "tokens_per_s": 17189.2,
+      "trainable_params": 589824,
+      "weights_allocated_bytes": 337287680
+    },
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "final_loss": 11.857627868652344,
+      "gradient_checkpointing": false,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 8,
+      "model": "JackFram/llama-160m",
+      "model_load_s": 5.06,
+      "peak_allocated_bytes": 4197502464,
+      "peak_reserved_bytes": 4529848320,
+      "quantization": "none",
+      "revision": "aca9b687d1425f863dcf5de9a4c96e3fe36266dd",
+      "seq_len": 512,
+      "status": "ok",
+      "step_time_s": 0.2392,
+      "tokens_per_s": 17124.2,
+      "trainable_params": 589824,
+      "weights_allocated_bytes": 337287680
+    },
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "error": "CUDA out of memory. Tried to allocate 1000.00 MiB. GPU 0 has a total capacity of 8.00 GiB of which 834.00 MiB is free. Process 45608 has 17179869184.00 GiB memory in use. Process 28116 has 17179869184",
+      "gradient_checkpointing": false,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 16,
+      "model": "JackFram/llama-160m",
+      "model_load_s": 5.06,
+      "peak_reserved_bytes": 6612320256,
+      "quantization": "none",
+      "revision": "aca9b687d1425f863dcf5de9a4c96e3fe36266dd",
+      "seq_len": 512,
+      "status": "OOM",
+      "trainable_params": 589824,
+      "weights_allocated_bytes": 337287680
+    },
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "final_loss": 12.679489135742188,
+      "gradient_checkpointing": false,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 1,
+      "model": "Qwen/Qwen1.5-0.5B",
+      "model_load_s": 1.11,
+      "peak_allocated_bytes": 2582896128,
+      "peak_reserved_bytes": 2814377984,
+      "quantization": "none",
+      "revision": "8f445e3628f3500ee69f24e1303c9f10f5342a39",
+      "seq_len": 512,
+      "status": "ok",
+      "step_time_s": 0.1387,
+      "tokens_per_s": 3690.9,
+      "trainable_params": 1572864,
+      "weights_allocated_bytes": 971754496
+    },
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "final_loss": 12.230731010437012,
+      "gradient_checkpointing": false,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 2,
+      "model": "Qwen/Qwen1.5-0.5B",
+      "model_load_s": 1.11,
+      "peak_allocated_bytes": 4189817856,
+      "peak_reserved_bytes": 4580179968,
+      "quantization": "none",
+      "revision": "8f445e3628f3500ee69f24e1303c9f10f5342a39",
+      "seq_len": 512,
+      "status": "ok",
+      "step_time_s": 0.1994,
+      "tokens_per_s": 5134.8,
+      "trainable_params": 1572864,
+      "weights_allocated_bytes": 971754496
+    },
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "error": "CUDA out of memory. Tried to allocate 1.16 GiB. GPU 0 has a total capacity of 8.00 GiB of which 1.10 GiB is free. Process 45608 has 17179869184.00 GiB memory in use. Process 28116 has 17179869184.00 G",
+      "gradient_checkpointing": false,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 4,
+      "model": "Qwen/Qwen1.5-0.5B",
+      "model_load_s": 1.11,
+      "peak_reserved_bytes": 6868172800,
+      "quantization": "none",
+      "revision": "8f445e3628f3500ee69f24e1303c9f10f5342a39",
+      "seq_len": 512,
+      "status": "OOM",
+      "trainable_params": 1572864,
+      "weights_allocated_bytes": 971754496
+    },
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "error": "CUDA out of memory. Tried to allocate 22.00 MiB. GPU 0 has a total capacity of 8.00 GiB of which 218.00 MiB is free. Process 45608 has 17179869184.00 GiB memory in use. Process 28116 has 17179869184.0",
+      "gradient_checkpointing": false,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 8,
+      "model": "Qwen/Qwen1.5-0.5B",
+      "model_load_s": 1.11,
+      "peak_reserved_bytes": 7182745600,
+      "quantization": "none",
+      "revision": "8f445e3628f3500ee69f24e1303c9f10f5342a39",
+      "seq_len": 512,
+      "status": "OOM",
+      "trainable_params": 1572864,
+      "weights_allocated_bytes": 971754496
+    },
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "final_loss": 12.675699234008789,
+      "gradient_checkpointing": true,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 1,
+      "model": "Qwen/Qwen1.5-0.5B",
+      "model_load_s": 1.05,
+      "peak_allocated_bytes": 1944458752,
+      "peak_reserved_bytes": 2151677952,
+      "quantization": "none",
+      "revision": "8f445e3628f3500ee69f24e1303c9f10f5342a39",
+      "seq_len": 512,
+      "status": "ok",
+      "step_time_s": 0.1968,
+      "tokens_per_s": 2601.7,
+      "trainable_params": 1572864,
+      "weights_allocated_bytes": 971754496
+    },
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "final_loss": 12.233052253723145,
+      "gradient_checkpointing": true,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 2,
+      "model": "Qwen/Qwen1.5-0.5B",
+      "model_load_s": 1.05,
+      "peak_allocated_bytes": 2904579072,
+      "peak_reserved_bytes": 3292528640,
+      "quantization": "none",
+      "revision": "8f445e3628f3500ee69f24e1303c9f10f5342a39",
+      "seq_len": 512,
+      "status": "ok",
+      "step_time_s": 0.2411,
+      "tokens_per_s": 4246.9,
+      "trainable_params": 1572864,
+      "weights_allocated_bytes": 971754496
+    },
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "final_loss": 12.072734832763672,
+      "gradient_checkpointing": true,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 4,
+      "model": "Qwen/Qwen1.5-0.5B",
+      "model_load_s": 1.05,
+      "peak_allocated_bytes": 4821673984,
+      "peak_reserved_bytes": 5553258496,
+      "quantization": "none",
+      "revision": "8f445e3628f3500ee69f24e1303c9f10f5342a39",
+      "seq_len": 512,
+      "status": "ok",
+      "step_time_s": 0.4695,
+      "tokens_per_s": 4362.0,
+      "trainable_params": 1572864,
+      "weights_allocated_bytes": 971754496
+    },
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "error": "CUDA out of memory. Tried to allocate 2.31 GiB. GPU 0 has a total capacity of 8.00 GiB of which 2.26 GiB is free. Process 45608 has 17179869184.00 GiB memory in use. Process 28116 has 17179869184.00 G",
+      "gradient_checkpointing": true,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 8,
+      "model": "Qwen/Qwen1.5-0.5B",
+      "model_load_s": 1.05,
+      "peak_reserved_bytes": 5085593600,
+      "quantization": "none",
+      "revision": "8f445e3628f3500ee69f24e1303c9f10f5342a39",
+      "seq_len": 512,
+      "status": "OOM",
+      "trainable_params": 1572864,
+      "weights_allocated_bytes": 971754496
+    },
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "final_loss": 13.619706153869629,
+      "gradient_checkpointing": false,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 1,
+      "model": "Qwen/Qwen1.5-1.8B",
+      "model_load_s": 2.82,
+      "peak_allocated_bytes": 6017885696,
+      "peak_reserved_bytes": 6251610112,
+      "quantization": "none",
+      "revision": "7846de7ed421727b318d6605a0bfab659da2c067",
+      "seq_len": 512,
+      "status": "ok",
+      "step_time_s": 0.2375,
+      "tokens_per_s": 2155.8,
+      "trainable_params": 3145728,
+      "weights_allocated_bytes": 3742077952
+    },
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "error": "CUDA out of memory. Tried to allocate 594.00 MiB. GPU 0 has a total capacity of 8.00 GiB of which 584.00 MiB is free. Process 45608 has 17179869184.00 GiB memory in use. Process 28116 has 17179869184.",
+      "gradient_checkpointing": false,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 2,
+      "model": "Qwen/Qwen1.5-1.8B",
+      "model_load_s": 2.82,
+      "peak_reserved_bytes": 6819938304,
+      "quantization": "none",
+      "revision": "7846de7ed421727b318d6605a0bfab659da2c067",
+      "seq_len": 512,
+      "status": "OOM",
+      "trainable_params": 3145728,
+      "weights_allocated_bytes": 3742077952
+    },
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "error": "CUDA out of memory. Tried to allocate 16.00 MiB. GPU 0 has a total capacity of 8.00 GiB of which 232.00 MiB is free. Process 45608 has 17179869184.00 GiB memory in use. Process 28116 has 17179869184.0",
+      "gradient_checkpointing": false,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 4,
+      "model": "Qwen/Qwen1.5-1.8B",
+      "model_load_s": 2.82,
+      "peak_reserved_bytes": 7168065536,
+      "quantization": "none",
+      "revision": "7846de7ed421727b318d6605a0bfab659da2c067",
+      "seq_len": 512,
+      "status": "OOM",
+      "trainable_params": 3145728,
+      "weights_allocated_bytes": 3742077952
+    },
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "error": "CUDA out of memory. Tried to allocate 32.00 MiB. GPU 0 has a total capacity of 8.00 GiB of which 222.00 MiB is free. Process 45608 has 17179869184.00 GiB memory in use. Process 28116 has 17179869184.0",
+      "gradient_checkpointing": false,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 8,
+      "model": "Qwen/Qwen1.5-1.8B",
+      "model_load_s": 2.82,
+      "peak_reserved_bytes": 7178551296,
+      "quantization": "none",
+      "revision": "7846de7ed421727b318d6605a0bfab659da2c067",
+      "seq_len": 512,
+      "status": "OOM",
+      "trainable_params": 3145728,
+      "weights_allocated_bytes": 3742077952
+    },
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "final_loss": 13.61410140991211,
+      "gradient_checkpointing": true,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 1,
+      "model": "Qwen/Qwen1.5-1.8B",
+      "model_load_s": 2.95,
+      "peak_allocated_bytes": 4753710592,
+      "peak_reserved_bytes": 5119148032,
+      "quantization": "none",
+      "revision": "7846de7ed421727b318d6605a0bfab659da2c067",
+      "seq_len": 512,
+      "status": "ok",
+      "step_time_s": 0.2996,
+      "tokens_per_s": 1708.7,
+      "trainable_params": 3145728,
+      "weights_allocated_bytes": 3742077952
+    },
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "final_loss": 12.895364761352539,
+      "gradient_checkpointing": true,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 2,
+      "model": "Qwen/Qwen1.5-1.8B",
+      "model_load_s": 2.95,
+      "peak_allocated_bytes": 5740176384,
+      "peak_reserved_bytes": 6234832896,
+      "quantization": "none",
+      "revision": "7846de7ed421727b318d6605a0bfab659da2c067",
+      "seq_len": 512,
+      "status": "ok",
+      "step_time_s": 0.5391,
+      "tokens_per_s": 1899.3,
+      "trainable_params": 3145728,
+      "weights_allocated_bytes": 3742077952
+    },
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "error": "CUDA out of memory. Tried to allocate 1.16 GiB. GPU 0 has a total capacity of 8.00 GiB of which 1.25 GiB is free. Process 45608 has 17179869184.00 GiB memory in use. Process 28116 has 17179869184.00 G",
+      "gradient_checkpointing": true,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 4,
+      "model": "Qwen/Qwen1.5-1.8B",
+      "model_load_s": 2.95,
+      "peak_reserved_bytes": 6174015488,
+      "quantization": "none",
+      "revision": "7846de7ed421727b318d6605a0bfab659da2c067",
+      "seq_len": 512,
+      "status": "OOM",
+      "trainable_params": 3145728,
+      "weights_allocated_bytes": 3742077952
+    },
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "error": "CUDA out of memory. Tried to allocate 2.31 GiB. GPU 0 has a total capacity of 8.00 GiB of which 1.61 GiB is free. Process 45608 has 17179869184.00 GiB memory in use. Process 28116 has 17179869184.00 G",
+      "gradient_checkpointing": true,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 8,
+      "model": "Qwen/Qwen1.5-1.8B",
+      "model_load_s": 2.95,
+      "peak_reserved_bytes": 5888802816,
+      "quantization": "none",
+      "revision": "7846de7ed421727b318d6605a0bfab659da2c067",
+      "seq_len": 512,
+      "status": "OOM",
+      "trainable_params": 3145728,
+      "weights_allocated_bytes": 3742077952
+    },
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "final_loss": 13.729715347290039,
+      "gradient_checkpointing": true,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 1,
+      "model": "Qwen/Qwen1.5-1.8B",
+      "model_load_s": 2.83,
+      "peak_allocated_bytes": 2933359104,
+      "peak_reserved_bytes": 3177185280,
+      "quantization": "nf4",
+      "revision": "7846de7ed421727b318d6605a0bfab659da2c067",
+      "seq_len": 512,
+      "status": "ok",
+      "step_time_s": 0.3162,
+      "tokens_per_s": 1619.3,
+      "trainable_params": 3145728,
+      "weights_allocated_bytes": 1921726464
+    },
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "final_loss": 12.93763542175293,
+      "gradient_checkpointing": true,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 2,
+      "model": "Qwen/Qwen1.5-1.8B",
+      "model_load_s": 2.83,
+      "peak_allocated_bytes": 3919824896,
+      "peak_reserved_bytes": 4395630592,
+      "quantization": "nf4",
+      "revision": "7846de7ed421727b318d6605a0bfab659da2c067",
+      "seq_len": 512,
+      "status": "ok",
+      "step_time_s": 0.5683,
+      "tokens_per_s": 1802.0,
+      "trainable_params": 3145728,
+      "weights_allocated_bytes": 1921726464
+    },
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "final_loss": 12.596031188964844,
+      "gradient_checkpointing": true,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 4,
+      "model": "Qwen/Qwen1.5-1.8B",
+      "model_load_s": 2.83,
+      "peak_allocated_bytes": 5892756480,
+      "peak_reserved_bytes": 6662651904,
+      "quantization": "nf4",
+      "revision": "7846de7ed421727b318d6605a0bfab659da2c067",
+      "seq_len": 512,
+      "status": "ok",
+      "step_time_s": 1.0415,
+      "tokens_per_s": 1966.5,
+      "trainable_params": 3145728,
+      "weights_allocated_bytes": 1921726464
+    },
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "error": "CUDA out of memory. Tried to allocate 2.31 GiB. GPU 0 has a total capacity of 8.00 GiB of which 1.14 GiB is free. Process 45608 has 17179869184.00 GiB memory in use. Process 28116 has 17179869184.00 G",
+      "gradient_checkpointing": true,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 8,
+      "model": "Qwen/Qwen1.5-1.8B",
+      "model_load_s": 2.83,
+      "peak_reserved_bytes": 6358564864,
+      "quantization": "nf4",
+      "revision": "7846de7ed421727b318d6605a0bfab659da2c067",
+      "seq_len": 512,
+      "status": "OOM",
+      "trainable_params": 3145728,
+      "weights_allocated_bytes": 1921726464
+    },
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "final_loss": 13.627646446228027,
+      "gradient_checkpointing": true,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 1,
+      "model": "Qwen/Qwen1.5-1.8B",
+      "model_load_s": 4.06,
+      "peak_allocated_bytes": 3957098496,
+      "peak_reserved_bytes": 4391436288,
+      "quantization": "int8",
+      "revision": "7846de7ed421727b318d6605a0bfab659da2c067",
+      "seq_len": 512,
+      "status": "ok",
+      "step_time_s": 0.4705,
+      "tokens_per_s": 1088.1,
+      "trainable_params": 3145728,
+      "weights_allocated_bytes": 2491594752
+    },
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "final_loss": 12.915937423706055,
+      "gradient_checkpointing": true,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 2,
+      "model": "Qwen/Qwen1.5-1.8B",
+      "model_load_s": 4.06,
+      "peak_allocated_bytes": 5349737984,
+      "peak_reserved_bytes": 5964300288,
+      "quantization": "int8",
+      "revision": "7846de7ed421727b318d6605a0bfab659da2c067",
+      "seq_len": 512,
+      "status": "ok",
+      "step_time_s": 0.6551,
+      "tokens_per_s": 1563.1,
+      "trainable_params": 3145728,
+      "weights_allocated_bytes": 2491594752
+    },
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "error": "CUDA out of memory. Tried to allocate 1.16 GiB. GPU 0 has a total capacity of 8.00 GiB of which 688.00 MiB is free. Process 45608 has 17179869184.00 GiB memory in use. Process 28116 has 17179869184.00",
+      "gradient_checkpointing": true,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 4,
+      "model": "Qwen/Qwen1.5-1.8B",
+      "model_load_s": 4.06,
+      "peak_reserved_bytes": 6794772480,
+      "quantization": "int8",
+      "revision": "7846de7ed421727b318d6605a0bfab659da2c067",
+      "seq_len": 512,
+      "status": "OOM",
+      "trainable_params": 3145728,
+      "weights_allocated_bytes": 2491594752
+    },
+    {
+      "attn_implementation": "sdpa",
+      "dtype": "bfloat16",
+      "error": "CUDA out of memory. Tried to allocate 1.16 GiB. GPU 0 has a total capacity of 8.00 GiB of which 506.00 MiB is free. Process 45608 has 17179869184.00 GiB memory in use. Process 28116 has 17179869184.00",
+      "gradient_checkpointing": true,
+      "label": "LOCAL-MICROBENCH",
+      "lora": {
+        "alpha": 16,
+        "r": 8,
+        "targets": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "micro_batch": 8,
+      "model": "Qwen/Qwen1.5-1.8B",
+      "model_load_s": 4.06,
+      "peak_reserved_bytes": 6918504448,
+      "quantization": "int8",
+      "revision": "7846de7ed421727b318d6605a0bfab659da2c067",
+      "seq_len": 512,
+      "status": "OOM",
+      "trainable_params": 3145728,
+      "weights_allocated_bytes": 2491594752
+    }
+  ],
+  "vram_guard": {
+    "allocator_cap_bytes": 7182745600,
+    "allocator_cap_fraction": 0.836641,
+    "device_total_bytes": 8585216000,
+    "free_at_start_bytes": 7451181056,
+    "margin_bytes": 268435456
+  }
+}

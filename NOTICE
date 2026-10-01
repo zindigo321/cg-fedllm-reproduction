@@ -1,0 +1,42 @@
+cg-fedllm-reproduction
+Copyright 2026 cg-fedllm-reproduction contributors
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+It is an INDEPENDENT reproduction attempt and is not affiliated with the authors of the reproduced
+paper. The method is re-implemented from the paper text:
+
+  Huiwen Wu, Xiaogang Xu, Deyi Zhang, Xiaohan Li, Jiafei Wu, Zhe Liu.
+  "CG-FedLLM: How to Compress Gradients in Federated Fine-Tuning for Large Language Models."
+  ECAI 2025, Frontiers in Artificial Intelligence and Applications vol. 413, pp. 4257-4264,
+  IOS Press, doi:10.3233/FAIA251320 (CC BY-NC 4.0); extended version arXiv:2405.13746
+  (arXiv license CC BY-NC-SA 4.0). No text or figures of the paper are redistributed.
+
+Behaviour reconstructed (not copied) from third-party software:
+
+  FedIT / FederatedGPT-Shepherd (https://github.com/JayZhang42/FederatedGPT-Shepherd,
+  commit bcffa00e9642990ecc6210363a7f0dab91bef4dc), Apache License 2.0. Client sampling, FedAvg
+  weighting and the Dolly client partition are independent re-implementations of its semantics.
+
+Small third-party data files included in this repository:
+
+  src/cg_fedllm/evaluation/resources/ceval_subject_mapping.json -- verbatim copy of
+  hkust-nlp/ceval subject_mapping.json (commit cba65ae93bcf189149ced9f66ae0c958201faed9), MIT License,
+  Copyright (c) 2023 Language Intelligence and Technology group @ SJTU.
+  src/cg_fedllm/evaluation/resources/mmlu_categories.json -- dictionaries transcribed from
+  hendrycks/test categories.py (commit 4450500f923c49f1fb1dd3d99108a0bd9717b660), MIT License,
+  Copyright (c) 2020 Dan Hendrycks.
+  (Both MIT license texts: src/cg_fedllm/evaluation/resources/LICENSES-THIRD-PARTY.md.)
+  configs/base/shepherd_dolly.yaml -- the Alpaca prompt template text used by alpaca-lora/Shepherd
+  (Apache License 2.0).
+  tests/fixtures/dolly_categories.json, tests/fixtures/shepherd_oracle_*.json and manifests/*.json --
+  only category labels and integer record IDs derived from databricks-dolly-15k
+  (Copyright Databricks, Inc., CC BY-SA 3.0); no record text is included.
+
+Runtime dependencies (installed separately, not vendored) include PyTorch (BSD-3-Clause),
+Hugging Face transformers / peft / accelerate / datasets / safetensors / huggingface_hub
+(Apache-2.0), bitsandbytes (MIT), lm-evaluation-harness (MIT), NumPy (BSD-3-Clause),
+PyArrow (Apache-2.0) and PyYAML (MIT).
+
+Model weights and datasets are never stored in this repository. They are downloaded at run time
+under their own licenses (see docs/provenance.md).

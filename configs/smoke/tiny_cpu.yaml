@@ -1,0 +1,40 @@
+# CPU fixture used by the test-suite: a seeded random tiny LLaMA (nothing downloaded) + synthetic data.
+inherit: ../base/defaults.yaml
+run:
+  name: tiny_cpu
+  result_label: PHASE2-SMOKE
+  device: cpu
+  deterministic: true
+  num_threads: 2
+model:
+  kind: tiny_llama
+  dtype: float32
+  attn_implementation: eager
+  padding_side: left
+  pad_token_id: 0
+  tiny_hidden_size: 128           # d = 128 -> Phi input [1, 128, 2*4*2*8 = 128] -> AE latent [64, 2, 2]
+  tiny_intermediate_size: 256
+  tiny_num_layers: 2
+  tiny_num_heads: 4
+  tiny_vocab_size: 128
+  tiny_max_position_embeddings: 256
+  tiny_init_seed: 0
+lora:
+  r: 8
+  alpha: 16
+  dropout: 0.05
+local_train:
+  batch_size: 4
+  micro_batch_size: 2
+  learning_rate: 1.0e-3
+  precision: fp32
+federated:
+  num_rounds: 2
+  client_fraction: 0.5
+tgap:
+  num_time_steps: 2
+  client_fraction: 1.0
+autoencoder:
+  batch_size: 2
+  iterations: 30
+  eval_every: 10

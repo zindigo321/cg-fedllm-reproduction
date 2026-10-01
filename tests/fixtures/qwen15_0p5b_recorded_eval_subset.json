@@ -1,0 +1,478 @@
+{
+ "_about": "Recorded predictions of the Phase-2 evaluator-validation run (Qwen/Qwen1.5-0.5B @ 8f445e36, float32, sdpa, reference_eval_v1 5-shot; run eval_full, evaluation code = commit 0d42b68). Used by tests/model to detect evaluator drift.",
+ "label": "PHASE2-SMOKE",
+ "source_files_sha256": {
+  "mmlu_test_5shot_predictions.jsonl": "a29803e49decce19090caf961e072db800db42b4c162bd2e65e824bc8942a6d7",
+  "ceval_val_5shot_predictions.jsonl": "35dfe68fe04f0523d880f969911a80935b408d4b52ccf2ad451f67daff0fd0b9"
+ },
+ "items": [
+  {
+   "qid": "mmlu/abstract_algebra/test/0",
+   "answer": "B",
+   "pred": "C",
+   "logprobs": [
+    -1.5677410364151,
+    -1.244195580482483,
+    -1.079431176185608,
+    -1.8443256616592407
+   ],
+   "ctx_tokens": 342,
+   "shots": 5
+  },
+  {
+   "qid": "mmlu/abstract_algebra/test/1",
+   "answer": "C",
+   "pred": "A",
+   "logprobs": [
+    -1.2237393856048584,
+    -1.294400930404663,
+    -1.4086682796478271,
+    -1.7613141536712646
+   ],
+   "ctx_tokens": 357,
+   "shots": 5
+  },
+  {
+   "qid": "mmlu/abstract_algebra/test/2",
+   "answer": "D",
+   "pred": "C",
+   "logprobs": [
+    -1.218669056892395,
+    -1.6611663103103638,
+    -1.059754490852356,
+    -1.9200373888015747
+   ],
+   "ctx_tokens": 361,
+   "shots": 5
+  },
+  {
+   "qid": "mmlu/abstract_algebra/test/3",
+   "answer": "B",
+   "pred": "A",
+   "logprobs": [
+    -0.7390703558921814,
+    -1.8652262687683105,
+    -1.2034716606140137,
+    -2.7226061820983887
+   ],
+   "ctx_tokens": 371,
+   "shots": 5
+  },
+  {
+   "qid": "mmlu/high_school_european_history/test/0",
+   "answer": "C",
+   "pred": "A",
+   "logprobs": [
+    -0.24603289365768433,
+    -3.1229403018951416,
+    -2.52663254737854,
+    -2.3840067386627197
+   ],
+   "ctx_tokens": 2687,
+   "shots": 5
+  },
+  {
+   "qid": "mmlu/high_school_european_history/test/1",
+   "answer": "A",
+   "pred": "A",
+   "logprobs": [
+    -0.5056602358818054,
+    -1.8052303791046143,
+    -1.7395241260528564,
+    -2.9680092334747314
+   ],
+   "ctx_tokens": 2613,
+   "shots": 5
+  },
+  {
+   "qid": "mmlu/high_school_european_history/test/2",
+   "answer": "D",
+   "pred": "D",
+   "logprobs": [
+    -2.6588995456695557,
+    -0.9118139743804932,
+    -2.72279953956604,
+    -0.7762892246246338
+   ],
+   "ctx_tokens": 2778,
+   "shots": 5
+  },
+  {
+   "qid": "mmlu/high_school_european_history/test/3",
+   "answer": "B",
+   "pred": "D",
+   "logprobs": [
+    -1.6866117715835571,
+    -1.6270567178726196,
+    -1.45858633518219,
+    -0.9594084024429321
+   ],
+   "ctx_tokens": 2973,
+   "shots": 5
+  },
+  {
+   "qid": "mmlu/professional_law/test/0",
+   "answer": "C",
+   "pred": "C",
+   "logprobs": [
+    -2.0293900966644287,
+    -1.6275899410247803,
+    -0.8877122402191162,
+    -1.3584001064300537
+   ],
+   "ctx_tokens": 1671,
+   "shots": 5
+  },
+  {
+   "qid": "mmlu/professional_law/test/1",
+   "answer": "B",
+   "pred": "C",
+   "logprobs": [
+    -1.5155036449432373,
+    -1.655745267868042,
+    -0.9740283489227295,
+    -1.5689551830291748
+   ],
+   "ctx_tokens": 1698,
+   "shots": 5
+  },
+  {
+   "qid": "mmlu/professional_law/test/2",
+   "answer": "D",
+   "pred": "A",
+   "logprobs": [
+    -1.180999994277954,
+    -1.230480432510376,
+    -1.4455244541168213,
+    -1.83211350440979
+   ],
+   "ctx_tokens": 1595,
+   "shots": 5
+  },
+  {
+   "qid": "mmlu/professional_law/test/3",
+   "answer": "C",
+   "pred": "C",
+   "logprobs": [
+    -2.2416210174560547,
+    -1.6615257263183594,
+    -0.5186061859130859,
+    -2.2500381469726562
+   ],
+   "ctx_tokens": 1572,
+   "shots": 5
+  },
+  {
+   "qid": "mmlu/college_physics/test/0",
+   "answer": "B",
+   "pred": "A",
+   "logprobs": [
+    -1.2601397037506104,
+    -1.2630712985992432,
+    -1.5444071292877197,
+    -1.5197088718414307
+   ],
+   "ctx_tokens": 529,
+   "shots": 5
+  },
+  {
+   "qid": "mmlu/college_physics/test/1",
+   "answer": "C",
+   "pred": "C",
+   "logprobs": [
+    -1.2506276369094849,
+    -1.1945935487747192,
+    -1.1759587526321411,
+    -2.2919368743896484
+   ],
+   "ctx_tokens": 510,
+   "shots": 5
+  },
+  {
+   "qid": "mmlu/college_physics/test/2",
+   "answer": "C",
+   "pred": "C",
+   "logprobs": [
+    -1.9192299842834473,
+    -1.4510197639465332,
+    -0.6587873101234436,
+    -2.313225269317627
+   ],
+   "ctx_tokens": 486,
+   "shots": 5
+  },
+  {
+   "qid": "mmlu/college_physics/test/3",
+   "answer": "A",
+   "pred": "C",
+   "logprobs": [
+    -1.3044421672821045,
+    -1.7013843059539795,
+    -0.8180319666862488,
+    -2.2763965129852295
+   ],
+   "ctx_tokens": 461,
+   "shots": 5
+  },
+  {
+   "qid": "mmlu/world_religions/test/0",
+   "answer": "D",
+   "pred": "C",
+   "logprobs": [
+    -1.938340187072754,
+    -2.59036922454834,
+    -0.36426061391830444,
+    -2.4575510025024414
+   ],
+   "ctx_tokens": 244,
+   "shots": 5
+  },
+  {
+   "qid": "mmlu/world_religions/test/1",
+   "answer": "B",
+   "pred": "A",
+   "logprobs": [
+    -1.1874701976776123,
+    -1.7073867321014404,
+    -1.350884199142456,
+    -1.3734748363494873
+   ],
+   "ctx_tokens": 254,
+   "shots": 5
+  },
+  {
+   "qid": "mmlu/world_religions/test/2",
+   "answer": "D",
+   "pred": "A",
+   "logprobs": [
+    -1.1849403381347656,
+    -1.8298759460449219,
+    -1.2480850219726562,
+    -1.4055194854736328
+   ],
+   "ctx_tokens": 256,
+   "shots": 5
+  },
+  {
+   "qid": "mmlu/world_religions/test/3",
+   "answer": "A",
+   "pred": "A",
+   "logprobs": [
+    -1.0902822017669678,
+    -1.312640905380249,
+    -1.8743455410003662,
+    -1.4275853633880615
+   ],
+   "ctx_tokens": 255,
+   "shots": 5
+  },
+  {
+   "qid": "ceval/computer_network/val/0",
+   "answer": "C",
+   "pred": "C",
+   "logprobs": [
+    -1.806840419769287,
+    -1.3904433250427246,
+    -1.0479693412780762,
+    -1.4518046379089355
+   ],
+   "ctx_tokens": 407,
+   "shots": 5
+  },
+  {
+   "qid": "ceval/computer_network/val/1",
+   "answer": "C",
+   "pred": "B",
+   "logprobs": [
+    -1.5923991203308105,
+    -0.825690746307373,
+    -1.944037914276123,
+    -1.5568556785583496
+   ],
+   "ctx_tokens": 377,
+   "shots": 5
+  },
+  {
+   "qid": "ceval/computer_network/val/2",
+   "answer": "C",
+   "pred": "B",
+   "logprobs": [
+    -1.3987882137298584,
+    -0.7204110622406006,
+    -1.993396520614624,
+    -2.12674880027771
+   ],
+   "ctx_tokens": 368,
+   "shots": 5
+  },
+  {
+   "qid": "ceval/computer_network/val/3",
+   "answer": "C",
+   "pred": "C",
+   "logprobs": [
+    -1.6399753093719482,
+    -1.6846511363983154,
+    -1.0648810863494873,
+    -1.3522307872772217
+   ],
+   "ctx_tokens": 381,
+   "shots": 5
+  },
+  {
+   "qid": "ceval/high_school_physics/val/0",
+   "answer": "D",
+   "pred": "D",
+   "logprobs": [
+    -1.2329920530319214,
+    -1.8706740140914917,
+    -2.072256088256836,
+    -1.0664499998092651
+   ],
+   "ctx_tokens": 562,
+   "shots": 5
+  },
+  {
+   "qid": "ceval/high_school_physics/val/1",
+   "answer": "C",
+   "pred": "C",
+   "logprobs": [
+    -2.586503028869629,
+    -0.8767386078834534,
+    -0.792544424533844,
+    -2.9788122177124023
+   ],
+   "ctx_tokens": 412,
+   "shots": 5
+  },
+  {
+   "qid": "ceval/high_school_physics/val/2",
+   "answer": "A",
+   "pred": "B",
+   "logprobs": [
+    -1.3690898418426514,
+    -1.0842540264129639,
+    -1.6945178508758545,
+    -1.846693754196167
+   ],
+   "ctx_tokens": 450,
+   "shots": 5
+  },
+  {
+   "qid": "ceval/high_school_physics/val/3",
+   "answer": "B",
+   "pred": "B",
+   "logprobs": [
+    -1.795719861984253,
+    -0.5626322627067566,
+    -1.832371473312378,
+    -2.436150312423706
+   ],
+   "ctx_tokens": 416,
+   "shots": 5
+  },
+  {
+   "qid": "ceval/modern_chinese_history/val/0",
+   "answer": "C",
+   "pred": "C",
+   "logprobs": [
+    -2.9180123805999756,
+    -0.980882465839386,
+    -0.6278131604194641,
+    -3.3123624324798584
+   ],
+   "ctx_tokens": 501,
+   "shots": 5
+  },
+  {
+   "qid": "ceval/modern_chinese_history/val/1",
+   "answer": "A",
+   "pred": "D",
+   "logprobs": [
+    -1.391610860824585,
+    -1.974273443222046,
+    -2.1418187618255615,
+    -0.8404519557952881
+   ],
+   "ctx_tokens": 498,
+   "shots": 5
+  },
+  {
+   "qid": "ceval/modern_chinese_history/val/2",
+   "answer": "D",
+   "pred": "D",
+   "logprobs": [
+    -2.355079412460327,
+    -2.8815629482269287,
+    -1.7405508756637573,
+    -0.3962744176387787
+   ],
+   "ctx_tokens": 490,
+   "shots": 5
+  },
+  {
+   "qid": "ceval/modern_chinese_history/val/3",
+   "answer": "B",
+   "pred": "D",
+   "logprobs": [
+    -2.286405563354492,
+    -1.6126823425292969,
+    -2.3087234497070312,
+    -0.5137938857078552
+   ],
+   "ctx_tokens": 507,
+   "shots": 5
+  },
+  {
+   "qid": "ceval/law/val/0",
+   "answer": "C",
+   "pred": "C",
+   "logprobs": [
+    -1.7161306142807007,
+    -1.4096616506576538,
+    -0.8693364858627319,
+    -2.499581813812256
+   ],
+   "ctx_tokens": 583,
+   "shots": 5
+  },
+  {
+   "qid": "ceval/law/val/1",
+   "answer": "D",
+   "pred": "C",
+   "logprobs": [
+    -1.6560218334197998,
+    -1.4399516582489014,
+    -1.048954725265503,
+    -1.6291377544403076
+   ],
+   "ctx_tokens": 592,
+   "shots": 5
+  },
+  {
+   "qid": "ceval/law/val/2",
+   "answer": "D",
+   "pred": "B",
+   "logprobs": [
+    -2.5470640659332275,
+    -0.41807761788368225,
+    -1.9809781312942505,
+    -2.1945345401763916
+   ],
+   "ctx_tokens": 608,
+   "shots": 5
+  },
+  {
+   "qid": "ceval/law/val/3",
+   "answer": "A",
+   "pred": "C",
+   "logprobs": [
+    -1.8169342279434204,
+    -1.8907638788223267,
+    -0.5504719018936157,
+    -2.3738226890563965
+   ],
+   "ctx_tokens": 595,
+   "shots": 5
+  }
+ ]
+}
