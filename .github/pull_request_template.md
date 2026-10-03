@@ -9,6 +9,7 @@
 - [ ] `git diff --stat` reviewed
 - [ ] `git diff --check` passes
 - [ ] `ruff check src tests scripts` passes
+- [ ] `ruff format --check src tests scripts` passes
 - [ ] `pytest -q -m "not gpu and not model"` passes, or the reason it was not run is documented
 
 ## Review checklist
@@ -25,8 +26,7 @@
 ## Formatting
 
 <!--
-Repository-wide Ruff formatting is not yet a required gate because the current
-baseline has not been normalized. Do not mix bulk formatting into unrelated PRs.
+Ruff formatting is enforced by CI. Do not mix bulk formatting into unrelated PRs.
 -->
 
 - [ ] This PR does not introduce unrelated repository-wide formatting changes

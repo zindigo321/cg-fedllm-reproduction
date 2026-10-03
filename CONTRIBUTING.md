@@ -86,6 +86,7 @@ git diff
 git diff --stat
 git diff --check
 ruff check src tests scripts
+ruff format --check src tests scripts
 pytest -q -m "not gpu and not model"
 ```
 
@@ -104,11 +105,11 @@ Do not commit merely because tests pass.
 
 ## Formatting
 
-Ruff formatting is the target project standard.
+Ruff formatting is a required local and CI gate:
 
-`ruff format --check src tests scripts` should become a required local and CI
-gate after the existing repository formatting baseline has been normalized in
-a dedicated change.
+```text
+ruff format --check src tests scripts
+```
 
 Do not mix repository-wide formatting with feature, experiment, or
 documentation changes.
