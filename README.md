@@ -119,7 +119,7 @@ a paper result.
 - [x] Measure factor-aware reconstruction and update-direction quality
 - [x] Measure compression ratio and logical communication
 - [x] Run pre-registered representation and sensitivity diagnostics
-- [ ] Run an operational AE-backed FAF core experiment
+- [x] Apply the pre-registered viability gates before operational AE-backed FAF
 
 The operational compressed FAF experiment was not started because no
 pre-registered Phase 3 compressor candidate passed the viability gates. That is
@@ -196,103 +196,53 @@ pre-registered deviations.
 These resource adaptations are part of the reproduction evidence and are
 recorded rather than presented as paper-faithful settings.
 
-## 7. Progress
+## 7. Current status and evidence
 
-- [x] Repository and development environment established
-- [x] Paper and method audit completed
-- [x] Baseline federated LoRA implementation validated
-- [x] CG-FedLLM data, compression, TGAP, FAF, and evaluation machinery implemented
-- [x] Phase 2 smoke-scale validation completed
-- [x] Phase 3 Tier-B AutoEncoder viability diagnosis completed
-- [x] Phase 4 representation-forensics and seed-1 baseline evaluation completed
-- [x] Communication and downstream baseline measurements recorded
-- [x] Deviations, discrepancies, and evidence provenance recorded
-- [ ] Demonstrate a viable operational AE-backed FAF compressor at the paper's target ratio
-- [ ] Reproduce the paper-scale experimental claims across the required settings and seeds
+The repository has completed the infrastructure, smoke validation, compressor
+diagnosis, representation forensics, and a seed-1 Tier-B baseline evaluation.
+These milestones do **not** establish full reproduction of the paper's
+experimental claims.
 
-## 8. Phase-2 Status (foundation, baselines, compression core, end-to-end smoke)
+- **Phase 2 — infrastructure and smoke validation:** the federated LoRA,
+  compression, TGAP, FAF, evaluation, provenance, and resume machinery was
+  implemented and validated at smoke scale. This phase does not reproduce a
+  paper-reported result. See `docs/phase2_validation.md` and `results/phase2/`.
+- **Phase 3 — Tier-B compressor diagnosis:** no pre-registered AutoEncoder
+  candidate passed the viability gates at the 1/64 target ratio. The planned
+  operational AE-backed FAF experiment was therefore not run. This is a
+  recorded negative result, not an unfinished implementation task. See
+  `docs/phase3_preregistration.md`, `docs/phase3_findings.md`, and
+  `results/phase3/`.
+- **Phase 4 — representation forensics and seed-1 baseline:** representation,
+  micro-batch, gauge, state/update/gradient, screening, baseline, communication,
+  and downstream evaluation work was completed. No representation passed the
+  pre-registered R0-R4 screen, and the project still has no viable operational
+  AE-backed compressor at the paper's target ratio. See
+  `docs/phase4_preregistration.md`, `docs/phase4_findings.md`,
+  `docs/representation_forensics.md`, and `results/phase4/`.
 
-Published Phase 2 history originated on `phase2-foundation-smoke` and is integrated into `main`. 
-Phase 2 builds and validates the machinery at smoke scale; it does **not**
-reproduce any number from the paper. 
-Every reported number is labelled PAPER-REPORTED, PHASE2-SMOKE,
-LOCAL-MICROBENCH, DERIVED or UNKNOWN.
+The remaining project-level goals are to determine whether a viable operational
+compressed FAF path can be established, and to reproduce the
+paper-scale claims across the required settings and seeds.
 
-Implemented (package `src/cg_fedllm`, see `docs/architecture.md`): strict configs with provenance;
-Shepherd-compatible Dolly partition (oracle-equivalent) and per-client D1/D2 manifests; `reference_eval_v1`
-(C-Eval / MMLU log-likelihood evaluator, cross-checked against lm-eval); local LoRA training and a
-FedIT/Shepherd-style simulator with resume; `adapter_state | adapter_delta` representations and the Phi layout;
-the reconstructed ResNet-3 AutoEncoder (1/64 compression); TGAP collection (`local_pretrain` and
-`federated_pretrain`); FAF with Identity / AutoEncoder / ConstantMean / GaussianNoise codecs.
+Cross-phase evidence boundaries, deviations, and unresolved discrepancies are
+tracked in `docs/evidence_ledger.md`, `docs/deviations.md`,
+`docs/discrepancies.md`, and `docs/provenance.md`.
 
-Quickstart (Windows, conda; see `docs/reproduction_protocol.md`):
+## 8. Quickstart
+
+Windows, conda; see `docs/reproduction_protocol.md` for the full protocol and
+experiment acceptance-record requirements.
 
 ```bash
 conda create -n cgfedllm python=3.11 -y && conda activate cgfedllm
 python -m pip install torch==2.14.0 --index-url https://download.pytorch.org/whl/cu130
-python -m pip install -r requirements/base-win-cu130.txt && python -m pip install -e . --no-deps
-pytest -q -m "not gpu and not model"                      # CPU suite (also run in CI)
-cgfed smoke --config configs/smoke/llama160m_smoke.yaml   # Tier-C GPU smoke (llama-160m)
+python -m pip install -r requirements/base-win-cu130.txt
+python -m pip install -e . --no-deps
+pytest -q -m "not gpu and not model"
+cgfed smoke --config configs/smoke/llama160m_smoke.yaml
 ```
 
-Documentation: `docs/phase2_validation.md` (exit gates, smoke, evaluator, GPU measurements),
-`docs/reproduction_protocol.md`, `docs/architecture.md`, `docs/paper_notes.md`, `docs/evidence_ledger.md`
-(resolved / inferred / unknown), `docs/deviations.md`, `docs/discrepancies.md`, `docs/provenance.md`.
-Results: `results/phase2/`. Licenses: Apache-2.0 (`LICENSE`), third-party notices in `NOTICE`; models and
-datasets are downloaded at pinned revisions and never committed.
-
-## 9. Phase-3 Status (Tier-B AutoEncoder diagnosis; Phase 3A only)
-
-Published Phase 3 history originated on `phase3-tierb-diagnosis-core` and is integrated into `main`. 
-Phase 3A asks whether the reconstructed CG-FedLLM compressor can
-reconstruct real federated LoRA states or updates of Qwen1.5-1.8B at the paper's 1/64 ratio. 
-The protocol and
-the minimum-viability gates were pre-registered in `docs/phase3_preregistration.md` before any data were
-collected.
-The configuration (bf16 + gradient checkpointing, micro-batch 1 x 32) is resource-feasible, NOT
-paper-faithful. Labels: PHASE3-DIAGNOSTIC, PHASE3-SENSITIVITY, DERIVED.
-
-**Outcome (seed 1).**
-* *A5/A6:* none of the three pre-registered AE candidates passes the gate on `federated_pretrain + adapter_state`
-  (`none`, `global_rms`, `factor_rms`). Their reconstructions carry no information about the client's update:
-  innovation cosine about -0.02, aggregate-update cosine about -0.04. The verdict is **NO PRIMARY CODEC IS VIABLE**.
-* *A7, Phase 3B:* consequently the one-round FAF probe, the 20-round core runs, the replicate seeds and the
-  benchmark evaluation were not run.
-* *A8:* the sensitivities (`local_pretrain` state; federated delta with `factor_rms`) fail too.
-* *Interpretation:* the absolute LoRA state is about 99.96 % shared initialisation plus history, and a client
-  update is 3.6e-4 of its energy.
-  * Generic codes at the same element ratio keep at most 17 % of the A energy.
-  * Even a decoder that memorises the training snapshots recovers only 0.15 of the update direction.
-
-Details: `docs/phase3_findings.md`. Evidence: `results/phase3/`. Deviations and discrepancies:
-`docs/deviations.md` (rows 25-34), `docs/discrepancies.md` (section C).
-
-## 10. Phase-4 Status (representation forensics, micro-batch fidelity, seed-1 baseline)
-
-Published Phase 4 history originated on `phase4-representation-forensics` and is integrated into `main`. 
-Phase 4 audits what the CG-FedLLM AutoEncoder encodes, emulates the paper's micro-batch, and produces one trustworthy seed-1 Tier-B baseline.
-* Protocol: pre-registered in `docs/phase4_preregistration.md`.
-* Evidence audit: `docs/representation_forensics.md`.
-* Labels: PHASE4-FORENSIC, PHASE4-BASELINE, PHASE4-DIAGNOSTIC, DERIVED.
-* No benchmark result was used to select a representation, and no operational AE/FAF compressor run was started.
-
-**Outcome (seed 1).**
-* *Paper forensics (F0).* No official code or supplement was found. The PAPER-LITERAL object is the transmitted factor pair `[A_i, B_i]`, and whether it is a state, an increment or a gradient remains UNKNOWN. New paper inconsistencies: DR-22..28.
-* *Micro-batch (F1).*
-  * A virtual paper micro-batch (logical 16 x 2, streamed in chunks) is implemented and exact in code.
-  * On the GPU it misses the pre-registered adapter criterion (5.0e-5 > 1e-5), through Adam first-step sign flips at near-zero gradients.
-  * The baseline therefore keeps micro-batch 1 x 32, a PROMINENT deviation: gradient cosine with the paper's micro-batch 0.866 on a fixed batch.
-* *Gauge (F2-F4).*
-  * Raw LoRA factor norms (and the paper's 14.29) are gauge-dependent.
-  * A balanced, gauge-invariant canonical representation is implemented and tested.
-  * The per-round effective increment keeps 98.7 % of its energy at rank 8.
-* *Gradients (F5).*
-  * The real-gradient collection is bitwise identical to Phase 3.
-  * Raw factor gradients have 0.69-0.72x the paper's per-element RMS; 1-3-step increments 0.08-0.15x.
-* *Screen (F6).*
-  * No representation passes (R0-R4).
-  * For R2-R4 the fixed AE never reached the zero-output MSE on its own training data under the pre-registered `none` mode, so the screen does not measure their intrinsic 1/64 compressibility.
-* *Baseline (F7).* LoRA-FT over 20 rounds: held-out loss 2.370 → 1.766. FAF-Identity is bitwise identical (13/13 checks). The resource-matched centralized reference reaches 1.756. Logical communication: 2,516,582,400 B two-way over 20 rounds.
-* *Evaluation (F8).* Timed first (projected 23.2 / 28.7 min per model, under the 45-min rule), then the full run: MMLU test Base 45.25 % / LoRA-FT 45.71 % (paired McNemar p = 0.010); C-Eval val 59.08 % / 58.56 % (question-level accuracy identical, p = 1.0). One seed; not used for any representation decision.
-
-Details: `docs/phase4_findings.md`. Evidence: `results/phase4/`. Deviations and discrepancies: `docs/deviations.md` (rows 35-43) and `docs/discrepancies.md` (DR-28, section D).
+Passing the Linux CPU CI or the local CPU test suite is a repository integration
+gate; it is not a substitute for GPU, model-level, or scientific experiment
+validation.
