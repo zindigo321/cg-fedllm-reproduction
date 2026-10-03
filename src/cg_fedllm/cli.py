@@ -47,7 +47,13 @@ def cmd_prepare_data(args) -> dict:
     cfg = _load(args)
     manifest, status = prepare_manifest(cfg, write=args.write)
     sizes = [len(c["ids"]) for c in manifest.data["clients"]]
-    return {**status, "num_clients": len(sizes), "min_client": min(sizes), "max_client": max(sizes), "holdout": len(manifest.holdout_ids)}
+    return {
+        **status,
+        "num_clients": len(sizes),
+        "min_client": min(sizes),
+        "max_client": max(sizes),
+        "holdout": len(manifest.holdout_ids),
+    }
 
 
 def cmd_run_fl(args) -> dict:
@@ -75,7 +81,11 @@ def cmd_run_fl(args) -> dict:
     clients = client_examples(cfg, data, tok, cfg.federated.client_split)
     if cfg.federated.pooled:
         clients = [[ex for c in clients for ex in c]]
-    run_dir = init_run_dir(cfg, args.stage or "fl", {"model": bundle.loaded.info, "manifest_sha256": data.manifest_sha256, "vram_guard": guard})
+    run_dir = init_run_dir(
+        cfg,
+        args.stage or "fl",
+        {"model": bundle.loaded.info, "manifest_sha256": data.manifest_sha256, "vram_guard": guard},
+    )
     codec = build_codec(cfg, bundle.device)
     sim = FederatedSimulator(
         bundle.trainer,
@@ -84,7 +94,10 @@ def cmd_run_fl(args) -> dict:
         run_dir,
         codec=codec,
         layout=layout_for(cfg) if codec is not None else None,
-        identity={"identity_config_sha256": identity_config_sha256(cfg), "manifest_sha256": data.manifest_sha256},
+        identity={
+            "identity_config_sha256": identity_config_sha256(cfg),
+            "manifest_sha256": data.manifest_sha256,
+        },
         heldout_fn=make_heldout_fn(cfg, bundle, heldout_examples(cfg, data, tok)),
         result_label=cfg.run.result_label,
     )
@@ -115,13 +128,38 @@ def cmd_collect_tgap(args) -> dict:
     bundle = build_model_bundle(cfg)
     data = build_data_bundle(cfg)
     clients = client_examples(cfg, data, bundle.loaded.tokenizer, cfg.tgap.client_split)
-    run_dir = init_run_dir(cfg, args.stage or f"tgap_{cfg.tgap.source}", {"model": bundle.loaded.info, "manifest_sha256": data.manifest_sha256, "vram_guard": guard})
-    writer = SnapshotWriter(run_dir, run_id=f"{cfg.run.name}/{run_dir.name}", source_mode=cfg.tgap.source, representation=cfg.tgap.representation, layout=get_layout(cfg.tgap.layout))
+    run_dir = init_run_dir(
+        cfg,
+        args.stage or f"tgap_{cfg.tgap.source}",
+        {"model": bundle.loaded.info, "manifest_sha256": data.manifest_sha256, "vram_guard": guard},
+    )
+    writer = SnapshotWriter(
+        run_dir,
+        run_id=f"{cfg.run.name}/{run_dir.name}",
+        source_mode=cfg.tgap.source,
+        representation=cfg.tgap.representation,
+        layout=get_layout(cfg.tgap.layout),
+    )
     if cfg.tgap.source == "local_pretrain":
-        ids = local_pretrain_clients(len(clients), cfg.tgap.client_fraction, cfg.run.seed, cfg.tgap.local_client_selection)
+        ids = local_pretrain_clients(
+            len(clients), cfg.tgap.client_fraction, cfg.run.seed, cfg.tgap.local_client_selection
+        )
         t0 = time.time()
-        out = collect_local_pretrain(bundle.trainer, bundle.initial_state, clients, clients=ids, num_time_steps=cfg.tgap.num_time_steps, writer=writer)
-        out.update({"local_client_selection": cfg.tgap.local_client_selection, "wall_time_s": round(time.time() - t0, 1), "label": cfg.run.result_label})
+        out = collect_local_pretrain(
+            bundle.trainer,
+            bundle.initial_state,
+            clients,
+            clients=ids,
+            num_time_steps=cfg.tgap.num_time_steps,
+            writer=writer,
+        )
+        out.update(
+            {
+                "local_client_selection": cfg.tgap.local_client_selection,
+                "wall_time_s": round(time.time() - t0, 1),
+                "label": cfg.run.result_label,
+            }
+        )
         atomic_write_json(run_dir / "collection_summary.json", out)
         return out
     cfg.require("federated")
@@ -129,7 +167,13 @@ def cmd_collect_tgap(args) -> dict:
     spec.num_rounds, spec.client_fraction = cfg.tgap.num_time_steps, cfg.tgap.client_fraction
     t0 = time.time()
     out = collect_federated_pretrain(
-        bundle.trainer, bundle.initial_state, clients, spec=spec, run_dir=run_dir / "fl", identity={"identity_config_sha256": identity_config_sha256(cfg)}, writer=writer,
+        bundle.trainer,
+        bundle.initial_state,
+        clients,
+        spec=spec,
+        run_dir=run_dir / "fl",
+        identity={"identity_config_sha256": identity_config_sha256(cfg)},
+        writer=writer,
         result_label=cfg.run.result_label,
     )
     out.update({"wall_time_s": round(time.time() - t0, 1), "label": cfg.run.result_label})
@@ -154,10 +198,25 @@ def cmd_train_ae(args) -> dict:
     layout = get_layout(cfg.autoencoder.layout)
     pairs = [snapshot_tensor(snap_dir, r, cfg.autoencoder.representation, layout) for r in records]
     index_sha = sha256_file(snap_dir / "index.jsonl")
-    run_dir = init_run_dir(cfg, args.stage or "ae", {"snapshot_dir": str(snap_dir), "snapshot_index_sha256": index_sha, "vram_guard": guard})
+    run_dir = init_run_dir(
+        cfg,
+        args.stage or "ae",
+        {"snapshot_dir": str(snap_dir), "snapshot_index_sha256": index_sha, "vram_guard": guard},
+    )
     return train_autoencoder(
-        [p[0] for p in pairs], [p[1] for p in pairs], records, cfg.autoencoder, device=torch.device(cfg.run.device), out_dir=run_dir,
-        provenance={"smoke": False, "snapshot_dir": str(snap_dir), "snapshot_index_sha256": index_sha, "num_snapshots": len(records), "source_mode": records[0]["source_mode"]},
+        [p[0] for p in pairs],
+        [p[1] for p in pairs],
+        records,
+        cfg.autoencoder,
+        device=torch.device(cfg.run.device),
+        out_dir=run_dir,
+        provenance={
+            "smoke": False,
+            "snapshot_dir": str(snap_dir),
+            "snapshot_index_sha256": index_sha,
+            "num_snapshots": len(records),
+            "source_mode": records[0]["source_mode"],
+        },
         label=cfg.run.result_label,
         layout=layout,
         geom=geometry_from_dict(records[0]["geometry"]),
@@ -186,11 +245,27 @@ def cmd_evaluate(args) -> dict:
         state = AdapterState.load(resolve_path(args.adapter))
         set_adapter_state(lora_parameters(model), state)
         adapter_info = {"path": str(resolve_path(args.adapter)), "adapter_sha256": state.sha256()}
-    run_dir = init_run_dir(cfg, args.stage or "eval", {"model": loaded.info, "adapter": adapter_info, "vram_guard": guard})
+    run_dir = init_run_dir(
+        cfg, args.stage or "eval", {"model": loaded.info, "adapter": adapter_info, "vram_guard": guard}
+    )
     results = {}
     for spec in cfg.eval.benchmarks:
-        r = evaluate_benchmark(model, loaded.tokenizer, spec, cfg.eval, device=device, pad_token_id=loaded.pad_token_id, out_dir=run_dir, tag=args.tag or "", label=cfg.run.result_label)
-        results[f"{spec.name}/{spec.split}"] = {"aggregates": {k: v for k, v in r["aggregates"].items() if k != "per_subject"}, "scoring": r["scoring"], "timing_s": r["timing_s"]}
+        r = evaluate_benchmark(
+            model,
+            loaded.tokenizer,
+            spec,
+            cfg.eval,
+            device=device,
+            pad_token_id=loaded.pad_token_id,
+            out_dir=run_dir,
+            tag=args.tag or "",
+            label=cfg.run.result_label,
+        )
+        results[f"{spec.name}/{spec.split}"] = {
+            "aggregates": {k: v for k, v in r["aggregates"].items() if k != "per_subject"},
+            "scoring": r["scoring"],
+            "timing_s": r["timing_s"],
+        }
     atomic_write_json(run_dir / "eval_summary.json", results)
     return results
 
@@ -232,12 +307,26 @@ def cmd_smoke(args) -> dict:
         def _eval_all(name):
             out = {}
             for spec in cfg.eval.benchmarks:
-                r = evaluate_benchmark(bundle.peft_model, tok, spec, cfg.eval, device=bundle.device, pad_token_id=bundle.loaded.pad_token_id, out_dir=run_dir / "eval", tag=name, label=cfg.run.result_label)
-                out[f"{spec.name}/{spec.split}"] = {k: v for k, v in r["aggregates"].items() if k != "per_subject"}
+                r = evaluate_benchmark(
+                    bundle.peft_model,
+                    tok,
+                    spec,
+                    cfg.eval,
+                    device=bundle.device,
+                    pad_token_id=bundle.loaded.pad_token_id,
+                    out_dir=run_dir / "eval",
+                    tag=name,
+                    label=cfg.run.result_label,
+                )
+                out[f"{spec.name}/{spec.split}"] = {
+                    k: v for k, v in r["aggregates"].items() if k != "per_subject"
+                }
             return out
 
     tol = None if cfg.run.device == "cpu" else args.gpu_tolerance
-    return run_smoke(cfg, bundle, d1, d2, heldout, run_dir, gpu_tolerance=tol, run_controls=args.controls, eval_fn=eval_fn)
+    return run_smoke(
+        cfg, bundle, d1, d2, heldout, run_dir, gpu_tolerance=tol, run_controls=args.controls, eval_fn=eval_fn
+    )
 
 
 def cmd_bench_gpu(args) -> dict:
@@ -251,11 +340,24 @@ def cmd_bench_gpu(args) -> dict:
     configure_determinism(False, None)
     lora = build_dataclass(LoRASection, spec["lora"], "lora")
     vram_guard = cap_allocator_to_free_vram()
-    out: dict[str, Any] = {"label": "LOCAL-MICROBENCH", "environment": collect_environment(), "vram_guard": vram_guard, "results": []}
+    out: dict[str, Any] = {
+        "label": "LOCAL-MICROBENCH",
+        "environment": collect_environment(),
+        "vram_guard": vram_guard,
+        "results": [],
+    }
     for entry in spec["benchmarks"]:
         mcfg = build_dataclass(ModelSection, entry["model"], "model")
         for gc_opt in entry["gradient_checkpointing"]:
-            out["results"] += bench_config(mcfg, lora, seq_len=entry["seq_len"], micro_batches=entry["micro_batches"], gradient_checkpointing=gc_opt, steps=spec.get("steps", 5), warmup=spec.get("warmup", 2))
+            out["results"] += bench_config(
+                mcfg,
+                lora,
+                seq_len=entry["seq_len"],
+                micro_batches=entry["micro_batches"],
+                gradient_checkpointing=gc_opt,
+                steps=spec.get("steps", 5),
+                warmup=spec.get("warmup", 2),
+            )
             atomic_write_json(resolve_path(spec["output"]), out)
     return out
 
@@ -291,14 +393,22 @@ def cmd_calibrate_train(args) -> dict:
     tok = bundle.loaded.tokenizer
     d1, d2 = client_examples(cfg, data, tok, "d1"), client_examples(cfg, data, tok, "d2")
     n = len(d2)
-    local_ids = local_pretrain_clients(n, cfg.tgap.client_fraction, cfg.run.seed, cfg.tgap.local_client_selection)
+    local_ids = local_pretrain_clients(
+        n, cfg.tgap.client_fraction, cfg.run.seed, cfg.tgap.local_client_selection
+    )
     schedules = {
         "fl": ("d2", _schedule(n, cfg.federated.num_rounds, cfg.federated.client_fraction)),
         "tgap_fed": ("d1", _schedule(n, cfg.tgap.num_time_steps, cfg.tgap.client_fraction)),
         "tgap_local": ("d1", [(t, local_ids) for t in range(cfg.tgap.num_time_steps)]),
     }
-    lengths = token_length_report({"d1": d1, "d2": d2}, schedules, cutoff=cfg.data.cutoff_len, cfg=cfg.local_train, seed=cfg.run.seed)
-    run_dir = init_run_dir(cfg, args.stage or "calibration", {"model": bundle.loaded.info, "manifest_sha256": data.manifest_sha256, "vram_guard": guard})
+    lengths = token_length_report(
+        {"d1": d1, "d2": d2}, schedules, cutoff=cfg.data.cutoff_len, cfg=cfg.local_train, seed=cfg.run.seed
+    )
+    run_dir = init_run_dir(
+        cfg,
+        args.stage or "calibration",
+        {"model": bundle.loaded.info, "manifest_sha256": data.manifest_sha256, "vram_guard": guard},
+    )
     pool = sorted((ex for c in d1 + d2 for ex in c), key=lambda e: (-e.num_tokens, e.source_id))
     round0 = schedules["fl"][1][0][1]
     timing = timing_run(
@@ -329,7 +439,10 @@ def cmd_calibrate_train(args) -> dict:
         },
     }
     atomic_write_json(run_dir / "calibration.json", out)
-    return {k: out[k] for k in ("label", "model_load_s", "vram_guard")} | {"decision": timing["decision"], "totals": timing["totals"]}
+    return {k: out[k] for k in ("label", "model_load_s", "vram_guard")} | {
+        "decision": timing["decision"],
+        "totals": timing["totals"],
+    }
 
 
 def cmd_microbatch_diag(args) -> dict:
@@ -360,7 +473,13 @@ def cmd_microbatch_diag(args) -> dict:
     start = AdapterState.load(resolve_path(args.adapter)) if args.adapter else bundle.initial_state
     run_dir = init_run_dir(cfg, args.stage or "microbatch_diag", {"vram_guard": guard, "adapter": adapter})
     t0 = time.time()
-    res = microbatch_gradient_diagnostic(bundle.trainer, start, batch, real_micro_batch=cfg.local_train.micro_batch_size, reference=cfg.local_train.micro_batch_size)
+    res = microbatch_gradient_diagnostic(
+        bundle.trainer,
+        start,
+        batch,
+        real_micro_batch=cfg.local_train.micro_batch_size,
+        reference=cfg.local_train.micro_batch_size,
+    )
     out = {
         "label": cfg.run.result_label,
         "batch": {
@@ -387,9 +506,26 @@ def cmd_tgap_stats(args) -> dict:
     cfg.require("autoencoder")
     snap_dir = resolve_path(args.snapshots)
     records = read_index(snap_dir)
-    stats = tgap_statistics(snap_dir, records, split=cfg.autoencoder.split, val_fraction=cfg.autoencoder.val_fraction, split_seed=cfg.autoencoder.split_seed)
+    stats = tgap_statistics(
+        snap_dir,
+        records,
+        split=cfg.autoencoder.split,
+        val_fraction=cfg.autoencoder.val_fraction,
+        split_seed=cfg.autoencoder.split_seed,
+    )
     summary_path = snap_dir / "collection_summary.json"
-    fields = ("time_index", "client_id", "num_samples", "start_adapter_hash", "end_adapter_hash", "file", "file_sha256", "start_file", "start_file_sha256", "l2")
+    fields = (
+        "time_index",
+        "client_id",
+        "num_samples",
+        "start_adapter_hash",
+        "end_adapter_hash",
+        "file",
+        "file_sha256",
+        "start_file",
+        "start_file_sha256",
+        "l2",
+    )
     out = json_safe(
         {
             "label": "DERIVED",
@@ -406,7 +542,16 @@ def cmd_tgap_stats(args) -> dict:
     )
     if args.out:
         atomic_write_json(resolve_path(args.out), out)
-    return {k: out[k] for k in ("num_snapshots", "num_time_indices", "unique_clients", "participation_histogram", "distinct_start_states")}
+    return {
+        k: out[k]
+        for k in (
+            "num_snapshots",
+            "num_time_indices",
+            "unique_clients",
+            "participation_histogram",
+            "distinct_start_states",
+        )
+    }
 
 
 def cmd_ae_viability(args) -> dict:
@@ -424,21 +569,46 @@ def cmd_ae_viability(args) -> dict:
     records = read_index(snap_dir)
     t0 = time.time()
     rep = run_viability(
-        snap_dir, records, ae_dir, representation=a.representation, layout=get_layout(a.layout), split=a.split, val_fraction=a.val_fraction,
-        device=torch.device(cfg.run.device), split_seed=a.split_seed,
+        snap_dir,
+        records,
+        ae_dir,
+        representation=a.representation,
+        layout=get_layout(a.layout),
+        split=a.split,
+        val_fraction=a.val_fraction,
+        device=torch.device(cfg.run.device),
+        split_seed=a.split_seed,
     )
-    keep = ("curve", "best_val", "train_time_s", "latent_shape", "input_shape", "compression_ratio_elements", "latent_logical_bytes_fp32",
-            "raw_logical_bytes_fp32", "normalization_uplink_bytes", "parameters", "normalized_range", "config", "label")
+    keep = (
+        "curve",
+        "best_val",
+        "train_time_s",
+        "latent_shape",
+        "input_shape",
+        "compression_ratio_elements",
+        "latent_logical_bytes_fp32",
+        "raw_logical_bytes_fp32",
+        "normalization_uplink_bytes",
+        "parameters",
+        "normalized_range",
+        "config",
+        "label",
+    )
     out = {
         "label": cfg.run.result_label,
         "source_mode": records[0]["source_mode"],
         "snapshot_index_sha256": sha256_file(snap_dir / "index.jsonl"),
         "ae_run": {
             "dir_name": ae_dir.name,
-            "checkpoint_sha256": {f: sha256_file(ae_dir / f) for f in ("autoencoder_best_val.safetensors", "autoencoder.safetensors")},
+            "checkpoint_sha256": {
+                f: sha256_file(ae_dir / f)
+                for f in ("autoencoder_best_val.safetensors", "autoencoder.safetensors")
+            },
         },
         "ae_training": {k: v for k, v in read_json(ae_dir / "ae_metrics.json").items() if k in keep},
-        "ae_run_git": read_json(ae_dir / "run_metadata.json").get("environment", {}).get("git") if (ae_dir / "run_metadata.json").exists() else None,
+        "ae_run_git": read_json(ae_dir / "run_metadata.json").get("environment", {}).get("git")
+        if (ae_dir / "run_metadata.json").exists()
+        else None,
         "provenance": _provenance(),
         **rep,
     }
@@ -459,7 +629,10 @@ def cmd_ae_select(args) -> dict:
     out = {
         "label": args.label,
         "inputs": files,
-        "gates": {m: {"pass": g["pass"], "criteria": {k: c["pass"] for k, c in g["criteria"].items()}} for m, g in gates.items()},
+        "gates": {
+            m: {"pass": g["pass"], "criteria": {k: c["pass"] for k, c in g["criteria"].items()}}
+            for m, g in gates.items()
+        },
         **select_primary(gates),
         "provenance": _provenance(),
     }
@@ -483,8 +656,14 @@ def cmd_reference_codes(args) -> dict:
     records = read_index(snap_dir)
     t0 = time.time()
     rep = reference_code_report(
-        snap_dir, records, representation=a.representation, layout=get_layout(a.layout), geom=geometry_from_dict(records[0]["geometry"]),
-        split=a.split, val_fraction=a.val_fraction, split_seed=a.split_seed,
+        snap_dir,
+        records,
+        representation=a.representation,
+        layout=get_layout(a.layout),
+        geom=geometry_from_dict(records[0]["geometry"]),
+        split=a.split,
+        val_fraction=a.val_fraction,
+        split_seed=a.split_seed,
     )
     out = json_safe(
         {

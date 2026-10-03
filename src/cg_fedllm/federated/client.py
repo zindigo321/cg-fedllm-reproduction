@@ -99,16 +99,30 @@ class LocalTrainer:
 
     def _loss(self, batch: dict[str, torch.Tensor]) -> tuple[torch.Tensor, int]:
         batch = {k: v.to(self.device) for k, v in batch.items()}
-        out = self.model(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"], position_ids=batch["position_ids"])
+        out = self.model(
+            input_ids=batch["input_ids"],
+            attention_mask=batch["attention_mask"],
+            position_ids=batch["position_ids"],
+        )
         logits = out.logits[:, :-1, :].float()
         labels = batch["labels"][:, 1:]
         n_tokens = int((labels != IGNORE_INDEX).sum())
         if n_tokens == 0:
             raise ValueError("micro-batch has no label tokens")
-        loss = F.cross_entropy(logits.reshape(-1, logits.size(-1)), labels.reshape(-1), ignore_index=IGNORE_INDEX, reduction="mean")
+        loss = F.cross_entropy(
+            logits.reshape(-1, logits.size(-1)),
+            labels.reshape(-1),
+            ignore_index=IGNORE_INDEX,
+            reduction="mean",
+        )
         return loss, n_tokens
 
-    def train(self, start_state: AdapterState, examples: Sequence[TokenizedExample], seed_keys: tuple[int | str, ...]) -> LocalTrainResult:
+    def train(
+        self,
+        start_state: AdapterState,
+        examples: Sequence[TokenizedExample],
+        seed_keys: tuple[int | str, ...],
+    ) -> LocalTrainResult:
         """Train the LoRA factors starting from ``start_state``; return the post-training state."""
         if not examples:
             raise ValueError("a client needs at least one example")
@@ -127,7 +141,9 @@ class LocalTrainer:
             weight_decay=cfg.weight_decay,
             foreach=False,
         )
-        sched = torch.optim.lr_scheduler.LambdaLR(opt, lambda s: linear_schedule_factor(s, total_steps, cfg.warmup_steps))
+        sched = torch.optim.lr_scheduler.LambdaLR(
+            opt, lambda s: linear_schedule_factor(s, total_steps, cfg.warmup_steps)
+        )
         torch_seed = derive_seed(self.base_seed, *seed_keys, "torch")
         torch.manual_seed(torch_seed)
         if torch.cuda.is_available():
@@ -138,13 +154,20 @@ class LocalTrainer:
         n_tokens = 0
         for _epoch in range(cfg.epochs):
             perm = order_rng.permutation(len(examples))
-            micro = [perm[i : i + cfg.micro_batch_size] for i in range(0, len(examples), cfg.micro_batch_size)]
+            micro = [
+                perm[i : i + cfg.micro_batch_size] for i in range(0, len(examples), cfg.micro_batch_size)
+            ]
             for g in range(0, len(micro), accum):
                 group = micro[g : g + accum]
                 opt.zero_grad(set_to_none=True)
                 group_loss = 0.0
                 for mb in group:
-                    batch = collate([examples[int(j)] for j in mb], self.pad_token_id, self.padding_side, cfg.pad_to_multiple_of)
+                    batch = collate(
+                        [examples[int(j)] for j in mb],
+                        self.pad_token_id,
+                        self.padding_side,
+                        cfg.pad_to_multiple_of,
+                    )
                     loss, toks = self._loss(batch)
                     (loss / len(group)).backward()
                     group_loss += float(loss.detach()) / len(group)

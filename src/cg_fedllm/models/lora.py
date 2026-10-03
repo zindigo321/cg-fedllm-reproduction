@@ -17,7 +17,9 @@ from cg_fedllm.config import LoRASection
 from cg_fedllm.models.adapter import AdapterState, AdapterStateError, canonical_order
 from cg_fedllm.utils.seeding import derive_seed
 
-PEFT_LORA_RE = re.compile(r"(?:^|\.)layers\.(\d+)\.(self_attn|mlp)\.([A-Za-z0-9_]+)\.lora_(A|B)\.default\.weight$")
+PEFT_LORA_RE = re.compile(
+    r"(?:^|\.)layers\.(\d+)\.(self_attn|mlp)\.([A-Za-z0-9_]+)\.lora_(A|B)\.default\.weight$"
+)
 
 
 def canonical_key(peft_param_name: str) -> str | None:

@@ -40,7 +40,16 @@ from cg_fedllm.tgap.train_ae import train_autoencoder
 from cg_fedllm.utils.io import atomic_write_json, atomic_write_text, load_tensors, read_json
 
 
-def _spec(cfg: ExperimentConfig, num_clients: int, *, representation: str | None = None, namespace: str = "fl", stop: int | None = None, rounds: int | None = None, fraction: float | None = None) -> SimulatorSpec:
+def _spec(
+    cfg: ExperimentConfig,
+    num_clients: int,
+    *,
+    representation: str | None = None,
+    namespace: str = "fl",
+    stop: int | None = None,
+    rounds: int | None = None,
+    fraction: float | None = None,
+) -> SimulatorSpec:
     f = cfg.federated
     return SimulatorSpec(
         num_clients=num_clients,
@@ -110,7 +119,16 @@ def run_smoke(
         timings[name] = round(time.time() - t0, 2)
         return out
 
-    def fl(name: str, codec, *, representation: str | None = None, stop: int | None = None, data=d2, rounds=None, fraction=None) -> dict:
+    def fl(
+        name: str,
+        codec,
+        *,
+        representation: str | None = None,
+        stop: int | None = None,
+        data=d2,
+        rounds=None,
+        fraction=None,
+    ) -> dict:
         n_clients = len(data)
         sim = FederatedSimulator(
             bundle.trainer,
@@ -131,15 +149,46 @@ def run_smoke(
     t_cfg = cfg.tgap
     local_dir, fed_dir = out_root / "tgap_local", out_root / "tgap_federated"
     local_clients = local_pretrain_clients(n, t_cfg.client_fraction, cfg.run.seed)
-    w_local = SnapshotWriter(local_dir, run_id=f"{cfg.run.name}/tgap_local", source_mode="local_pretrain", representation=t_cfg.representation, layout=layout)
-    results["tgap_local"] = timed(
-        "tgap_local", lambda: collect_local_pretrain(bundle.trainer, initial, d1, clients=local_clients, num_time_steps=t_cfg.num_time_steps, writer=w_local)
+    w_local = SnapshotWriter(
+        local_dir,
+        run_id=f"{cfg.run.name}/tgap_local",
+        source_mode="local_pretrain",
+        representation=t_cfg.representation,
+        layout=layout,
     )
-    w_fed = SnapshotWriter(fed_dir, run_id=f"{cfg.run.name}/tgap_federated", source_mode="federated_pretrain", representation=t_cfg.representation, layout=layout)
-    fed_spec = _spec(cfg, n, namespace="tgap_fed", rounds=t_cfg.num_time_steps, fraction=t_cfg.client_fraction)
+    results["tgap_local"] = timed(
+        "tgap_local",
+        lambda: collect_local_pretrain(
+            bundle.trainer,
+            initial,
+            d1,
+            clients=local_clients,
+            num_time_steps=t_cfg.num_time_steps,
+            writer=w_local,
+        ),
+    )
+    w_fed = SnapshotWriter(
+        fed_dir,
+        run_id=f"{cfg.run.name}/tgap_federated",
+        source_mode="federated_pretrain",
+        representation=t_cfg.representation,
+        layout=layout,
+    )
+    fed_spec = _spec(
+        cfg, n, namespace="tgap_fed", rounds=t_cfg.num_time_steps, fraction=t_cfg.client_fraction
+    )
     results["tgap_federated"] = timed(
         "tgap_federated",
-        lambda: collect_federated_pretrain(bundle.trainer, initial, d1, spec=fed_spec, run_dir=fed_dir / "fl", identity={**ident, "stage": "tgap_federated"}, writer=w_fed, result_label=cfg.run.result_label),
+        lambda: collect_federated_pretrain(
+            bundle.trainer,
+            initial,
+            d1,
+            spec=fed_spec,
+            run_dir=fed_dir / "fl",
+            identity={**ident, "stage": "tgap_federated"},
+            writer=w_fed,
+            result_label=cfg.run.result_label,
+        ),
     )
 
     # ---- AE training on the default (local_pretrain) snapshots ----------------------------------------
@@ -151,29 +200,67 @@ def run_smoke(
     results["ae"] = timed(
         "ae",
         lambda: train_autoencoder(
-            xs, refs, records, ae_cfg, device=bundle.device, out_dir=ae_dir,
-            provenance={"smoke": True, "snapshot_source": "local_pretrain", "snapshot_dir": str(local_dir), "num_snapshots": len(records)},
+            xs,
+            refs,
+            records,
+            ae_cfg,
+            device=bundle.device,
+            out_dir=ae_dir,
+            provenance={
+                "smoke": True,
+                "snapshot_source": "local_pretrain",
+                "snapshot_dir": str(local_dir),
+                "num_snapshots": len(records),
+            },
             label=cfg.run.result_label,
         ),
     )
     ae, _ = load_autoencoder(ae_dir / "autoencoder.safetensors", device=bundle.device)
 
     # ---- FAF ----------------------------------------------------------------------------------------
-    results["faf_identity"] = timed("faf_identity", lambda: fl("faf_identity", IdentityCodec(), representation="adapter_state"))
-    results["faf_identity_delta"] = timed("faf_identity_delta", lambda: fl("faf_identity_delta", IdentityCodec(), representation="adapter_delta"))
-    results["faf_autoencoder"] = timed("faf_autoencoder", lambda: fl("faf_autoencoder", AutoEncoderCodec(ae, device=bundle.device), representation=ae_cfg.representation))
+    results["faf_identity"] = timed(
+        "faf_identity", lambda: fl("faf_identity", IdentityCodec(), representation="adapter_state")
+    )
+    results["faf_identity_delta"] = timed(
+        "faf_identity_delta",
+        lambda: fl("faf_identity_delta", IdentityCodec(), representation="adapter_delta"),
+    )
+    results["faf_autoencoder"] = timed(
+        "faf_autoencoder",
+        lambda: fl(
+            "faf_autoencoder",
+            AutoEncoderCodec(ae, device=bundle.device),
+            representation=ae_cfg.representation,
+        ),
+    )
     if run_controls:
         mean = load_tensors(ae_dir / "train_mean.safetensors")["x"]
-        results["faf_constant_mean"] = timed("faf_constant_mean", lambda: fl("faf_constant_mean", ConstantMeanCodec(mean), representation=ae_cfg.representation))
-        results["faf_gaussian_noise"] = timed("faf_gaussian_noise", lambda: fl("faf_gaussian_noise", GaussianNoiseCodec(1e-4), representation="adapter_state"))
+        results["faf_constant_mean"] = timed(
+            "faf_constant_mean",
+            lambda: fl("faf_constant_mean", ConstantMeanCodec(mean), representation=ae_cfg.representation),
+        )
+        results["faf_gaussian_noise"] = timed(
+            "faf_gaussian_noise",
+            lambda: fl("faf_gaussian_noise", GaussianNoiseCodec(1e-4), representation="adapter_state"),
+        )
 
     # ---- centralized (sample-matched) and N=1 equivalence ------------------------------------------------
     pooled = [[ex for client in d2 for ex in client]]
-    results["cent"] = timed("cent", lambda: fl("cent_smoke_sample_matched", None, data=pooled, rounds=1, fraction=1.0))
+    results["cent"] = timed(
+        "cent", lambda: fl("cent_smoke_sample_matched", None, data=pooled, rounds=1, fraction=1.0)
+    )
     direct = bundle.trainer.train(initial, pooled[0], ("fl", 0, 0)).end_state
     cent_final = AdapterState.load(out_root / "cent_smoke_sample_matched" / "final_adapter.safetensors")
-    n1 = {"bitwise_equal": direct.equal(cent_final), "relative_l2": cent_final.relative_l2_diff(direct), "tolerance": gpu_tolerance}
-    n1["pass"] = n1["bitwise_equal"] if gpu_tolerance is None else (n1["bitwise_equal"] or n1["relative_l2"] <= gpu_tolerance)
+    n1 = {
+        "bitwise_equal": direct.equal(cent_final),
+        "relative_l2": cent_final.relative_l2_diff(direct),
+        "tolerance": gpu_tolerance,
+    }
+    n1["pass"] = (
+        n1["bitwise_equal"]
+        if gpu_tolerance is None
+        else (n1["bitwise_equal"] or n1["relative_l2"] <= gpu_tolerance)
+    )
 
     # ---- resume -----------------------------------------------------------------------------------------
     def resume() -> dict:
@@ -185,13 +272,19 @@ def run_smoke(
 
     checks = {
         "identity_state_vs_lora_ft": _compare(out_root / "faf_identity", out_root / "lora_ft", gpu_tolerance),
-        "identity_delta_vs_lora_ft": _compare(out_root / "faf_identity_delta", out_root / "lora_ft", gpu_tolerance if gpu_tolerance is not None else 1e-6),
+        "identity_delta_vs_lora_ft": _compare(
+            out_root / "faf_identity_delta",
+            out_root / "lora_ft",
+            gpu_tolerance if gpu_tolerance is not None else 1e-6,
+        ),
         "resume_vs_uninterrupted": _compare(out_root / "resume_check", out_root / "faf_identity", None),
         "n1_fl_vs_local": n1,
     }
     results["checks"] = checks
 
-    results["stage_status"] = {k: v["status"] for k, v in results.items() if isinstance(v, dict) and "status" in v}
+    results["stage_status"] = {
+        k: v["status"] for k, v in results.items() if isinstance(v, dict) and "status" in v
+    }
 
     if eval_fn is not None:
         t0 = time.time()
@@ -216,27 +309,56 @@ def render_markdown(r: dict[str, Any]) -> str:
     lines = ["# Tier-C smoke summary (PHASE2-SMOKE — correctness run, not a paper reproduction)", ""]
     lines.append(f"clients: {r['num_clients']}; total stage time: {r.get('total_time_s')} s")
     lines += ["", "## Stage status", ""] + [f"- {k}: {v}" for k, v in r.get("stage_status", {}).items()]
-    lines += ["", "## Equivalence checks", "", "| check | bitwise | relative L2 | tolerance | pass |", "|---|---|---|---|---|"]
+    lines += [
+        "",
+        "## Equivalence checks",
+        "",
+        "| check | bitwise | relative L2 | tolerance | pass |",
+        "|---|---|---|---|---|",
+    ]
     for k, c in r.get("checks", {}).items():
-        lines.append(f"| {k} | {c.get('bitwise_equal')} | {c.get('relative_l2'):.3e} | {c.get('tolerance')} | {c.get('pass')} |")
+        lines.append(
+            f"| {k} | {c.get('bitwise_equal')} | {c.get('relative_l2'):.3e} | {c.get('tolerance')} | {c.get('pass')} |"
+        )
     lines += ["", "## Held-out loss (PHASE2-SMOKE)", "", "| stage | initial | final round |", "|---|---|---|"]
-    for k in ("lora_ft", "faf_identity", "faf_identity_delta", "faf_autoencoder", "cent", "faf_constant_mean", "faf_gaussian_noise"):
+    for k in (
+        "lora_ft",
+        "faf_identity",
+        "faf_identity_delta",
+        "faf_autoencoder",
+        "cent",
+        "faf_constant_mean",
+        "faf_gaussian_noise",
+    ):
         s = r.get(k)
         if isinstance(s, dict) and "heldout_by_round" in s:
-            last = s["heldout_by_round"][max(s["heldout_by_round"], key=lambda x: int(x))] if s["heldout_by_round"] else None
+            last = (
+                s["heldout_by_round"][max(s["heldout_by_round"], key=lambda x: int(x))]
+                if s["heldout_by_round"]
+                else None
+            )
             init = s.get("initial_heldout", {}).get("loss")
             lines.append(f"| {k} | {init} | {last['loss'] if last else None} |")
     lines += ["", "## Uplink bytes (logical) per run", "", "| stage | logical | raw fp32 |", "|---|---|---|"]
     for k in ("lora_ft", "faf_identity", "faf_autoencoder", "cent"):
         s = r.get(k)
         if isinstance(s, dict):
-            lines.append(f"| {k} | {s.get('uplink_logical_bytes_total')} | {s.get('uplink_raw_fp32_bytes_total')} |")
+            lines.append(
+                f"| {k} | {s.get('uplink_logical_bytes_total')} | {s.get('uplink_raw_fp32_bytes_total')} |"
+            )
     ae = r.get("ae", {})
     if ae:
-        lines += ["", "## AutoEncoder (PHASE2-SMOKE)", "", f"input {ae.get('input_shape')} -> latent {ae.get('latent_shape')}; CR {ae.get('compression_ratio_elements')}"]
+        lines += [
+            "",
+            "## AutoEncoder (PHASE2-SMOKE)",
+            "",
+            f"input {ae.get('input_shape')} -> latent {ae.get('latent_shape')}; CR {ae.get('compression_ratio_elements')}",
+        ]
         for split in ("train", "val"):
             for name in ("autoencoder", "zero", "train_mean"):
                 m = ae.get(split, {}).get(name, {})
-                lines.append(f"- {split}/{name}: pooled rel. sq. error {m.get('pooled_rel_sq_error')}, mean innovation ratio {m.get('mean_innovation_ratio')}")
+                lines.append(
+                    f"- {split}/{name}: pooled rel. sq. error {m.get('pooled_rel_sq_error')}, mean innovation ratio {m.get('mean_innovation_ratio')}"
+                )
     lines += ["", "## Stage timings (s)", ""] + [f"- {k}: {v}" for k, v in r.get("timings_s", {}).items()]
     return "\n".join(lines) + "\n"

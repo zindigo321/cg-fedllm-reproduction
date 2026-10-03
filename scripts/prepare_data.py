@@ -24,4 +24,15 @@ if __name__ == "__main__":
     cfg.require("data")
     manifest, status = prepare_manifest(cfg.data, write=args.write)
     sizes = [len(c["ids"]) for c in manifest.data["clients"]]
-    print(json.dumps({**status, "num_clients": len(sizes), "min_client": min(sizes), "max_client": max(sizes), "holdout": len(manifest.holdout_ids)}, indent=2))
+    print(
+        json.dumps(
+            {
+                **status,
+                "num_clients": len(sizes),
+                "min_client": min(sizes),
+                "max_client": max(sizes),
+                "holdout": len(manifest.holdout_ids),
+            },
+            indent=2,
+        )
+    )

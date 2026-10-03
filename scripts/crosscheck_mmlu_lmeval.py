@@ -136,12 +136,26 @@ def cmd_compare(args) -> None:
         "per_subject_max_abs_delta_pp": max(abs(v) for v in diffs.values()) if diffs else None,
         "per_subject_delta_pp": diffs,
         "lm_eval_parts": [
-            {k: p[k] for k in ("device", "subjects", "limit", "lm_eval", "environment")} | {"num_questions": len(p["questions"])} for p in parts
+            {k: p[k] for k in ("device", "subjects", "limit", "lm_eval", "environment")}
+            | {"num_questions": len(p["questions"])}
+            for p in parts
         ],
-        "ours": {"protocol": ours["protocol"], "dataset": {k: ours["dataset"][k] for k in ("repo", "revision", "digest")}, "timing_s": ours["timing_s"]},
+        "ours": {
+            "protocol": ours["protocol"],
+            "dataset": {k: ours["dataset"][k] for k in ("repo", "revision", "digest")},
+            "timing_s": ours["timing_s"],
+        },
     }
     atomic_write_json(Path(args.out), out)
-    keys = ("ours_overall", "lm_eval_overall", "delta_pp", "pass", "questions_compared", "question_level_agreement", "per_subject_max_abs_delta_pp")
+    keys = (
+        "ours_overall",
+        "lm_eval_overall",
+        "delta_pp",
+        "pass",
+        "questions_compared",
+        "question_level_agreement",
+        "per_subject_max_abs_delta_pp",
+    )
     print(json.dumps({k: out[k] for k in keys}, indent=2))
 
 
@@ -155,15 +169,30 @@ def main() -> None:
     r.add_argument("--batch-size", default="1")
     r.add_argument("--subjects", nargs="*", default=None, help="default: all 57 subjects")
     r.add_argument("--exclude-subjects", nargs="*", default=[])
-    r.add_argument("--limit", type=int, default=None, help="questions per subject (script smoke test only; never passes the gate)")
-    r.add_argument("--vram-margin-mb", type=int, default=256, help="CUDA: allocator cap = free dedicated VRAM - margin (WDDM spill guard)")
+    r.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="questions per subject (script smoke test only; never passes the gate)",
+    )
+    r.add_argument(
+        "--vram-margin-mb",
+        type=int,
+        default=256,
+        help="CUDA: allocator cap = free dedicated VRAM - margin (WDDM spill guard)",
+    )
     r.add_argument("--part-out", required=True)
     c = sub.add_parser("compare", help="merge part files and compare with our predictions")
     c.add_argument("--ours", required=True)
     c.add_argument("--parts", nargs="+", required=True)
     c.add_argument("--out", required=True)
     c.add_argument("--tolerance-pp", type=float, default=0.5)
-    c.add_argument("--label", choices=RESULT_LABELS, default="PHASE2-SMOKE", help="result label (Phase 2: evaluator validation = PHASE2-SMOKE)")
+    c.add_argument(
+        "--label",
+        choices=RESULT_LABELS,
+        default="PHASE2-SMOKE",
+        help="result label (Phase 2: evaluator validation = PHASE2-SMOKE)",
+    )
     args = ap.parse_args()
     {"run": cmd_run, "compare": cmd_compare}[args.cmd](args)
 

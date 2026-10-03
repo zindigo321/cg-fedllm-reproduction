@@ -53,7 +53,13 @@ def _q(a: np.ndarray) -> dict[str, float]:
     }
 
 
-def padded_tokens(examples: Sequence[TokenizedExample], cfg: LocalTrainSection, seed: int, seed_keys: tuple, micro_batch: int) -> tuple[int, int]:
+def padded_tokens(
+    examples: Sequence[TokenizedExample],
+    cfg: LocalTrainSection,
+    seed: int,
+    seed_keys: tuple,
+    micro_batch: int,
+) -> tuple[int, int]:
     """(real, padded) tokens of one local epoch in the trainer's data order (same permutation as LocalTrainer)."""
     perm = numpy_rng(seed, *seed_keys, "data_order").permutation(len(examples))
     real = padded = 0
@@ -83,8 +89,16 @@ def token_length_report(
         out["splits"][name] = {**_q(a), "fraction_at_cutoff": float((a >= cutoff).mean())}
     for name, (split, rounds) in schedules.items():
         clients = splits[split]
-        a = np.asarray([ex.num_tokens for t, cids in rounds for c in cids for ex in clients[c]], dtype=np.int64)
-        row: dict[str, Any] = {"split": split, "rounds": len(rounds), "client_rounds": sum(len(c) for _, c in rounds), "examples": int(a.size), "lengths": _q(a)}
+        a = np.asarray(
+            [ex.num_tokens for t, cids in rounds for c in cids for ex in clients[c]], dtype=np.int64
+        )
+        row: dict[str, Any] = {
+            "split": split,
+            "rounds": len(rounds),
+            "client_rounds": sum(len(c) for _, c in rounds),
+            "examples": int(a.size),
+            "lengths": _q(a),
+        }
         steps = 0
         for mb in (1, 2):
             real = pad = 0
@@ -92,7 +106,11 @@ def token_length_report(
                 for c in cids:
                     r, p = padded_tokens(clients[c], cfg, seed, (name, t, c), mb)
                     real, pad = real + r, pad + p
-            row[f"micro_batch_{mb}"] = {"real_tokens": real, "padded_tokens": pad, "padding_overhead": pad / real if real else None}
+            row[f"micro_batch_{mb}"] = {
+                "real_tokens": real,
+                "padded_tokens": pad,
+                "padding_overhead": pad / real if real else None,
+            }
         for _t, cids in rounds:
             for c in cids:
                 steps += optimizer_steps(len(clients[c]), cfg)
@@ -128,7 +146,9 @@ def timing_run(
         res = trainer.train(start, ex, (namespace, round_index, cid))
         torch.cuda.synchronize()
         wall = time.perf_counter() - t0
-        real, padded = padded_tokens(ex, cfg, trainer.base_seed, (namespace, round_index, cid), cfg.micro_batch_size)
+        real, padded = padded_tokens(
+            ex, cfg, trainer.base_seed, (namespace, round_index, cid), cfg.micro_batch_size
+        )
         rows.append(
             {
                 "client_id": int(cid),
@@ -174,15 +194,25 @@ def timing_run(
             "padded_tokens_per_s": round(sum(r["padded_tokens"] for r in rows) / tot_wall, 1),
             "real_tokens_per_s": round(sum(r["real_tokens"] for r in rows) / tot_wall, 1),
             "mean_step_time_s": round(tot_wall / max(1, sum(r["optimizer_steps"] for r in rows)), 3),
-            "peak_allocated_bytes": max([r["peak_allocated_bytes"] for r in rows] + [wc["peak_allocated_bytes"]]),
-            "peak_reserved_bytes": max([r["peak_reserved_bytes"] for r in rows] + [wc["peak_reserved_bytes"]]),
+            "peak_allocated_bytes": max(
+                [r["peak_allocated_bytes"] for r in rows] + [wc["peak_allocated_bytes"]]
+            ),
+            "peak_reserved_bytes": max(
+                [r["peak_reserved_bytes"] for r in rows] + [wc["peak_reserved_bytes"]]
+            ),
         },
     }
-    out["decision"] = micro_batch_decision([r["peak_allocated_bytes"] for r in rows] + [wc["peak_allocated_bytes"]], [r["peak_reserved_bytes"] for r in rows] + [wc["peak_reserved_bytes"]], allocator_cap_bytes)
+    out["decision"] = micro_batch_decision(
+        [r["peak_allocated_bytes"] for r in rows] + [wc["peak_allocated_bytes"]],
+        [r["peak_reserved_bytes"] for r in rows] + [wc["peak_reserved_bytes"]],
+        allocator_cap_bytes,
+    )
     return out
 
 
-def micro_batch_decision(peak_allocated: Sequence[int], peak_reserved: Sequence[int], cap_bytes: int | None) -> dict[str, Any]:
+def micro_batch_decision(
+    peak_allocated: Sequence[int], peak_reserved: Sequence[int], cap_bytes: int | None
+) -> dict[str, Any]:
     """Pre-registered A3 rule (docs/phase3_preregistration.md)."""
     over = max(peak_allocated) > ALLOCATED_LIMIT_BYTES
     near = sum(1 for r in peak_reserved if cap_bytes is not None and r >= cap_bytes - CAP_APPROACH_BYTES)
@@ -198,11 +228,22 @@ def micro_batch_decision(peak_allocated: Sequence[int], peak_reserved: Sequence[
 
 
 def _lora_dropouts(model) -> list[torch.nn.Module]:
-    return [m for name, m in model.named_modules() if name.endswith("lora_dropout.default") and isinstance(m, torch.nn.Dropout)]
+    return [
+        m
+        for name, m in model.named_modules()
+        if name.endswith("lora_dropout.default") and isinstance(m, torch.nn.Dropout)
+    ]
 
 
 def _grads(params: dict[str, torch.nn.Parameter]) -> dict[str, torch.Tensor]:
-    return {k: (p.grad.detach().to("cpu", torch.float64).clone() if p.grad is not None else torch.zeros(p.shape, dtype=torch.float64)) for k, p in params.items()}
+    return {
+        k: (
+            p.grad.detach().to("cpu", torch.float64).clone()
+            if p.grad is not None
+            else torch.zeros(p.shape, dtype=torch.float64)
+        )
+        for k, p in params.items()
+    }
 
 
 def _flat(g: dict[str, torch.Tensor], factor: str | None) -> torch.Tensor:
@@ -244,10 +285,26 @@ def microbatch_gradient_diagnostic(
         for ex in batch:
             for p in params.values():
                 p.grad = None
-            b = {k: v.to(trainer.device) for k, v in collate([ex], trainer.pad_token_id, trainer.padding_side, None).items()}  # no padding
-            logits = model(input_ids=b["input_ids"], attention_mask=b["attention_mask"], position_ids=b["position_ids"]).logits[:, :-1, :].float()
+            b = {
+                k: v.to(trainer.device)
+                for k, v in collate([ex], trainer.pad_token_id, trainer.padding_side, None).items()
+            }  # no padding
+            logits = (
+                model(
+                    input_ids=b["input_ids"],
+                    attention_mask=b["attention_mask"],
+                    position_ids=b["position_ids"],
+                )
+                .logits[:, :-1, :]
+                .float()
+            )
             labels = b["labels"][:, 1:]
-            loss_sum = F.cross_entropy(logits.reshape(-1, logits.size(-1)), labels.reshape(-1), ignore_index=IGNORE_INDEX, reduction="sum")
+            loss_sum = F.cross_entropy(
+                logits.reshape(-1, logits.size(-1)),
+                labels.reshape(-1),
+                ignore_index=IGNORE_INDEX,
+                reduction="sum",
+            )
             loss_sum.backward()
             per_example.append(_grads(params))
             n_tok.append(int((labels != IGNORE_INDEX).sum()))
@@ -270,7 +327,9 @@ def microbatch_gradient_diagnostic(
         groups = [batch[i : i + real_micro_batch] for i in range(0, len(batch), real_micro_batch)]
         padded_examples = 0
         for mb in groups:
-            coll = collate(list(mb), trainer.pad_token_id, trainer.padding_side, trainer.cfg.pad_to_multiple_of)
+            coll = collate(
+                list(mb), trainer.pad_token_id, trainer.padding_side, trainer.cfg.pad_to_multiple_of
+            )
             padded_examples += int((coll["attention_mask"][:, 0] == 0).sum())
             loss, _ = trainer._loss(coll)
             (loss / len(groups)).backward()
@@ -289,7 +348,11 @@ def microbatch_gradient_diagnostic(
             tok = sum(n_tok[i] for i in g)
             for i in g:
                 w[i] = n_tok[i] / tok / len(groups_m)  # total weight of example i's mean token loss
-        weights[str(m)] = {"min": float(w.min()), "max": float(w.max()), "max_over_min": float(w.max() / w.min())}
+        weights[str(m)] = {
+            "min": float(w.min()),
+            "max": float(w.max()),
+            "max_over_min": float(w.max() / w.min()),
+        }
     return {
         "batch_examples": len(batch),
         "label_tokens_per_example": n_tok,
@@ -301,7 +364,9 @@ def microbatch_gradient_diagnostic(
             **_cmp(real, emulated[real_micro_batch]),
         },
         f"vs_micro_batch_{reference}": {str(m): _cmp(g, emulated[reference]) for m, g in emulated.items()},
-        "vs_token_mean_full_batch": {str(m): _cmp(g, token_mean) for m, g in emulated.items()} if token_mean is not None else None,
+        "vs_token_mean_full_batch": {str(m): _cmp(g, token_mean) for m, g in emulated.items()}
+        if token_mean is not None
+        else None,
         "per_example_weight_spread": weights,
         "note": "gradients before clipping and before AdamW; per-coordinate Adam normalisation and clipping further transform the update",
     }

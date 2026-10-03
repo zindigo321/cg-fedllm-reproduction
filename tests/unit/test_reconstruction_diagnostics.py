@@ -77,25 +77,39 @@ def test_state_accuracy_says_nothing_about_the_innovation():
     """Predicting the round-start state reconstructs the state almost perfectly and the update not at all."""
     groups = _items()
     starts = {it.index: LAY.forward(it.start, GEOM) for g in groups for it in g}
-    r = _eval({"start": lambda x, it: starts[it.index].clone(), "identity": lambda x, it: x.clone()}, groups=groups)
+    r = _eval(
+        {"start": lambda x, it: starts[it.index].clone(), "identity": lambda x, it: x.clone()}, groups=groups
+    )
     s = r["start"]
     assert s["state"]["all"]["rel_sq_error"] < 1e-3 and s["state"]["A"]["cosine"] > 0.999
     assert math.isclose(s["innovation"]["all"]["rel_sq_error"], 1.0, rel_tol=1e-9)
-    assert math.isnan(s["innovation"]["all"]["cosine"])  # zero reconstructed innovation: undefined, never >= 0.9
+    assert math.isnan(
+        s["innovation"]["all"]["cosine"]
+    )  # zero reconstructed innovation: undefined, never >= 0.9
     i = r["identity"]
     for grp in ("transmitted", "state", "innovation"):
         for f in ("all", "A", "B"):
             assert i[grp][f]["rel_sq_error"] == 0.0 and i[grp][f]["max_abs_error"] == 0.0
-            assert math.isclose(i[grp][f]["cosine"], 1.0, rel_tol=1e-12) and math.isclose(i[grp][f]["norm_ratio"], 1.0, rel_tol=1e-12)
-    assert i["product"]["state"]["rel_sq_error"] == 0.0 and math.isclose(i["product"]["innovation"]["cosine"], 1.0, rel_tol=1e-9)
+            assert math.isclose(i[grp][f]["cosine"], 1.0, rel_tol=1e-12) and math.isclose(
+                i[grp][f]["norm_ratio"], 1.0, rel_tol=1e-12
+            )
+    assert i["product"]["state"]["rel_sq_error"] == 0.0 and math.isclose(
+        i["product"]["innovation"]["cosine"], 1.0, rel_tol=1e-9
+    )
     assert i["aggregate"]["update"]["all"]["rel_l2_error"] == 0.0
     assert i["innovation_energy_fraction"] < 1e-2
 
 
 def test_lowrank_products_match_dense_computation():
     g = torch.Generator().manual_seed(3)
-    l1, r1 = torch.randn(64, 16, generator=g, dtype=torch.float64), torch.randn(16, 48, generator=g, dtype=torch.float64)
-    l2, r2 = torch.randn(64, 16, generator=g, dtype=torch.float64), torch.randn(16, 48, generator=g, dtype=torch.float64)
+    l1, r1 = (
+        torch.randn(64, 16, generator=g, dtype=torch.float64),
+        torch.randn(16, 48, generator=g, dtype=torch.float64),
+    )
+    l2, r2 = (
+        torch.randn(64, 16, generator=g, dtype=torch.float64),
+        torch.randn(16, 48, generator=g, dtype=torch.float64),
+    )
     assert math.isclose(lowrank_inner(l1, r1, l2, r2), float(((l1 @ r1) * (l2 @ r2)).sum()), rel_tol=1e-10)
     groups = _items(num_times=1, clients=2)
 
@@ -109,7 +123,10 @@ def test_lowrank_products_match_dense_computation():
         rec = LAY.inverse(x_hat, GEOM)
         for layer in range(GEOM.num_layers):
             for m in GEOM.modules:
-                ka, kb = f"layers.{layer}.self_attn.{m}.lora_A.weight", f"layers.{layer}.self_attn.{m}.lora_B.weight"
+                ka, kb = (
+                    f"layers.{layer}.self_attn.{m}.lora_A.weight",
+                    f"layers.{layer}.self_attn.{m}.lora_B.weight",
+                )
                 p = it.end[kb].double() @ it.end[ka].double()
                 ph = rec[kb].double() @ rec[ka].double()
                 ps = it.start[kb].double() @ it.start[ka].double()
@@ -132,14 +149,27 @@ def test_aggregate_replay_matches_fedavg_and_quantiles_are_exact():
     r = _eval({"half": scaled}, groups=groups)["half"]
     items = groups[0]
     true = aggregate([it.end for it in items], [it.num_samples for it in items], "sample_weighted_mean")
-    hat = aggregate([LAY.inverse(scaled(LAY.forward(it.end, GEOM), it), GEOM) for it in items], [it.num_samples for it in items], "sample_weighted_mean")
+    hat = aggregate(
+        [LAY.inverse(scaled(LAY.forward(it.end, GEOM), it), GEOM) for it in items],
+        [it.num_samples for it in items],
+        "sample_weighted_mean",
+    )
     start = items[0].start
     u, uh = true.sub(start), hat.sub(start)
     num = sum(float(((uh[k].double() - u[k].double()) ** 2).sum()) for k in u.keys())
     den = sum(float((u[k].double() ** 2).sum()) for k in u.keys())
     assert math.isclose(r["aggregate"]["update"]["all"]["rel_l2_error"], math.sqrt(num / den), rel_tol=1e-5)
     # absolute-error quantiles are exact numpy quantiles of the pooled transmitted error
-    errs = np.concatenate([(0.5 * LAY.forward(it.end, GEOM) - LAY.forward(it.end, GEOM))[..., MASK].abs().reshape(-1).double().numpy() for it in items])
+    errs = np.concatenate(
+        [
+            (0.5 * LAY.forward(it.end, GEOM) - LAY.forward(it.end, GEOM))[..., MASK]
+            .abs()
+            .reshape(-1)
+            .double()
+            .numpy()
+            for it in items
+        ]
+    )
     assert math.isclose(r["transmitted"]["A"]["abs_error_p95"], float(np.quantile(errs, 0.95)), rel_tol=1e-6)
     assert r["transmitted"]["A"]["quantiles_exact"] is True
 
@@ -149,7 +179,9 @@ def test_shift_control_detects_input_independent_decoders():
     mean = torch.stack([LAY.forward(it.end, GEOM) for g in groups for it in g]).mean(0)
     r = _eval({"const": lambda x, it: mean.clone(), "identity": lambda x, it: x.clone()}, groups=groups)
     c = r["const"]["shift_control"]
-    assert math.isclose(c["innovation_rel_sq_error_matched"], c["innovation_rel_sq_error_shifted"], rel_tol=1e-12)
+    assert math.isclose(
+        c["innovation_rel_sq_error_matched"], c["innovation_rel_sq_error_shifted"], rel_tol=1e-12
+    )
     i = r["identity"]["shift_control"]
     assert i["innovation_rel_sq_error_matched"] == 0.0 < i["innovation_rel_sq_error_shifted"]
     gate = reconstruction_gate({"predictors": {"autoencoder_best_val": r["const"], "train_mean": r["const"]}})
@@ -158,17 +190,26 @@ def test_shift_control_detects_input_independent_decoders():
 
 def test_delta_representation_metrics_and_gate_priority():
     groups = _items()
-    r = _eval({"identity": lambda x, it: x.clone(), "zero": lambda x, it: torch.zeros_like(x)}, representation="adapter_delta", groups=groups)
+    r = _eval(
+        {"identity": lambda x, it: x.clone(), "zero": lambda x, it: torch.zeros_like(x)},
+        representation="adapter_delta",
+        groups=groups,
+    )
     i, z = r["identity"], r["zero"]
     assert i["transmitted"]["all"]["rel_sq_error"] == 0.0
     assert i["innovation"]["all"]["rel_sq_error"] < 1e-12 and i["state"]["all"]["rel_sq_error"] < 1e-12
-    assert math.isclose(z["transmitted"]["B"]["rel_sq_error"], 1.0) and math.isclose(z["innovation"]["all"]["rel_sq_error"], 1.0)
+    assert math.isclose(z["transmitted"]["B"]["rel_sq_error"], 1.0) and math.isclose(
+        z["innovation"]["all"]["rel_sq_error"], 1.0
+    )
     # a perfect predictor passes every criterion; zero fails
     gate_ok = reconstruction_gate({"predictors": {"autoencoder_best_val": i, "train_mean": z}})
     assert gate_ok["pass"] is True, gate_ok
     gate_zero = reconstruction_gate({"predictors": {"autoencoder_best_val": z, "train_mean": z}})
     assert gate_zero["pass"] is False
-    assert select_primary({"none": gate_zero, "global_rms": gate_ok, "factor_rms": gate_ok})["selected"] == "global_rms"
+    assert (
+        select_primary({"none": gate_zero, "global_rms": gate_ok, "factor_rms": gate_ok})["selected"]
+        == "global_rms"
+    )
     assert select_primary({"none": gate_ok, "global_rms": gate_ok})["selected"] == "none"
     verdict = select_primary({"none": gate_zero, "global_rms": gate_zero, "factor_rms": gate_zero})
     assert verdict["selected"] is None and verdict["verdict"] == "NO PRIMARY CODEC IS VIABLE"
@@ -176,7 +217,10 @@ def test_delta_representation_metrics_and_gate_priority():
 
 def test_non_finite_reconstructions_fail_every_criterion():
     groups = _items(num_times=1)
-    r = _eval({"nan": lambda x, it: torch.full_like(x, float("nan")), "zero": lambda x, it: torch.zeros_like(x)}, groups=groups)
+    r = _eval(
+        {"nan": lambda x, it: torch.full_like(x, float("nan")), "zero": lambda x, it: torch.zeros_like(x)},
+        groups=groups,
+    )
     assert r["nan"]["finite_outputs"] is False
     gate = reconstruction_gate({"predictors": {"autoencoder_best_val": r["nan"], "train_mean": r["zero"]}})
     assert gate["pass"] is False and not any(c["pass"] for c in gate["criteria"].values())

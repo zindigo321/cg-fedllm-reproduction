@@ -17,7 +17,9 @@ def _rse(x, x_hat):
 
 def test_white_noise_is_incompressible_at_one_sixty_fourth():
     x = np.random.default_rng(0).standard_normal((256, 192))
-    assert abs(_rse(x, lowpass_dct(x)) - 63 / 64) < 0.02  # a fixed linear 1/64 code keeps ~1/64 of i.i.d. energy
+    assert (
+        abs(_rse(x, lowpass_dct(x)) - 63 / 64) < 0.02
+    )  # a fixed linear 1/64 code keeps ~1/64 of i.i.d. energy
     # keeping the largest 1/64 of the values of a Gaussian keeps ~12 % of its energy (two-sided tail at 2.42 sigma)
     assert 0.85 < _rse(x, topk_raw(x)) < 0.91
     assert 0.85 < _rse(x, topk_dct(x)) < 0.91  # the orthonormal DCT of white noise is white noise

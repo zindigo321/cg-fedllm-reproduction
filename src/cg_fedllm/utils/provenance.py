@@ -36,7 +36,13 @@ KEY_PACKAGES = (
     "pandas",
 )
 
-ENV_VARS_OF_INTEREST = ("HF_HOME", "HF_HUB_OFFLINE", "CUBLAS_WORKSPACE_CONFIG", "PYTHONHASHSEED", "CUDA_VISIBLE_DEVICES")
+ENV_VARS_OF_INTEREST = (
+    "HF_HOME",
+    "HF_HUB_OFFLINE",
+    "CUBLAS_WORKSPACE_CONFIG",
+    "PYTHONHASHSEED",
+    "CUDA_VISIBLE_DEVICES",
+)
 
 
 def _run(cmd: list[str], cwd: Path | None = None) -> str | None:

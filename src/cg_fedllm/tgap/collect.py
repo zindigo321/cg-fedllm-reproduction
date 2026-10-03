@@ -26,7 +26,9 @@ from cg_fedllm.tgap.snapshots import SnapshotWriter
 from cg_fedllm.utils.seeding import numpy_rng
 
 
-def local_pretrain_clients(num_clients: int, fraction: float, seed: int, selection: str = "seeded_random") -> list[int]:
+def local_pretrain_clients(
+    num_clients: int, fraction: float, seed: int, selection: str = "seeded_random"
+) -> list[int]:
     """The K clients whose local trajectories are collected. ``shepherd_round0`` = the clients the FL sampler
     selects in round 0 (so time index 0 matches the federated schedule); ``seeded_random`` = a seeded draw."""
     if fraction >= 1.0:
@@ -36,7 +38,9 @@ def local_pretrain_clients(num_clients: int, fraction: float, seed: int, selecti
     if selection != "seeded_random":
         raise ValueError(f"unknown local client selection {selection!r}")
     k = num_selected(num_clients, fraction)
-    return sorted(int(c) for c in numpy_rng(seed, "tgap_local_clients").choice(num_clients, size=k, replace=False))
+    return sorted(
+        int(c) for c in numpy_rng(seed, "tgap_local_clients").choice(num_clients, size=k, replace=False)
+    )
 
 
 def collect_local_pretrain(
@@ -56,7 +60,12 @@ def collect_local_pretrain(
             writer.write(t, cid, state, res.end_state, res.num_samples, res.summary())
             state = res.end_state
             n += 1
-    return {"source_mode": "local_pretrain", "clients": list(clients), "num_time_steps": num_time_steps, "num_snapshots": n}
+    return {
+        "source_mode": "local_pretrain",
+        "clients": list(clients),
+        "num_time_steps": num_time_steps,
+        "num_snapshots": n,
+    }
 
 
 def collect_federated_pretrain(
@@ -76,6 +85,16 @@ def collect_federated_pretrain(
         writer.write(t, cid, start, end, n_samples, {k: v for k, v in rec.items() if k != "payload"})
         counter["n"] += 1
 
-    sim = FederatedSimulator(trainer, spec, client_examples, run_dir, codec=None, layout=None, identity=identity, snapshot_hook=hook, result_label=result_label)
+    sim = FederatedSimulator(
+        trainer,
+        spec,
+        client_examples,
+        run_dir,
+        codec=None,
+        layout=None,
+        identity=identity,
+        snapshot_hook=hook,
+        result_label=result_label,
+    )
     summary = sim.run(initial)
     return {"source_mode": "federated_pretrain", "num_snapshots": counter["n"], "fl_summary": summary}

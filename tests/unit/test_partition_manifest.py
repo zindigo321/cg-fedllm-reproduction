@@ -34,9 +34,15 @@ def test_partition_is_semantically_equivalent_to_shepherd_oracle(dolly_labels, n
     ref = _oracle(name)
     assert ref["source_sha256"] == src_sha
     p = shepherd_partition(
-        list(range(len(cats))), cats, num_clients=ref["num_clients"], mode=ref["mode"],
-        holdout_per_category=ref["holdout_per_category"], dirichlet_alpha=ref["dirichlet_alpha"],
-        min_require_size=ref["min_require_size"], shards_per_client=ref["shards_per_client"], seed=ref["seed"],
+        list(range(len(cats))),
+        cats,
+        num_clients=ref["num_clients"],
+        mode=ref["mode"],
+        holdout_per_category=ref["holdout_per_category"],
+        dirichlet_alpha=ref["dirichlet_alpha"],
+        min_require_size=ref["min_require_size"],
+        shards_per_client=ref["shards_per_client"],
+        seed=ref["seed"],
     )
     # same held-out examples, same remaining order, same examples per client (in the same order)
     assert p.holdout_ids == ref["holdout_ids"]
@@ -76,7 +82,9 @@ def test_subset_selection_is_deterministic(dolly_labels):
 def test_committed_manifest_is_reproduced_byte_for_byte(dolly_labels, cfg_path):
     src_sha, cats = dolly_labels
     cfg = load_config(REPO / cfg_path)
-    records = [DollyRecord(i, "", "", "", c) for i, c in enumerate(cats)]  # text is irrelevant to the manifest
+    records = [
+        DollyRecord(i, "", "", "", c) for i, c in enumerate(cats)
+    ]  # text is irrelevant to the manifest
     built = build_manifest(cfg.data, records, src_sha)
     committed = REPO / cfg.data.manifest_path
     assert sha256_bytes(canonical_json(built.data)) == sha256_file(committed)

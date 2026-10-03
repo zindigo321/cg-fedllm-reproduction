@@ -77,7 +77,15 @@ class TrainPCA:
 
 
 def reference_code_report(
-    snapshot_dir, records: Sequence[dict], *, representation: str, layout: Layout, geom: LoRAGeometry, split: str = "temporal", val_fraction: float = 0.2, split_seed: int = 0
+    snapshot_dir,
+    records: Sequence[dict],
+    *,
+    representation: str,
+    layout: Layout,
+    geom: LoRAGeometry,
+    split: str = "temporal",
+    val_fraction: float = 0.2,
+    split_seed: int = 0,
 ) -> dict[str, Any]:
     train_idx, val_idx = split_indices(records, split, val_fraction, split_seed)
     train = []
@@ -96,7 +104,14 @@ def reference_code_report(
         "topk_raw": np_code(topk_raw),
         "train_pca": lambda x, it: pca(x),
     }
-    rep = evaluate_predictors(iter_groups(snapshot_dir, records, val_idx), representation, layout, geom, predictors, error_stride=error_stride(len(val_idx), geom))
+    rep = evaluate_predictors(
+        iter_groups(snapshot_dir, records, val_idx),
+        representation,
+        layout,
+        geom,
+        predictors,
+        error_stride=error_stride(len(val_idx), geom),
+    )
     keep = ("transmitted", "innovation", "aggregate", "product", "innovation_energy_fraction")
     return {
         "label": "DERIVED",

@@ -47,7 +47,12 @@ class LoRAGeometry:
         return 2 * len(self.modules) * self.num_layers * self.rank * self.hidden
 
     def to_dict(self) -> dict:
-        return {"num_layers": self.num_layers, "modules": list(self.modules), "rank": self.rank, "hidden": self.hidden}
+        return {
+            "num_layers": self.num_layers,
+            "modules": list(self.modules),
+            "rank": self.rank,
+            "hidden": self.hidden,
+        }
 
 
 def infer_geometry(state: AdapterState, modules: tuple[str, ...] = QKVO) -> LoRAGeometry:
@@ -57,7 +62,9 @@ def infer_geometry(state: AdapterState, modules: tuple[str, ...] = QKVO) -> LoRA
     for key in state.keys():
         layer, block, module, factor = parse_key(key)
         if block != "self_attn" or module not in modules:
-            raise LayoutGeometryError(f"{key}: only self_attn {modules} LoRA factors are supported by this layout")
+            raise LayoutGeometryError(
+                f"{key}: only self_attn {modules} LoRA factors are supported by this layout"
+            )
         t = state.tensors[key]
         if t.dim() != 2:
             raise LayoutGeometryError(f"{key}: expected a 2-D tensor")
@@ -83,7 +90,9 @@ def infer_geometry(state: AdapterState, modules: tuple[str, ...] = QKVO) -> LoRA
         raise LayoutGeometryError(f"layers must be contiguous from 0, got {sorted(layers)}")
     for layer, present in layers.items():
         if present != expected:
-            raise LayoutGeometryError(f"layer {layer}: expected factors {sorted(expected)}, got {sorted(present)}")
+            raise LayoutGeometryError(
+                f"layer {layer}: expected factors {sorted(expected)}, got {sorted(present)}"
+            )
     return LoRAGeometry(n_layers, tuple(modules), ranks.pop(), hiddens.pop())
 
 
@@ -132,7 +141,9 @@ class Layout:
         out: dict[str, torch.Tensor] = {}
         for i, (layer, module, factor) in enumerate(self.block_order(geom)):
             block = mat[:, i * geom.rank : (i + 1) * geom.rank]
-            out[self.key(layer, module, factor)] = (block.t() if factor == "A" else block).contiguous().clone()
+            out[self.key(layer, module, factor)] = (
+                (block.t() if factor == "A" else block).contiguous().clone()
+            )
         return AdapterState(out)
 
 

@@ -112,12 +112,18 @@ class FederatedSimulator:
     def _check_identity(self, initial: AdapterState) -> int:
         """Create or verify the run identity; return the first round to execute."""
         ident_path = self.run_dir / "run_identity.json"
-        spec = {k: v for k, v in self.spec.__dict__.items() if k != "stop_after_round"}  # interruption is not identity
-        ident = json.loads(json.dumps(json_safe({**self.identity, "initial_adapter_sha256": initial.sha256(), "spec": spec})))
+        spec = {
+            k: v for k, v in self.spec.__dict__.items() if k != "stop_after_round"
+        }  # interruption is not identity
+        ident = json.loads(
+            json.dumps(json_safe({**self.identity, "initial_adapter_sha256": initial.sha256(), "spec": spec}))
+        )
         if ident_path.exists():
             old = read_json(ident_path)
             if old != ident:
-                raise ResumeError(f"{self.run_dir} belongs to a different run configuration; refusing to resume")
+                raise ResumeError(
+                    f"{self.run_dir} belongs to a different run configuration; refusing to resume"
+                )
             done = completed_rounds(self.run_dir)
             if done and done != list(range(len(done))):
                 raise ResumeError(f"non-contiguous completed rounds {done}")
@@ -127,7 +133,9 @@ class FederatedSimulator:
         initial.save(self.run_dir / "initial_adapter.safetensors")
         return 0
 
-    def _client_round(self, t: int, cid: int, global_state: AdapterState, geom) -> tuple[AdapterState, int, dict]:
+    def _client_round(
+        self, t: int, cid: int, global_state: AdapterState, geom
+    ) -> tuple[AdapterState, int, dict]:
         res = self.trainer.train(global_state, self.client_examples[cid], (self.spec.namespace, t, cid))
         rec: dict[str, Any] = {"client_id": cid, **res.summary()}
         if self.snapshot_hook is not None:
@@ -135,7 +143,12 @@ class FederatedSimulator:
         raw_numel = res.end_state.num_elements()
         if self.codec is None:
             recovered = res.end_state
-            rec["payload"] = {"codec_id": "none", "numel": raw_numel, "logical_bytes": raw_numel * 4, "raw_fp32_bytes": raw_numel * 4}
+            rec["payload"] = {
+                "codec_id": "none",
+                "numel": raw_numel,
+                "logical_bytes": raw_numel * 4,
+                "raw_fp32_bytes": raw_numel * 4,
+            }
         else:
             rep = to_representation(res.end_state, global_state, self.spec.representation)
             ctx = CodecContext(t, cid, self.spec.seed)
@@ -147,7 +160,11 @@ class FederatedSimulator:
             t_end = time.time()
             rep_hat = self.layout.inverse(x_hat, geom)
             recovered = recover_state(rep_hat, global_state, self.spec.representation)
-            ref = self.layout.forward(global_state, geom) if self.spec.representation == "adapter_state" else torch.zeros_like(x)
+            ref = (
+                self.layout.forward(global_state, geom)
+                if self.spec.representation == "adapter_state"
+                else torch.zeros_like(x)
+            )
             rec["payload"] = {
                 "codec_id": self.codec.codec_id,
                 "numel": payload.numel(),
@@ -168,9 +185,16 @@ class FederatedSimulator:
     def run(self, initial: AdapterState) -> dict[str, Any]:
         spec = self.spec
         start_round = self._check_identity(initial)
-        global_state = initial if start_round == 0 else AdapterState.load(round_dir(self.run_dir, start_round - 1) / "global_adapter.safetensors")
+        global_state = (
+            initial
+            if start_round == 0
+            else AdapterState.load(round_dir(self.run_dir, start_round - 1) / "global_adapter.safetensors")
+        )
         if start_round == 0 and self.heldout_fn is not None:
-            atomic_write_json(self.run_dir / "initial_eval.json", {"round": -1, "heldout": self.heldout_fn(initial), "global_hash": initial.sha256()})
+            atomic_write_json(
+                self.run_dir / "initial_eval.json",
+                {"round": -1, "heldout": self.heldout_fn(initial), "global_hash": initial.sha256()},
+            )
         geom = infer_geometry(global_state) if self.codec is not None else None
         status = "complete"
         for t in range(start_round, spec.num_rounds):
@@ -192,12 +216,21 @@ class FederatedSimulator:
                 # adapter) and stop; the summary status makes it impossible to mistake for a complete run.
                 atomic_write_json(
                     rdir / "diverged.json",
-                    json_safe({"round": t, "selected_clients": selected, "error": str(exc), "clients_completed": records}),
+                    json_safe(
+                        {
+                            "round": t,
+                            "selected_clients": selected,
+                            "error": str(exc),
+                            "clients_completed": records,
+                        }
+                    ),
                 )
                 return self.summarize(global_state, f"diverged_in_round_{t}")
             new_global.save(rdir / "global_adapter.safetensors", {"round": str(t)})
             heldout = None
-            if self.heldout_fn is not None and ((t + 1) % spec.heldout_eval_every == 0 or t == spec.num_rounds - 1):
+            if self.heldout_fn is not None and (
+                (t + 1) % spec.heldout_eval_every == 0 or t == spec.num_rounds - 1
+            ):
                 heldout = self.heldout_fn(new_global)
             record = {
                 "round": t,
@@ -223,7 +256,9 @@ class FederatedSimulator:
         return self.summarize(global_state, status)
 
     def summarize(self, final_state: AdapterState, status: str) -> dict[str, Any]:
-        rounds = [read_json(round_dir(self.run_dir, t) / "round.json") for t in completed_rounds(self.run_dir)]
+        rounds = [
+            read_json(round_dir(self.run_dir, t) / "round.json") for t in completed_rounds(self.run_dir)
+        ]
         summary = {
             "label": self.result_label,
             "status": status,

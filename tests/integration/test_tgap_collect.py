@@ -12,11 +12,38 @@ from tests.conftest import synthetic_clients
 def test_both_tgap_sources_share_the_schema(tiny_cfg, tiny_bundle, tmp_path):
     lay = get_layout("layer_major_qkvo_AtB")
     d1 = synthetic_clients([4, 5, 3, 6], seed=3)
-    w_local = SnapshotWriter(tmp_path / "local", run_id="l", source_mode="local_pretrain", representation="adapter_state", layout=lay)
-    out_l = collect_local_pretrain(tiny_bundle.trainer, tiny_bundle.initial_state, d1, clients=[0, 1, 2, 3], num_time_steps=2, writer=w_local)
-    w_fed = SnapshotWriter(tmp_path / "fed", run_id="f", source_mode="federated_pretrain", representation="adapter_state", layout=lay)
+    w_local = SnapshotWriter(
+        tmp_path / "local",
+        run_id="l",
+        source_mode="local_pretrain",
+        representation="adapter_state",
+        layout=lay,
+    )
+    out_l = collect_local_pretrain(
+        tiny_bundle.trainer,
+        tiny_bundle.initial_state,
+        d1,
+        clients=[0, 1, 2, 3],
+        num_time_steps=2,
+        writer=w_local,
+    )
+    w_fed = SnapshotWriter(
+        tmp_path / "fed",
+        run_id="f",
+        source_mode="federated_pretrain",
+        representation="adapter_state",
+        layout=lay,
+    )
     spec = simulator_spec(tiny_cfg, 4, namespace="tgap_fed")
-    out_f = collect_federated_pretrain(tiny_bundle.trainer, tiny_bundle.initial_state, d1, spec=spec, run_dir=tmp_path / "fed" / "fl", identity={"t": 1}, writer=w_fed)
+    out_f = collect_federated_pretrain(
+        tiny_bundle.trainer,
+        tiny_bundle.initial_state,
+        d1,
+        spec=spec,
+        run_dir=tmp_path / "fed" / "fl",
+        identity={"t": 1},
+        writer=w_fed,
+    )
     rl, rf = read_index(tmp_path / "local"), read_index(tmp_path / "fed")
     assert out_l["num_snapshots"] == len(rl) == 8
     assert out_f["num_snapshots"] == len(rf) == 2 * 2  # 2 rounds x K=2

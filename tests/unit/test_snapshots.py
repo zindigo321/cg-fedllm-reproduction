@@ -43,7 +43,9 @@ def test_snapshot_schema_and_derivations(tmp_path, mode):
 
 def test_snapshot_tampering_is_detected(tmp_path):
     lay = get_layout("layer_major_qkvo_AtB")
-    w = SnapshotWriter(tmp_path, run_id="r", source_mode="local_pretrain", representation="adapter_state", layout=lay)
+    w = SnapshotWriter(
+        tmp_path, run_id="r", source_mode="local_pretrain", representation="adapter_state", layout=lay
+    )
     w.write(0, 0, make_state(64, 1, 4, seed=1), make_state(64, 1, 4, seed=2), 5)
     rec = read_index(tmp_path)[0]
     p = tmp_path / rec["file"]
@@ -56,4 +58,10 @@ def test_snapshot_tampering_is_detected(tmp_path):
 
 def test_unknown_source_mode_rejected(tmp_path):
     with pytest.raises(ValueError):
-        SnapshotWriter(tmp_path, run_id="r", source_mode="magic", representation="adapter_state", layout=get_layout("layer_major_qkvo_AtB"))
+        SnapshotWriter(
+            tmp_path,
+            run_id="r",
+            source_mode="magic",
+            representation="adapter_state",
+            layout=get_layout("layer_major_qkvo_AtB"),
+        )

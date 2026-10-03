@@ -99,7 +99,9 @@ def test_incompatible_geometries_fail_loudly():
     mlp.tensors["layers.0.mlp.up_proj.lora_A.weight"] = torch.randn(4, 64)
     with pytest.raises(LayoutGeometryError, match="only self_attn"):
         lay.forward(mlp)
-    gap = AdapterState({k.replace("layers.1.", "layers.2."): v for k, v in make_state(64, 2, 4).tensors.items()})
+    gap = AdapterState(
+        {k.replace("layers.1.", "layers.2."): v for k, v in make_state(64, 2, 4).tensors.items()}
+    )
     with pytest.raises(LayoutGeometryError, match="contiguous"):
         lay.forward(gap)
     ok = make_state(64, 2, 4)

@@ -68,7 +68,9 @@ class AdapterState:
         return {k: list(self.tensors[k].shape) for k in self.keys()}
 
     def same_structure(self, other: AdapterState) -> bool:
-        return self.keys() == other.keys() and all(self.tensors[k].shape == other.tensors[k].shape for k in self.keys())
+        return self.keys() == other.keys() and all(
+            self.tensors[k].shape == other.tensors[k].shape for k in self.keys()
+        )
 
     def _check_same(self, other: AdapterState) -> None:
         if not self.same_structure(other):
@@ -90,7 +92,9 @@ class AdapterState:
         return all(bool(torch.isfinite(t).all()) for t in self.tensors.values())
 
     def equal(self, other: AdapterState) -> bool:
-        return self.same_structure(other) and all(torch.equal(self.tensors[k], other.tensors[k]) for k in self.keys())
+        return self.same_structure(other) and all(
+            torch.equal(self.tensors[k], other.tensors[k]) for k in self.keys()
+        )
 
     def max_abs_diff(self, other: AdapterState) -> float:
         self._check_same(other)
@@ -98,7 +102,9 @@ class AdapterState:
 
     def relative_l2_diff(self, other: AdapterState) -> float:
         self._check_same(other)
-        num = sum(float(((self.tensors[k].double() - other.tensors[k].double()) ** 2).sum()) for k in self.keys())
+        num = sum(
+            float(((self.tensors[k].double() - other.tensors[k].double()) ** 2).sum()) for k in self.keys()
+        )
         den = sum(float((other.tensors[k].double() ** 2).sum()) for k in self.keys())
         return (num / den) ** 0.5 if den > 0 else float(num > 0)
 
@@ -115,7 +121,11 @@ class AdapterState:
 
     # ---- IO ---------------------------------------------------------------------------------------------
     def save(self, path: str | Path, metadata: Mapping[str, str] | None = None) -> Path:
-        meta = {"format": "cg_fedllm.adapter_state/v1", "key_order": json.dumps(self.keys()), "sha256": self.sha256()}
+        meta = {
+            "format": "cg_fedllm.adapter_state/v1",
+            "key_order": json.dumps(self.keys()),
+            "sha256": self.sha256(),
+        }
         meta.update(metadata or {})
         return save_tensors_atomic(path, {k: self.tensors[k] for k in self.keys()}, meta)
 

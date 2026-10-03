@@ -52,7 +52,9 @@ class Normalizer:
     def __post_init__(self) -> None:
         if self.mode not in NORMALIZATION_MODES:
             raise ValueError(f"unknown normalisation mode {self.mode!r}")
-        scales = {"global_rms": (self.scale_global,), "factor_rms": (self.scale_A, self.scale_B)}.get(self.mode, ())
+        scales = {"global_rms": (self.scale_global,), "factor_rms": (self.scale_A, self.scale_B)}.get(
+            self.mode, ()
+        )
         for s in scales:
             if s is None or not math.isfinite(s) or s <= 0:
                 raise ValueError(f"{self.mode}: scales must be finite and positive, got {scales}")
@@ -67,7 +69,11 @@ class Normalizer:
         """Per-column scale ``[W]`` (float32) for ``factor_rms``."""
         geom = geometry_from_dict(self.geometry)
         mask = factor_column_mask(get_layout(self.layout_id), geom)
-        return torch.where(mask, torch.tensor(self.scale_A, dtype=torch.float32), torch.tensor(self.scale_B, dtype=torch.float32))
+        return torch.where(
+            mask,
+            torch.tensor(self.scale_A, dtype=torch.float32),
+            torch.tensor(self.scale_B, dtype=torch.float32),
+        )
 
     def _scale_like(self, x: torch.Tensor) -> torch.Tensor:
         if self.mode == "global_rms":
@@ -93,14 +99,23 @@ class Normalizer:
 
 
 def fit_normalizer(
-    xs: Sequence[torch.Tensor], train_idx: Sequence[int], mode: str, *, layout: Layout | None = None, geom: LoRAGeometry | None = None
+    xs: Sequence[torch.Tensor],
+    train_idx: Sequence[int],
+    mode: str,
+    *,
+    layout: Layout | None = None,
+    geom: LoRAGeometry | None = None,
 ) -> Normalizer:
     """Fit the frozen statistics on ``xs[i] for i in train_idx`` ONLY (float64 sums)."""
     if mode not in NORMALIZATION_MODES:
         raise ValueError(f"unknown normalisation mode {mode!r}")
     if not train_idx:
         raise ValueError("cannot fit a normaliser on an empty training split")
-    fit = {"fitted_on": "train_split_only", "num_snapshots": len(train_idx), "train_indices": [int(i) for i in train_idx]}
+    fit = {
+        "fitted_on": "train_split_only",
+        "num_snapshots": len(train_idx),
+        "train_indices": [int(i) for i in train_idx],
+    }
     if mode == "none":
         return Normalizer("none", fit=fit)
     if mode == "global_rms":
@@ -132,7 +147,9 @@ def fit_normalizer(
     )
 
 
-def abs_quantiles(chunks: Sequence[np.ndarray], qs: Sequence[float], max_elements: int = QUANTILE_MAX_ELEMENTS) -> dict[str, Any]:
+def abs_quantiles(
+    chunks: Sequence[np.ndarray], qs: Sequence[float], max_elements: int = QUANTILE_MAX_ELEMENTS
+) -> dict[str, Any]:
     """Quantiles of the concatenated absolute values (exact unless a strided subsample is needed)."""
     total = int(sum(c.size for c in chunks))
     if total == 0:
@@ -141,7 +158,14 @@ def abs_quantiles(chunks: Sequence[np.ndarray], qs: Sequence[float], max_element
     flat = np.abs(np.concatenate([c.reshape(-1)[::stride] for c in chunks]).astype(np.float64))
     vals = np.quantile(flat, list(qs))
     out = {f"p{_qname(q)}": float(v) for q, v in zip(qs, vals)}
-    out.update({"n": total, "exact": stride == 1, "stride": stride, "max": float(max(float(np.abs(c).max()) for c in chunks if c.size))})
+    out.update(
+        {
+            "n": total,
+            "exact": stride == 1,
+            "stride": stride,
+            "max": float(max(float(np.abs(c).max()) for c in chunks if c.size)),
+        }
+    )
     return out
 
 
@@ -150,7 +174,9 @@ def _qname(q: float) -> str:
     return s.replace(".", "_")
 
 
-def range_report(xs: Sequence[torch.Tensor], idx: Sequence[int], norm: Normalizer, layout: Layout, geom: LoRAGeometry) -> dict[str, Any]:
+def range_report(
+    xs: Sequence[torch.Tensor], idx: Sequence[int], norm: Normalizer, layout: Layout, geom: LoRAGeometry
+) -> dict[str, Any]:
     """Distribution of ``|normalize(x)|`` per factor and the fraction outside the decoder's Tanh range (|v| >= 1)."""
     mask = factor_column_mask(layout, geom)
     parts: dict[str, list[np.ndarray]] = {"A": [], "B": []}
@@ -166,7 +192,13 @@ def range_report(xs: Sequence[torch.Tensor], idx: Sequence[int], norm: Normalize
     qs = (0.5, 0.9, 0.99, 0.999)
     out: dict[str, Any] = {"mode": norm.mode, "num_snapshots": len(idx)}
     for name in ("A", "B"):
-        out[name] = {"fraction_abs_ge_1": beyond[name] / count[name] if count[name] else None, **abs_quantiles(parts[name], qs)}
+        out[name] = {
+            "fraction_abs_ge_1": beyond[name] / count[name] if count[name] else None,
+            **abs_quantiles(parts[name], qs),
+        }
     total = beyond["A"] + beyond["B"]
-    out["all"] = {"fraction_abs_ge_1": total / (count["A"] + count["B"]) if count["A"] + count["B"] else None, **abs_quantiles(parts["A"] + parts["B"], qs)}
+    out["all"] = {
+        "fraction_abs_ge_1": total / (count["A"] + count["B"]) if count["A"] + count["B"] else None,
+        **abs_quantiles(parts["A"] + parts["B"], qs),
+    }
     return out

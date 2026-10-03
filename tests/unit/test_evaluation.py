@@ -37,7 +37,9 @@ def test_ceval_prompt_is_the_official_answer_only_format():
 
 def test_mmlu_prompt_matches_lm_eval_template():
     shots = [q("mmlu", "abstract_algebra", 0, "D", " What? ")]
-    p = build_prompt("mmlu", mmlu_display_name("abstract_algebra"), shots, q("mmlu", "abstract_algebra", 5, "B", "Why?\n"))
+    p = build_prompt(
+        "mmlu", mmlu_display_name("abstract_algebra"), shots, q("mmlu", "abstract_algebra", 5, "B", "Why?\n")
+    )
     expected = (
         "The following are multiple choice questions (with answers) about abstract algebra.\n\n"
         "What?\nA. 0\nB. 2\nC. 3\nD. 4\nAnswer: D\n\n"
@@ -55,15 +57,27 @@ def test_few_shot_selection_is_first_n_and_reduced_only_when_too_long(toy_tokeni
     short = build_requests(toy_tokenizer, "ceval", qs, dev, {"s": "科目"}, 5, full_len - 5)
     assert short[0].num_shots < 5 and not short[0].truncated
     assert reqs[0].continuation_ids == [[3 + ord(c)] for c in "ABCD"]  # C-Eval: single-token continuations
-    mm = build_requests(toy_tokenizer, "mmlu", {"s": [q("mmlu", "s", 0)]}, {"s": [q("mmlu", "s", 1)]}, {"s": "s"}, 1, None)
+    mm = build_requests(
+        toy_tokenizer, "mmlu", {"s": [q("mmlu", "s", 0)]}, {"s": [q("mmlu", "s", 1)]}, {"s": "s"}, 1, None
+    )
     assert all(len(c) == 2 for c in mm[0].continuation_ids)  # " A" is two toy tokens -> multi-token path
 
 
 def test_scorer_batched_fast_path_matches_unbatched_reference(tiny_hf_llama, toy_tokenizer):
     model = tiny_hf_llama
     # toy ids are 3 + code point mod 997; the tiny model's vocab is 128 -> map into range via ASCII-only text
-    dev = {"s": [MCQuestion("ceval", "s", "dev", i, f"q{i}?", ("a", "b", "c", "d"), "ABCD"[i % 4]) for i in range(3)]}
-    qs = {"s": [MCQuestion("ceval", "s", "test", i, "x" * (i + 1), ("e", "f", "g", "h"), "ABCD"[i % 4]) for i in range(6)]}
+    dev = {
+        "s": [
+            MCQuestion("ceval", "s", "dev", i, f"q{i}?", ("a", "b", "c", "d"), "ABCD"[i % 4])
+            for i in range(3)
+        ]
+    }
+    qs = {
+        "s": [
+            MCQuestion("ceval", "s", "test", i, "x" * (i + 1), ("e", "f", "g", "h"), "ABCD"[i % 4])
+            for i in range(6)
+        ]
+    }
 
     class Ascii(type(toy_tokenizer)):
         def _enc(self, text):
@@ -71,7 +85,9 @@ def test_scorer_batched_fast_path_matches_unbatched_reference(tiny_hf_llama, toy
 
     tok = Ascii()
     reqs = build_requests(tok, "ceval", qs, dev, {"s": "s"}, 3, None, add_special_tokens=True)
-    items = score_requests(model, reqs, pad_token_id=0, device="cpu", max_batch_tokens=10_000, max_batch_size=4)
+    items = score_requests(
+        model, reqs, pad_token_id=0, device="cpu", max_batch_tokens=10_000, max_batch_size=4
+    )
     for r, it in zip(reqs, items):
         with torch.no_grad():
             logits = model(input_ids=torch.tensor([r.context_ids])).logits[0, -1].float()
@@ -88,7 +104,9 @@ def test_multi_token_fallback_runs(tiny_hf_llama):
 
         def __call__(self, text, add_special_tokens=True, **kw):
             enc = lambda t: ([1] if add_special_tokens else []) + [3 + (ord(c) % 120) for c in t]  # noqa: E731
-            return {"input_ids": [enc(t) for t in text]} if isinstance(text, list) else {"input_ids": enc(text)}
+            return (
+                {"input_ids": [enc(t) for t in text]} if isinstance(text, list) else {"input_ids": enc(text)}
+            )
 
     qs = {"s": [MCQuestion("mmlu", "s", "test", 0, "why", ("a", "b", "c", "d"), "C")]}
     dev = {"s": [MCQuestion("mmlu", "s", "dev", 0, "how", ("a", "b", "c", "d"), "A")]}
@@ -102,17 +120,36 @@ def _items(spec: dict[str, tuple[int, int]]) -> list[ScoredItem]:
     for subject, (correct, n) in spec.items():
         for i in range(n):
             ok = i < correct
-            out.append(ScoredItem(f"{subject}/{i}", subject, "A", "A" if ok else "B", ok, [0, 0, 0, 0], 5, 10, "single_token"))
+            out.append(
+                ScoredItem(
+                    f"{subject}/{i}",
+                    subject,
+                    "A",
+                    "A" if ok else "B",
+                    ok,
+                    [0, 0, 0, 0],
+                    5,
+                    10,
+                    "single_token",
+                )
+            )
     return out
 
 
 def test_ceval_mapping_and_subject_macro_aggregation():
     mapping = ceval_subject_mapping()
     assert len(mapping) == 52
-    assert Counter(v[2] for v in mapping.values()) == {"STEM": 20, "Social Science": 10, "Humanities": 11, "Other": 11}
+    assert Counter(v[2] for v in mapping.values()) == {
+        "STEM": 20,
+        "Social Science": 10,
+        "Humanities": 11,
+        "Other": 11,
+    }
     hard = ceval_hard_subjects()
     assert len(hard) == 8 and set(hard) <= set(mapping)
-    agg = aggregate_ceval(_items({"advanced_mathematics": (1, 2), "computer_network": (9, 10), "law": (1, 4)}))
+    agg = aggregate_ceval(
+        _items({"advanced_mathematics": (1, 2), "computer_network": (9, 10), "law": (1, 4)})
+    )
     assert agg["categories"]["STEM"] == pytest.approx((0.5 + 0.9) / 2)  # mean over subjects, not questions
     assert agg["average"] == pytest.approx((0.5 + 0.9 + 0.25) / 3)
     assert agg["hard"] == pytest.approx(0.5)
@@ -125,7 +162,9 @@ def test_mmlu_question_weighted_aggregation():
     assert len(cats["subcategories"]) == 57
     assert mmlu_subject_category("abstract_algebra") == "STEM"
     assert mmlu_subject_category("philosophy") == "humanities"
-    agg = aggregate_mmlu(_items({"abstract_algebra": (1, 2), "college_physics": (9, 10), "philosophy": (0, 4)}))
+    agg = aggregate_mmlu(
+        _items({"abstract_algebra": (1, 2), "college_physics": (9, 10), "philosophy": (0, 4)})
+    )
     assert agg["overall"] == pytest.approx(10 / 16)  # question-weighted
     assert agg["categories"]["STEM"] == pytest.approx(10 / 12)
     assert agg["secondary_subject_macro_average"] == pytest.approx((0.5 + 0.9 + 0.0) / 3)
@@ -137,7 +176,9 @@ def test_batching_respects_token_size_and_attention_budgets():
     lengths = [900, 850, 400, 390, 380, 100, 90, 80, 70, 60]
     order = list(range(len(lengths)))
     for budget in (None, 2_000_000, 500_000):
-        batches = _batches(order, lengths, max_batch_tokens=2000, max_batch_size=4, max_batch_attention=budget)
+        batches = _batches(
+            order, lengths, max_batch_tokens=2000, max_batch_size=4, max_batch_attention=budget
+        )
         assert sorted(i for b in batches for i in b) == order
         for b in batches:
             lmax = max(lengths[i] for i in b)
@@ -151,10 +192,22 @@ def test_scores_are_invariant_to_batching(tiny_hf_llama, toy_tokenizer):
         def _enc(self, text):
             return [3 + (ord(c) % 120) for c in text]
 
-    dev = {"s": [MCQuestion("ceval", "s", "dev", i, f"q{i}?", ("a", "b", "c", "d"), "ABCD"[i % 4]) for i in range(3)]}
-    qs = {"s": [MCQuestion("ceval", "s", "test", i, "y" * (3 * i + 1), ("e", "f", "g", "h"), "ABCD"[i % 4]) for i in range(8)]}
+    dev = {
+        "s": [
+            MCQuestion("ceval", "s", "dev", i, f"q{i}?", ("a", "b", "c", "d"), "ABCD"[i % 4])
+            for i in range(3)
+        ]
+    }
+    qs = {
+        "s": [
+            MCQuestion("ceval", "s", "test", i, "y" * (3 * i + 1), ("e", "f", "g", "h"), "ABCD"[i % 4])
+            for i in range(8)
+        ]
+    }
     reqs = build_requests(Ascii(), "ceval", qs, dev, {"s": "s"}, 3, None)
     a = score_requests(tiny_hf_llama, reqs, 0, "cpu", max_batch_tokens=100_000, max_batch_size=8)
-    b = score_requests(tiny_hf_llama, reqs, 0, "cpu", max_batch_tokens=100_000, max_batch_size=8, max_batch_attention=1)
+    b = score_requests(
+        tiny_hf_llama, reqs, 0, "cpu", max_batch_tokens=100_000, max_batch_size=8, max_batch_attention=1
+    )
     assert [x.prediction for x in a] == [x.prediction for x in b]
     assert max(abs(u - v) for x, y in zip(a, b) for u, v in zip(x.logprobs, y.logprobs)) < 1e-4

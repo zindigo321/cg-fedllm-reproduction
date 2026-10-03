@@ -47,7 +47,9 @@ def test_every_committed_result_stays_valid_under_the_current_label_schema():
             assert set(labels) <= set(RESULT_LABELS), path  # post-Phase-2 writers emit exact labels only
         annotated += [(path.name, v) for v in labels if v not in RESULT_LABELS]
     # the one historical annotated label (Phase 2), accepted by the read-side migration rule
-    assert annotated == [("tgap_snapshot_stats.json", "DERIVED (from PHASE2-SMOKE snapshots, smoke_final @ 25a3f7f)")]
+    assert annotated == [
+        ("tgap_snapshot_stats.json", "DERIVED (from PHASE2-SMOKE snapshots, smoke_final @ 25a3f7f)")
+    ]
     with pytest.raises(ValueError):
         canonical_result_label("LOCAL-EVALUATOR-VALIDATION")
     with pytest.raises(ValueError):
@@ -81,7 +83,10 @@ def test_gpu_smoke_summary_gates():
     assert all(c["pass"] for c in s["checks"].values())
     assert s["checks"]["identity_state_vs_lora_ft"]["bitwise_equal"] is True
     assert s["checks"]["resume_vs_uninterrupted"]["bitwise_equal"] is True
-    assert s["faf_autoencoder"]["uplink_logical_bytes_total"] * 64 == s["faf_identity"]["uplink_logical_bytes_total"]
+    assert (
+        s["faf_autoencoder"]["uplink_logical_bytes_total"] * 64
+        == s["faf_identity"]["uplink_logical_bytes_total"]
+    )
     assert s["total_time_s"] <= 20 * 60
 
 

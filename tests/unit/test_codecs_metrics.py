@@ -59,7 +59,14 @@ def test_snr_definitions_and_paper_arithmetic():
     # Gaussian noise of std sigma gives MSE ~= sigma^2 (the denoising table's LoRA-FT column)
     g = torch.Generator().manual_seed(1)
     z = torch.zeros(1, 512, 512)
-    assert abs(reconstruction_metrics(z + 1.0, z + 1.0 + 5e-3 * torch.randn(z.shape, generator=g))["mse"] / (5e-3) ** 2 - 1) < 0.02
+    assert (
+        abs(
+            reconstruction_metrics(z + 1.0, z + 1.0 + 5e-3 * torch.randn(z.shape, generator=g))["mse"]
+            / (5e-3) ** 2
+            - 1
+        )
+        < 0.02
+    )
 
 
 def test_innovation_ratio_and_cosine():

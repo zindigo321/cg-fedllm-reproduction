@@ -46,7 +46,13 @@ ResultLabel = Literal[
     "PHASE3-SENSITIVITY",
 ]
 RESULT_LABELS: tuple[str, ...] = get_args(ResultLabel)
-PHASE2_RESULT_LABELS: tuple[str, ...] = ("PAPER-REPORTED", "PHASE2-SMOKE", "LOCAL-MICROBENCH", "DERIVED", "UNKNOWN")
+PHASE2_RESULT_LABELS: tuple[str, ...] = (
+    "PAPER-REPORTED",
+    "PHASE2-SMOKE",
+    "LOCAL-MICROBENCH",
+    "DERIVED",
+    "UNKNOWN",
+)
 
 
 def canonical_result_label(value: str) -> str:

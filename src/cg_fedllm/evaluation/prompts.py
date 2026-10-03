@@ -53,9 +53,17 @@ def mmlu_example(q: MCQuestion, include_answer: bool) -> str:
 
 def build_prompt(benchmark: str, subject_display: str, shots: Sequence[MCQuestion], q: MCQuestion) -> str:
     if benchmark == "ceval":
-        return CEVAL_HEADER.format(subject=subject_display) + "".join(ceval_example(s, True) for s in shots) + ceval_example(q, False)
+        return (
+            CEVAL_HEADER.format(subject=subject_display)
+            + "".join(ceval_example(s, True) for s in shots)
+            + ceval_example(q, False)
+        )
     if benchmark == "mmlu":
-        return MMLU_HEADER.format(subject=subject_display) + "".join(mmlu_example(s, True) for s in shots) + mmlu_example(q, False)
+        return (
+            MMLU_HEADER.format(subject=subject_display)
+            + "".join(mmlu_example(s, True) for s in shots)
+            + mmlu_example(q, False)
+        )
     raise ValueError(f"unknown benchmark {benchmark!r}")
 
 
