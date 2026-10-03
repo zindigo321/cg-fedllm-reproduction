@@ -29,7 +29,11 @@ def test_local_client_selection_modes():
     assert local_pretrain_clients(100, 0.05, 1, "shepherd_round0") == shepherd_select_clients(100, 0.05, 0)
     # seeded_random keeps the Phase-2 behaviour exactly
     expected = sorted(int(c) for c in numpy_rng(7, "tgap_local_clients").choice(100, size=5, replace=False))
-    assert local_pretrain_clients(100, 0.05, 7) == local_pretrain_clients(100, 0.05, 7, "seeded_random") == expected
+    assert (
+        local_pretrain_clients(100, 0.05, 7)
+        == local_pretrain_clients(100, 0.05, 7, "seeded_random")
+        == expected
+    )
     assert local_pretrain_clients(4, 1.0, 7, "shepherd_round0") == [0, 1, 2, 3]
 
 
@@ -37,23 +41,68 @@ def test_phase3a_cli_pipeline_on_tiny_snapshots(tiny_cfg, tiny_bundle, tmp_path)
     lay = get_layout("layer_major_qkvo_AtB")
     d1 = synthetic_clients([4, 5, 3, 6], seed=11)
     snaps = tmp_path / "tgap_fed"
-    w = SnapshotWriter(snaps, run_id="t", source_mode="federated_pretrain", representation="adapter_state", layout=lay)
+    w = SnapshotWriter(
+        snaps, run_id="t", source_mode="federated_pretrain", representation="adapter_state", layout=lay
+    )
     spec = simulator_spec(tiny_cfg, 4, namespace="tgap_fed")
     spec.num_rounds, spec.client_fraction = 5, 0.5
-    collect_federated_pretrain(tiny_bundle.trainer, tiny_bundle.initial_state, d1, spec=spec, run_dir=snaps / "fl", identity={"t": 1}, writer=w)
+    collect_federated_pretrain(
+        tiny_bundle.trainer,
+        tiny_bundle.initial_state,
+        d1,
+        spec=spec,
+        run_dir=snaps / "fl",
+        identity={"t": 1},
+        writer=w,
+    )
     local = tmp_path / "tgap_local"
-    wl = SnapshotWriter(local, run_id="l", source_mode="local_pretrain", representation="adapter_state", layout=lay)
-    collect_local_pretrain(tiny_bundle.trainer, tiny_bundle.initial_state, d1, clients=[0, 2], num_time_steps=5, writer=wl)
+    wl = SnapshotWriter(
+        local, run_id="l", source_mode="local_pretrain", representation="adapter_state", layout=lay
+    )
+    collect_local_pretrain(
+        tiny_bundle.trainer, tiny_bundle.initial_state, d1, clients=[0, 2], num_time_steps=5, writer=wl
+    )
 
-    common = ["--config", TINY, "--set", f"run.output_root={tmp_path.as_posix()}", "--set", "run.result_label=PHASE3-DIAGNOSTIC"]
-    ae_set = ["--set", "autoencoder.checkpoint_policy=final_and_best_val", "--set", "autoencoder.iterations=20", "--set", "autoencoder.eval_every=5"]
+    common = [
+        "--config",
+        TINY,
+        "--set",
+        f"run.output_root={tmp_path.as_posix()}",
+        "--set",
+        "run.result_label=PHASE3-DIAGNOSTIC",
+    ]
+    ae_set = [
+        "--set",
+        "autoencoder.checkpoint_policy=final_and_best_val",
+        "--set",
+        "autoencoder.iterations=20",
+        "--set",
+        "autoencoder.eval_every=5",
+    ]
     gates = []
     for mode in ("none", "global_rms", "factor_rms"):
-        assert main(["train-ae", *common, *ae_set, "--snapshots", snaps.as_posix(), "--stage", f"ae_{mode}", "--set", f"autoencoder.normalization={mode}"]) == 0
+        assert (
+            main(
+                [
+                    "train-ae",
+                    *common,
+                    *ae_set,
+                    "--snapshots",
+                    snaps.as_posix(),
+                    "--stage",
+                    f"ae_{mode}",
+                    "--set",
+                    f"autoencoder.normalization={mode}",
+                ]
+            )
+            == 0
+        )
         ae_dir = tmp_path / "tiny_cpu" / f"ae_{mode}"
         m = _read(ae_dir / "ae_metrics.json")
         assert m["label"] == "PHASE3-DIAGNOSTIC" and m["normalization"]["mode"] == mode
-        assert m["normalization"]["fit"]["train_indices"] == m["train_indices"]  # fitted on the training split only
+        assert (
+            m["normalization"]["fit"]["train_indices"] == m["train_indices"]
+        )  # fitted on the training split only
         assert m["normalization_uplink_bytes"] == 0 and m["compression_ratio_elements"] == 1 / 64
         assert m["best_val"]["iteration"] % 5 == 0
         assert m["best_val"]["val_mse"] == min(c["val_mse"] for c in m["curve"] if c["iteration"] % 5 == 0)
@@ -62,16 +111,46 @@ def test_phase3a_cli_pipeline_on_tiny_snapshots(tiny_cfg, tiny_bundle, tmp_path)
             meta = json.loads(fh.metadata()["metadata"])
         assert meta["checkpoint"] == "best_val" and meta["normalization"]["mode"] == mode
         out = tmp_path / f"viability_{mode}.json"
-        assert main(["ae-viability", *common, "--snapshots", snaps.as_posix(), "--ae-dir", ae_dir.as_posix(), "--out", out.as_posix()]) == 0
+        assert (
+            main(
+                [
+                    "ae-viability",
+                    *common,
+                    "--snapshots",
+                    snaps.as_posix(),
+                    "--ae-dir",
+                    ae_dir.as_posix(),
+                    "--out",
+                    out.as_posix(),
+                ]
+            )
+            == 0
+        )
         v = _read(out)
         assert v["label"] == "PHASE3-DIAGNOSTIC" and v["source_mode"] == "federated_pretrain"
-        assert v["val"]["num_snapshots"] == 2 and v["train"]["num_snapshots"] == 8  # temporal split: last time index
+        assert (
+            v["val"]["num_snapshots"] == 2 and v["train"]["num_snapshots"] == 8
+        )  # temporal split: last time index
         preds = v["val"]["predictors"]
-        assert set(preds) == {"autoencoder_best_val", "autoencoder_final", "zero", "train_mean", "identity", "tanh_range_ceiling"}
+        assert set(preds) == {
+            "autoencoder_best_val",
+            "autoencoder_final",
+            "zero",
+            "train_mean",
+            "identity",
+            "tanh_range_ceiling",
+        }
         assert preds["identity"]["innovation"]["all"]["rel_sq_error"] == 0.0
         assert preds["zero"]["transmitted"]["A"]["rel_sq_error"] == 1.0
-        for crit in ("finite_outputs", "A_pooled_rel_sq_error_lt_1", "B_pooled_rel_sq_error_lt_1", "innovation_cosine_ge_0_90",
-                     "B_norm_ratio_in_0_5_2_0", "aggregate_update_cosine_ge_0_90", "input_dependent"):
+        for crit in (
+            "finite_outputs",
+            "A_pooled_rel_sq_error_lt_1",
+            "B_pooled_rel_sq_error_lt_1",
+            "innovation_cosine_ge_0_90",
+            "B_norm_ratio_in_0_5_2_0",
+            "aggregate_update_cosine_ge_0_90",
+            "input_dependent",
+        ):
             assert isinstance(v["gate"]["criteria"][crit]["pass"], bool)
         if mode == "none":
             assert preds["tanh_range_ceiling"]["transmitted"]["all"]["rel_sq_error"] == 0.0
@@ -79,7 +158,11 @@ def test_phase3a_cli_pipeline_on_tiny_snapshots(tiny_cfg, tiny_bundle, tmp_path)
     sel = tmp_path / "select.json"
     assert main(["ae-select", *gates, "--label", "PHASE3-DIAGNOSTIC", "--out", sel.as_posix()]) == 0
     s = _read(sel)
-    assert set(s["gates"]) == {"none", "global_rms", "factor_rms"} and "selected" in s and s["label"] == "PHASE3-DIAGNOSTIC"
+    assert (
+        set(s["gates"]) == {"none", "global_rms", "factor_rms"}
+        and "selected" in s
+        and s["label"] == "PHASE3-DIAGNOSTIC"
+    )
 
     stats = tmp_path / "stats.json"
     assert main(["tgap-stats", *common, "--snapshots", snaps.as_posix(), "--out", stats.as_posix()]) == 0
@@ -95,11 +178,22 @@ def test_phase3a_cli_pipeline_on_tiny_snapshots(tiny_cfg, tiny_bundle, tmp_path)
 
     # FAF through build_codec: the frozen normaliser travels with the checkpoint, the payload is the latent only
     cfg = tiny_cfg
-    cfg.codec.type, cfg.codec.ae_checkpoint = "autoencoder", (tmp_path / "tiny_cpu" / "ae_factor_rms" / "autoencoder_best_val.safetensors").as_posix()
+    cfg.codec.type, cfg.codec.ae_checkpoint = (
+        "autoencoder",
+        (tmp_path / "tiny_cpu" / "ae_factor_rms" / "autoencoder_best_val.safetensors").as_posix(),
+    )
     codec = build_codec(cfg, torch.device("cpu"))
     assert codec.normalizer is not None and codec.normalizer.mode == "factor_rms"
     d2 = synthetic_clients([8, 10, 6, 12], seed=12)
-    sim = FederatedSimulator(tiny_bundle.trainer, simulator_spec(cfg, 4), d2, tmp_path / "faf", codec=codec, layout=lay, identity={"t": 2})
+    sim = FederatedSimulator(
+        tiny_bundle.trainer,
+        simulator_spec(cfg, 4),
+        d2,
+        tmp_path / "faf",
+        codec=codec,
+        layout=lay,
+        identity={"t": 2},
+    )
     sim.spec.num_rounds = 1
     summary = sim.run(tiny_bundle.initial_state)
     assert summary["status"] == "complete"

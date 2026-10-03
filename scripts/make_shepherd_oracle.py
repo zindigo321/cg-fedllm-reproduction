@@ -54,10 +54,18 @@ def main() -> None:
         src = (tmp / "client_data_allocation.py").read_text(encoding="utf-8")
         if ANCHOR not in src:
             raise SystemExit("anchor line not found; refusing to instrument")
-        (tmp / "oracle.py").write_text(src.replace(ANCHOR, ANCHOR + "\ndf['source_id'] = list(range(len(df)))"), encoding="utf-8")
+        (tmp / "oracle.py").write_text(
+            src.replace(ANCHOR, ANCHOR + "\ndf['source_id'] = list(range(len(df)))"), encoding="utf-8"
+        )
         versions = subprocess.run(
-            [args.python, "-c", "import sys, numpy, pandas; print(pandas.__version__, numpy.__version__, sys.version.split()[0])"],
-            check=True, capture_output=True, text=True,
+            [
+                args.python,
+                "-c",
+                "import sys, numpy, pandas; print(pandas.__version__, numpy.__version__, sys.version.split()[0])",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
         ).stdout.split()
         about = (
             "ORACLE: per-client source_id assignment produced by running the pinned Shepherd client_data_allocation.py "
@@ -65,7 +73,9 @@ def main() -> None:
             f"under pandas {versions[0]} / numpy {versions[1]} / Python {versions[2]} (see docs/provenance.md). IDs only."
         )
         for tag, (n_clients, diff_quantity) in MODES.items():
-            subprocess.run([args.python, "oracle.py", n_clients, diff_quantity], cwd=tmp, check=True, capture_output=True)
+            subprocess.run(
+                [args.python, "oracle.py", n_clients, diff_quantity], cwd=tmp, check=True, capture_output=True
+            )
             d = tmp / "data" / n_clients
             load = lambda f, d=d: json.loads((d / f).read_text(encoding="utf-8"))  # noqa: E731
             out = {
@@ -80,9 +90,13 @@ def main() -> None:
                 "shards_per_client": 2,
                 "holdout_ids": [r["source_id"] for r in load("global_test.json")],
                 "remaining_ids": [r["source_id"] for r in load("global_training.json")],
-                "client_ids": [[r["source_id"] for r in load(f"local_training_{i}.json")] for i in range(int(n_clients))],
+                "client_ids": [
+                    [r["source_id"] for r in load(f"local_training_{i}.json")] for i in range(int(n_clients))
+                ],
             }
-            Path(args.out, f"shepherd_oracle_{tag}.json").write_text(json.dumps(out, separators=(",", ":")) + "\n", encoding="utf-8", newline="\n")
+            Path(args.out, f"shepherd_oracle_{tag}.json").write_text(
+                json.dumps(out, separators=(",", ":")) + "\n", encoding="utf-8", newline="\n"
+            )
             print("wrote", tag)
 
 

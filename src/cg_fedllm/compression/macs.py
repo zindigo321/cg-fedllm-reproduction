@@ -31,13 +31,19 @@ def count_macs(module: nn.Module, input_shape: tuple[int, ...]) -> dict[str, flo
             c_in, h_in, w_in = x.shape[1], x.shape[2], x.shape[3]
             c_out, h_out, w_out = output.shape[1], output.shape[2], output.shape[3]
             totals["convtranspose_input_grid"] += batch * c_in * h_in * w_in * c_out * kh * kw // mod.groups
-            totals["convtranspose_output_grid"] += batch * c_out * h_out * w_out * c_in * kh * kw // mod.groups
+            totals["convtranspose_output_grid"] += (
+                batch * c_out * h_out * w_out * c_in * kh * kw // mod.groups
+            )
         elif isinstance(mod, nn.Conv2d):
             c_in = x.shape[1]
             c_out, h_out, w_out = output.shape[1], output.shape[2], output.shape[3]
             totals["conv"] += batch * c_out * h_out * w_out * (c_in // mod.groups) * kh * kw
 
-    handles = [m.register_forward_hook(hook) for m in meta_module.modules() if isinstance(m, (nn.Conv2d, nn.ConvTranspose2d))]
+    handles = [
+        m.register_forward_hook(hook)
+        for m in meta_module.modules()
+        if isinstance(m, (nn.Conv2d, nn.ConvTranspose2d))
+    ]
     try:
         with torch.no_grad():
             meta_module.eval()

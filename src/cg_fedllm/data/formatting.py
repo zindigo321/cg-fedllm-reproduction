@@ -88,4 +88,9 @@ def collate(
         labels[i, sl] = torch.tensor(ex.labels, dtype=torch.long)
         attention[i, sl] = 1
     position_ids = (attention.cumsum(dim=1) - 1).clamp(min=0)
-    return {"input_ids": input_ids, "attention_mask": attention, "labels": labels, "position_ids": position_ids}
+    return {
+        "input_ids": input_ids,
+        "attention_mask": attention,
+        "labels": labels,
+        "position_ids": position_ids,
+    }

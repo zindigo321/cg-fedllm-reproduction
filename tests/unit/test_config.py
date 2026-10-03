@@ -44,11 +44,23 @@ def test_literal_values_are_checked():
 
 def test_result_label_is_restricted_to_the_reviewer_labels():
     assert RESULT_LABELS == (
-        "PAPER-REPORTED", "PHASE2-SMOKE", "LOCAL-MICROBENCH", "DERIVED", "UNKNOWN",
-        "PHASE3-DIAGNOSTIC", "PHASE3-TIERB-CORE", "PHASE3-SENSITIVITY",
+        "PAPER-REPORTED",
+        "PHASE2-SMOKE",
+        "LOCAL-MICROBENCH",
+        "DERIVED",
+        "UNKNOWN",
+        "PHASE3-DIAGNOSTIC",
+        "PHASE3-TIERB-CORE",
+        "PHASE3-SENSITIVITY",
     )
     # migration rule: the schema only grows -- every label a Phase-2 record carries stays valid
-    assert PHASE2_RESULT_LABELS == ("PAPER-REPORTED", "PHASE2-SMOKE", "LOCAL-MICROBENCH", "DERIVED", "UNKNOWN")
+    assert PHASE2_RESULT_LABELS == (
+        "PAPER-REPORTED",
+        "PHASE2-SMOKE",
+        "LOCAL-MICROBENCH",
+        "DERIVED",
+        "UNKNOWN",
+    )
     assert set(PHASE2_RESULT_LABELS) <= set(RESULT_LABELS)
     for label in RESULT_LABELS:
         assert config_from_dict({"run": {"name": "x", "result_label": label}}).run.result_label == label
@@ -83,10 +95,17 @@ def test_missing_required_and_section_validators():
 
 
 def test_inheritance_and_overrides(tmp_path):
-    (tmp_path / "base.yaml").write_text("run: {name: base, seed: 1}\nfederated: {num_rounds: 3}\n", encoding="utf-8")
+    (tmp_path / "base.yaml").write_text(
+        "run: {name: base, seed: 1}\nfederated: {num_rounds: 3}\n", encoding="utf-8"
+    )
     (tmp_path / "child.yaml").write_text("inherit: base.yaml\nrun: {name: child}\n", encoding="utf-8")
     cfg = load_config(tmp_path / "child.yaml", ["federated.client_fraction=0.25", "run.seed=9"])
-    assert (cfg.run.name, cfg.run.seed, cfg.federated.num_rounds, cfg.federated.client_fraction) == ("child", 9, 3, 0.25)
+    assert (cfg.run.name, cfg.run.seed, cfg.federated.num_rounds, cfg.federated.client_fraction) == (
+        "child",
+        9,
+        3,
+        0.25,
+    )
     assert apply_overrides({"a": {"b": 1}}, ["a.c=[1, 2]"]) == {"a": {"b": 1, "c": [1, 2]}}
 
 

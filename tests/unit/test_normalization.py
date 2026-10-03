@@ -48,7 +48,9 @@ def test_fit_uses_only_the_training_split_and_is_frozen():
         assert n1 == n2, mode  # validation data never enters the statistics
         assert n1.fit["train_indices"] == train
     allx = torch.cat([xs[i].reshape(-1) for i in train]).double()
-    assert math.isclose(fit_normalizer(xs, train, "global_rms").scale_global, float(allx.pow(2).mean().sqrt()), rel_tol=1e-12)
+    assert math.isclose(
+        fit_normalizer(xs, train, "global_rms").scale_global, float(allx.pow(2).mean().sqrt()), rel_tol=1e-12
+    )
     nf = fit_normalizer(xs, train, "factor_rms", layout=lay, geom=GEOM)
     mask = factor_column_mask(lay, GEOM)
     a = torch.cat([xs[i][..., mask].reshape(-1) for i in train]).double()
@@ -77,7 +79,13 @@ def test_invalid_scales_and_missing_layout_are_rejected():
     with pytest.raises(ValueError):
         Normalizer("global_rms", scale_global=0.0)
     with pytest.raises(ValueError):
-        Normalizer("factor_rms", scale_A=1.0, scale_B=float("nan"), layout_id="layer_major_qkvo_AtB", geometry=GEOM.to_dict())
+        Normalizer(
+            "factor_rms",
+            scale_A=1.0,
+            scale_B=float("nan"),
+            layout_id="layer_major_qkvo_AtB",
+            geometry=GEOM.to_dict(),
+        )
     lay = get_layout("layer_major_qkvo_AtB")
     zero_b = [lay.forward(_state(i, b_scale=0.0), GEOM) for i in range(2)]
     with pytest.raises(ValueError):  # B identically zero on the training split -> no finite scale

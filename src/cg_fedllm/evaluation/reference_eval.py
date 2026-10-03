@@ -30,7 +30,11 @@ def evaluate_benchmark(
 ) -> dict[str, Any]:
     if label not in RESULT_LABELS:
         raise ValueError(f"result label must be one of {RESULT_LABELS}, got {label!r}")
-    repo, rev = (eval_cfg.ceval_repo, eval_cfg.ceval_revision) if spec.name == "ceval" else (eval_cfg.mmlu_repo, eval_cfg.mmlu_revision)
+    repo, rev = (
+        (eval_cfg.ceval_repo, eval_cfg.ceval_revision)
+        if spec.name == "ceval"
+        else (eval_cfg.mmlu_repo, eval_cfg.mmlu_revision)
+    )
     t0 = time.time()
     root = download_benchmark(repo, rev, spec.name, sorted({spec.split, "dev"}))
     questions = load_split(root, spec.name, spec.split, spec.subjects)
@@ -42,9 +46,26 @@ def evaluate_benchmark(
         display = {s: mapping[s][1] for s in questions}
     else:
         display = {s: mmlu_display_name(s) for s in questions}
-    requests = build_requests(tokenizer, spec.name, questions, dev, display, spec.num_shots, eval_cfg.max_context, add_special_tokens)
+    requests = build_requests(
+        tokenizer,
+        spec.name,
+        questions,
+        dev,
+        display,
+        spec.num_shots,
+        eval_cfg.max_context,
+        add_special_tokens,
+    )
     t1 = time.time()
-    items = score_requests(model, requests, pad_token_id, device, eval_cfg.max_batch_tokens, eval_cfg.max_batch_size, eval_cfg.max_batch_attention)
+    items = score_requests(
+        model,
+        requests,
+        pad_token_id,
+        device,
+        eval_cfg.max_batch_tokens,
+        eval_cfg.max_batch_size,
+        eval_cfg.max_batch_attention,
+    )
     t2 = time.time()
     agg = aggregate_ceval(items) if spec.name == "ceval" else aggregate_mmlu(items)
     result = {
@@ -52,7 +73,11 @@ def evaluate_benchmark(
         "label": label,  # model/adapter provenance: run_metadata.json of the run directory
         "tag": tag,
         "benchmark": asdict(spec),
-        "dataset": {"repo": repo, "revision": rev, **data_digest(root, spec.name, sorted({spec.split, "dev"}))},
+        "dataset": {
+            "repo": repo,
+            "revision": rev,
+            **data_digest(root, spec.name, sorted({spec.split, "dev"})),
+        },
         "tokenization": {"add_special_tokens": add_special_tokens, "max_context": eval_cfg.max_context},
         "scoring": {
             "method": "lm-eval-compatible loglikelihood of answer continuations; argmax",
@@ -71,5 +96,16 @@ def evaluate_benchmark(
             pred_path = Path(out_dir) / f"{stem}_predictions.jsonl"
             pred_path.unlink(missing_ok=True)
             for it in items:
-                append_jsonl(pred_path, {"qid": it.qid, "answer": it.answer, "pred": it.prediction, "logprobs": it.logprobs, "shots": it.num_shots, "ctx_tokens": it.context_tokens, "path": it.path})
+                append_jsonl(
+                    pred_path,
+                    {
+                        "qid": it.qid,
+                        "answer": it.answer,
+                        "pred": it.prediction,
+                        "logprobs": it.logprobs,
+                        "shots": it.num_shots,
+                        "ctx_tokens": it.context_tokens,
+                        "path": it.path,
+                    },
+                )
     return result

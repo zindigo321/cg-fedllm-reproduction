@@ -18,14 +18,22 @@ from tests.conftest import synthetic_clients
 SIZES = [6, 9, 5, 8]
 
 
-def _sim(cfg, bundle, clients, run_dir, codec=None, representation="adapter_state", stop=None, aggregation=None):
+def _sim(
+    cfg, bundle, clients, run_dir, codec=None, representation="adapter_state", stop=None, aggregation=None
+):
     spec = simulator_spec(cfg, len(clients))
     spec.representation = representation
     spec.stop_after_round = stop
     if aggregation:
         spec.aggregation = aggregation
     return FederatedSimulator(
-        bundle.trainer, spec, clients, run_dir, codec=codec, layout=get_layout("layer_major_qkvo_AtB") if codec else None, identity={"test": "x"}
+        bundle.trainer,
+        spec,
+        clients,
+        run_dir,
+        codec=codec,
+        layout=get_layout("layer_major_qkvo_AtB") if codec else None,
+        identity={"test": "x"},
     )
 
 
@@ -54,7 +62,15 @@ def test_one_round_and_n1_equivalence(tiny_cfg, tiny_bundle, tmp_path):
     assert summary["status"] == "complete" and summary["rounds_completed"] == 2
     pooled = [[ex for c in clients for ex in c]]
     spec_cfg = tiny_cfg
-    sim = FederatedSimulator(tiny_bundle.trainer, simulator_spec(spec_cfg, 1), pooled, tmp_path / "n1", codec=None, layout=None, identity={"t": 1})
+    sim = FederatedSimulator(
+        tiny_bundle.trainer,
+        simulator_spec(spec_cfg, 1),
+        pooled,
+        tmp_path / "n1",
+        codec=None,
+        layout=None,
+        identity={"t": 1},
+    )
     sim.spec.num_rounds, sim.spec.client_fraction = 1, 1.0
     sim.run(tiny_bundle.initial_state)
     fl_state = AdapterState.load(tmp_path / "n1" / "final_adapter.safetensors")
@@ -65,8 +81,17 @@ def test_one_round_and_n1_equivalence(tiny_cfg, tiny_bundle, tmp_path):
 def test_identity_codec_equals_uncompressed_baseline(tiny_cfg, tiny_bundle, tmp_path):
     clients = synthetic_clients(SIZES)
     _sim(tiny_cfg, tiny_bundle, clients, tmp_path / "base").run(tiny_bundle.initial_state)
-    _sim(tiny_cfg, tiny_bundle, clients, tmp_path / "ident", codec=IdentityCodec()).run(tiny_bundle.initial_state)
-    _sim(tiny_cfg, tiny_bundle, clients, tmp_path / "delta", codec=IdentityCodec(), representation="adapter_delta").run(tiny_bundle.initial_state)
+    _sim(tiny_cfg, tiny_bundle, clients, tmp_path / "ident", codec=IdentityCodec()).run(
+        tiny_bundle.initial_state
+    )
+    _sim(
+        tiny_cfg,
+        tiny_bundle,
+        clients,
+        tmp_path / "delta",
+        codec=IdentityCodec(),
+        representation="adapter_delta",
+    ).run(tiny_bundle.initial_state)
     base = AdapterState.load(tmp_path / "base" / "final_adapter.safetensors")
     ident = AdapterState.load(tmp_path / "ident" / "final_adapter.safetensors")
     delta = AdapterState.load(tmp_path / "delta" / "final_adapter.safetensors")
@@ -82,17 +107,30 @@ def test_identity_codec_equals_uncompressed_baseline(tiny_cfg, tiny_bundle, tmp_
 
 def test_resume_reproduces_uninterrupted_run(tiny_cfg, tiny_bundle, tmp_path):
     clients = synthetic_clients(SIZES)
-    _sim(tiny_cfg, tiny_bundle, clients, tmp_path / "full", codec=IdentityCodec()).run(tiny_bundle.initial_state)
-    first = _sim(tiny_cfg, tiny_bundle, clients, tmp_path / "resumed", codec=IdentityCodec(), stop=0).run(tiny_bundle.initial_state)
+    _sim(tiny_cfg, tiny_bundle, clients, tmp_path / "full", codec=IdentityCodec()).run(
+        tiny_bundle.initial_state
+    )
+    first = _sim(tiny_cfg, tiny_bundle, clients, tmp_path / "resumed", codec=IdentityCodec(), stop=0).run(
+        tiny_bundle.initial_state
+    )
     assert first["status"] == "stopped_after_round_0"
     assert not (tmp_path / "resumed" / "final_adapter.safetensors").exists()
-    second = _sim(tiny_cfg, tiny_bundle, clients, tmp_path / "resumed", codec=IdentityCodec()).run(tiny_bundle.initial_state)
+    second = _sim(tiny_cfg, tiny_bundle, clients, tmp_path / "resumed", codec=IdentityCodec()).run(
+        tiny_bundle.initial_state
+    )
     assert second["status"] == "complete"
     a = AdapterState.load(tmp_path / "full" / "final_adapter.safetensors")
     b = AdapterState.load(tmp_path / "resumed" / "final_adapter.safetensors")
     assert a.sha256() == b.sha256()
     with pytest.raises(ResumeError):
-        _sim(tiny_cfg, tiny_bundle, clients, tmp_path / "resumed", codec=IdentityCodec(), aggregation="uniform_mean").run(tiny_bundle.initial_state)
+        _sim(
+            tiny_cfg,
+            tiny_bundle,
+            clients,
+            tmp_path / "resumed",
+            codec=IdentityCodec(),
+            aggregation="uniform_mean",
+        ).run(tiny_bundle.initial_state)
 
 
 def test_all_aggregation_modes_and_noise_codec_run(tiny_cfg, tiny_bundle, tmp_path):
@@ -103,7 +141,9 @@ def test_all_aggregation_modes_and_noise_codec_run(tiny_cfg, tiny_bundle, tmp_pa
         finals[agg] = AdapterState.load(tmp_path / agg / "final_adapter.safetensors")
     assert not finals["sample_weighted_mean"].equal(finals["uniform_mean"])
     assert finals["literal_sum"].l2_sq() > finals["uniform_mean"].l2_sq()
-    s = _sim(tiny_cfg, tiny_bundle, clients, tmp_path / "noise", codec=GaussianNoiseCodec(1e-3)).run(tiny_bundle.initial_state)
+    s = _sim(tiny_cfg, tiny_bundle, clients, tmp_path / "noise", codec=GaussianNoiseCodec(1e-3)).run(
+        tiny_bundle.initial_state
+    )
     assert s["status"] == "complete"
 
 
@@ -117,7 +157,9 @@ def test_divergence_is_recorded_not_hidden(tiny_cfg, tiny_bundle, tmp_path):
             return torch.full_like(payload.tensors["x"], float("nan"))
 
     clients = synthetic_clients(SIZES)
-    out = _sim(tiny_cfg, tiny_bundle, clients, tmp_path / "nan", codec=NaNCodec()).run(tiny_bundle.initial_state)
+    out = _sim(tiny_cfg, tiny_bundle, clients, tmp_path / "nan", codec=NaNCodec()).run(
+        tiny_bundle.initial_state
+    )
     assert out["status"] == "diverged_in_round_0"
     assert (tmp_path / "nan" / "rounds" / "r0000" / "diverged.json").exists()
     assert not (tmp_path / "nan" / "rounds" / "r0000" / "DONE").exists()

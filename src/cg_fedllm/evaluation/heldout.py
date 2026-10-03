@@ -30,13 +30,24 @@ def heldout_loss(
     loss_sum = 0.0
     tokens = 0
     for start in range(0, len(examples), micro_batch_size):
-        batch = collate(examples[start : start + micro_batch_size], pad_token_id, padding_side, pad_to_multiple_of)
+        batch = collate(
+            examples[start : start + micro_batch_size], pad_token_id, padding_side, pad_to_multiple_of
+        )
         batch = {k: v.to(device) for k, v in batch.items()}
-        logits = model(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"], position_ids=batch["position_ids"]).logits
+        logits = model(
+            input_ids=batch["input_ids"],
+            attention_mask=batch["attention_mask"],
+            position_ids=batch["position_ids"],
+        ).logits
         shift_logits = logits[:, :-1, :].float()
         shift_labels = batch["labels"][:, 1:]
         loss_sum += float(
-            F.cross_entropy(shift_logits.reshape(-1, shift_logits.size(-1)), shift_labels.reshape(-1), ignore_index=IGNORE_INDEX, reduction="sum")
+            F.cross_entropy(
+                shift_logits.reshape(-1, shift_logits.size(-1)),
+                shift_labels.reshape(-1),
+                ignore_index=IGNORE_INDEX,
+                reduction="sum",
+            )
         )
         tokens += int((shift_labels != IGNORE_INDEX).sum())
     if was_training:

@@ -25,7 +25,9 @@ def _f64(t: torch.Tensor) -> torch.Tensor:
     return t.detach().to("cpu", torch.float64)
 
 
-def reconstruction_metrics(x: torch.Tensor, x_hat: torch.Tensor, reference: torch.Tensor | None = None) -> dict[str, Any]:
+def reconstruction_metrics(
+    x: torch.Tensor, x_hat: torch.Tensor, reference: torch.Tensor | None = None
+) -> dict[str, Any]:
     if x.shape != x_hat.shape:
         raise ValueError(f"shape mismatch {tuple(x.shape)} vs {tuple(x_hat.shape)}")
     a, b = _f64(x), _f64(x_hat)
@@ -42,7 +44,9 @@ def reconstruction_metrics(x: torch.Tensor, x_hat: torch.Tensor, reference: torc
         "snr_paper": signal / mse if mse > 0 else math.inf,
         "snr_standard": signal / sse if sse > 0 else math.inf,
         "snr_db": 10 * math.log10(signal / sse) if sse > 0 and signal > 0 else math.inf,
-        "cosine": float((a * b).sum() / (a.norm() * b.norm())) if a.norm() > 0 and b.norm() > 0 else float("nan"),
+        "cosine": float((a * b).sum() / (a.norm() * b.norm()))
+        if a.norm() > 0 and b.norm() > 0
+        else float("nan"),
         "max_abs_x": float(a.abs().max()) if n else 0.0,
     }
     if reference is not None:
@@ -51,7 +55,11 @@ def reconstruction_metrics(x: torch.Tensor, x_hat: torch.Tensor, reference: torc
         out["innovation_sq"] = innov
         out["innovation_ratio"] = sse / innov if innov > 0 else math.inf
         da, db = a - r, b - r
-        out["delta_cosine"] = float((da * db).sum() / (da.norm() * db.norm())) if da.norm() > 0 and db.norm() > 0 else float("nan")
+        out["delta_cosine"] = (
+            float((da * db).sum() / (da.norm() * db.norm()))
+            if da.norm() > 0 and db.norm() > 0
+            else float("nan")
+        )
     return out
 
 

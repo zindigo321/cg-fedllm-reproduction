@@ -118,7 +118,12 @@ class AutoEncoderCodec(Codec):
     def describe(self) -> dict[str, Any]:
         norm = self.normalizer.to_dict() if self.normalizer is not None else {"mode": "none"}
         norm = {k: v for k, v in norm.items() if k != "fit"}
-        return {"codec_id": self.codec_id, "latent_dtype": str(self.latent_dtype), "normalization": norm, **self.info}
+        return {
+            "codec_id": self.codec_id,
+            "latent_dtype": str(self.latent_dtype),
+            "normalization": norm,
+            **self.info,
+        }
 
 
 class ConstantMeanCodec(Codec):
@@ -151,7 +156,9 @@ class GaussianNoiseCodec(Codec):
     def encode(self, x: torch.Tensor, ctx: CodecContext) -> Payload:
         g = torch_generator(ctx.seed, "gaussian_noise", ctx.round_index, ctx.client_id)
         noise = torch.randn(x.shape, generator=g, dtype=torch.float32) * self.sigma
-        return Payload({"x": (x.detach().to("cpu", torch.float32) + noise).contiguous()}, {"sigma": self.sigma})
+        return Payload(
+            {"x": (x.detach().to("cpu", torch.float32) + noise).contiguous()}, {"sigma": self.sigma}
+        )
 
     def decode(self, payload: Payload, ctx: CodecContext) -> torch.Tensor:
         return payload.tensors["x"].clone()

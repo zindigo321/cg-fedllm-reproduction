@@ -60,7 +60,9 @@ class _SaturationProbe:
         ctx = CodecContext(item.time_index, item.client_id, 0)
         payload = self.codec.encode(x, ctx)
         with torch.no_grad():
-            y = self.codec.ae.decode(payload.tensors["z"].to(self.codec.device, torch.float32).unsqueeze(0))[0]
+            y = self.codec.ae.decode(payload.tensors["z"].to(self.codec.device, torch.float32).unsqueeze(0))[
+                0
+            ]
         self.n += y.numel()
         self.saturated += int((y.abs() > 0.99).sum())
         x_hat = self.codec.decode(payload, ctx)
@@ -71,11 +73,15 @@ class _SaturationProbe:
     def summary(self) -> dict[str, Any]:
         return {
             "decoder_output_fraction_abs_gt_0_99": self.saturated / self.n if self.n else None,
-            "output_to_train_mean_rel_sq_distance": self.dist_out_mean / self.dist_in_mean if self.dist_in_mean > 0 else None,
+            "output_to_train_mean_rel_sq_distance": self.dist_out_mean / self.dist_in_mean
+            if self.dist_in_mean > 0
+            else None,
         }
 
 
-def iter_groups(snapshot_dir: Path, records: Sequence[dict], indices: Sequence[int]) -> Iterator[list[SnapshotItem]]:
+def iter_groups(
+    snapshot_dir: Path, records: Sequence[dict], indices: Sequence[int]
+) -> Iterator[list[SnapshotItem]]:
     """Snapshots ``indices`` one time index at a time (hash-verified, loaded lazily to bound memory)."""
     by_t: dict[int, list[int]] = defaultdict(list)
     for i in indices:
@@ -84,7 +90,9 @@ def iter_groups(snapshot_dir: Path, records: Sequence[dict], indices: Sequence[i
         group = []
         for i in by_t[t]:
             start, end = load_states(snapshot_dir, records[i])
-            group.append(SnapshotItem(i, t, int(records[i]["client_id"]), int(records[i]["num_samples"]), start, end))
+            group.append(
+                SnapshotItem(i, t, int(records[i]["client_id"]), int(records[i]["num_samples"]), start, end)
+            )
         yield group
 
 
@@ -114,7 +122,14 @@ def evaluate_split(
         "identity": lambda x, it: x.clone(),
         "tanh_range_ceiling": lambda x, it: normalizer.denormalize(normalizer.normalize(x).clamp(-1.0, 1.0)),
     }
-    out = evaluate_predictors(iter_groups(snapshot_dir, records, indices), representation, layout, geom, predictors, error_stride=stride)
+    out = evaluate_predictors(
+        iter_groups(snapshot_dir, records, indices),
+        representation,
+        layout,
+        geom,
+        predictors,
+        error_stride=stride,
+    )
     for name, probe in probes.items():
         out[name]["autoencoder_probe"] = probe.summary()
     times = sorted({int(records[i]["time_index"]) for i in indices})
@@ -131,16 +146,39 @@ def reconstruction_gate(val: dict[str, Any], candidate: str = "autoencoder_best_
     agg_cos = ae["aggregate"]["update"]["all"]["cosine"]
     inn_rse, tm_inn_rse = ae["innovation"]["all"]["rel_sq_error"], tm["innovation"]["all"]["rel_sq_error"]
     sh = ae["shift_control"]
-    finite = bool(ae["finite_outputs"]) and all(isinstance(v, float) and math.isfinite(v) for v in (a_rse, b_rse, inn_cos, b_ratio, agg_cos, inn_rse))
+    finite = bool(ae["finite_outputs"]) and all(
+        isinstance(v, float) and math.isfinite(v) for v in (a_rse, b_rse, inn_cos, b_ratio, agg_cos, inn_rse)
+    )
     criteria = {
         "finite_outputs": {"pass": finite, "value": bool(ae["finite_outputs"])},
-        "A_pooled_rel_sq_error_lt_1": {"pass": a_rse < GATE_A_REL_SQ_ERROR_LT, "value": a_rse, "threshold": f"< {GATE_A_REL_SQ_ERROR_LT}"},
-        "B_pooled_rel_sq_error_lt_1": {"pass": b_rse < GATE_B_REL_SQ_ERROR_LT, "value": b_rse, "threshold": f"< {GATE_B_REL_SQ_ERROR_LT}"},
-        "innovation_cosine_ge_0_90": {"pass": inn_cos >= GATE_INNOVATION_COSINE_GE, "value": inn_cos, "threshold": f">= {GATE_INNOVATION_COSINE_GE}"},
-        "B_norm_ratio_in_0_5_2_0": {"pass": GATE_B_NORM_RATIO[0] <= b_ratio <= GATE_B_NORM_RATIO[1], "value": b_ratio, "threshold": list(GATE_B_NORM_RATIO)},
-        "aggregate_update_cosine_ge_0_90": {"pass": agg_cos >= GATE_AGGREGATE_UPDATE_COSINE_GE, "value": agg_cos, "threshold": f">= {GATE_AGGREGATE_UPDATE_COSINE_GE}"},
+        "A_pooled_rel_sq_error_lt_1": {
+            "pass": a_rse < GATE_A_REL_SQ_ERROR_LT,
+            "value": a_rse,
+            "threshold": f"< {GATE_A_REL_SQ_ERROR_LT}",
+        },
+        "B_pooled_rel_sq_error_lt_1": {
+            "pass": b_rse < GATE_B_REL_SQ_ERROR_LT,
+            "value": b_rse,
+            "threshold": f"< {GATE_B_REL_SQ_ERROR_LT}",
+        },
+        "innovation_cosine_ge_0_90": {
+            "pass": inn_cos >= GATE_INNOVATION_COSINE_GE,
+            "value": inn_cos,
+            "threshold": f">= {GATE_INNOVATION_COSINE_GE}",
+        },
+        "B_norm_ratio_in_0_5_2_0": {
+            "pass": GATE_B_NORM_RATIO[0] <= b_ratio <= GATE_B_NORM_RATIO[1],
+            "value": b_ratio,
+            "threshold": list(GATE_B_NORM_RATIO),
+        },
+        "aggregate_update_cosine_ge_0_90": {
+            "pass": agg_cos >= GATE_AGGREGATE_UPDATE_COSINE_GE,
+            "value": agg_cos,
+            "threshold": f">= {GATE_AGGREGATE_UPDATE_COSINE_GE}",
+        },
         "input_dependent": {
-            "pass": inn_rse < tm_inn_rse and sh["innovation_rel_sq_error_matched"] < sh["innovation_rel_sq_error_shifted"],
+            "pass": inn_rse < tm_inn_rse
+            and sh["innovation_rel_sq_error_matched"] < sh["innovation_rel_sq_error_shifted"],
             "value": {
                 "innovation_rel_sq_error": inn_rse,
                 "train_mean_innovation_rel_sq_error": tm_inn_rse,
@@ -164,8 +202,17 @@ def select_primary(gates_by_mode: dict[str, dict[str, Any]]) -> dict[str, Any]:
     """A6 priority rule: the least modified passing interpretation (none, then global_rms, then factor_rms)."""
     for mode in PRIORITY:
         if mode in gates_by_mode and gates_by_mode[mode]["pass"]:
-            return {"selected": mode, "rule": "first passing mode in the order none -> global_rms -> factor_rms", "viable": True}
-    return {"selected": None, "rule": "first passing mode in the order none -> global_rms -> factor_rms", "viable": False, "verdict": "NO PRIMARY CODEC IS VIABLE"}
+            return {
+                "selected": mode,
+                "rule": "first passing mode in the order none -> global_rms -> factor_rms",
+                "viable": True,
+            }
+    return {
+        "selected": None,
+        "rule": "first passing mode in the order none -> global_rms -> factor_rms",
+        "viable": False,
+        "verdict": "NO PRIMARY CODEC IS VIABLE",
+    }
 
 
 def run_viability(
@@ -186,7 +233,10 @@ def run_viability(
     codecs: dict[str, AutoEncoderCodec] = {}
     normalizer: Normalizer | None = None
     meta_by: dict[str, Any] = {}
-    for name, fname in (("autoencoder_best_val", "autoencoder_best_val.safetensors"), ("autoencoder_final", "autoencoder.safetensors")):
+    for name, fname in (
+        ("autoencoder_best_val", "autoencoder_best_val.safetensors"),
+        ("autoencoder_final", "autoencoder.safetensors"),
+    ):
         ae: ResNetAutoEncoder
         ae, meta = load_autoencoder(ae_dir / fname, device=device)
         norm = Normalizer.from_dict(meta.get("normalization"))
@@ -202,7 +252,14 @@ def run_viability(
     first = load_states(snapshot_dir, records[train_idx[0]])
     if layout.forward(to_representation(first[1], first[0], representation), geom).shape != mean.shape:
         raise ValueError("train-mean shape does not match the snapshots")
-    kw = dict(representation=representation, layout=layout, geom=geom, codecs=codecs, normalizer=normalizer, mean=mean)
+    kw = dict(
+        representation=representation,
+        layout=layout,
+        geom=geom,
+        codecs=codecs,
+        normalizer=normalizer,
+        mean=mean,
+    )
     val = evaluate_split(snapshot_dir, records, val_idx, **kw)
     train = evaluate_split(snapshot_dir, records, train_idx, **kw)
     gate = reconstruction_gate(val)

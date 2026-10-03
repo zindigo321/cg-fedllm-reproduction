@@ -45,7 +45,9 @@ def fetch_source(cfg: DataSection, timeout: int = 300) -> Path:
     if target.exists():
         digest = sha256_file(target)
         if digest != cfg.source_sha256:
-            raise SourceIntegrityError(f"cached source {target} has sha256 {digest}, expected {cfg.source_sha256}")
+            raise SourceIntegrityError(
+                f"cached source {target} has sha256 {digest}, expected {cfg.source_sha256}"
+            )
         return target
     target.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(dir=target.parent, delete=False, suffix=".part") as tmp:
@@ -56,7 +58,9 @@ def fetch_source(cfg: DataSection, timeout: int = 300) -> Path:
     digest = sha256_file(tmp_path)
     if digest != cfg.source_sha256:
         tmp_path.unlink(missing_ok=True)
-        raise SourceIntegrityError(f"downloaded {cfg.source_url} has sha256 {digest}, expected {cfg.source_sha256}")
+        raise SourceIntegrityError(
+            f"downloaded {cfg.source_url} has sha256 {digest}, expected {cfg.source_sha256}"
+        )
     tmp_path.replace(target)
     return target
 

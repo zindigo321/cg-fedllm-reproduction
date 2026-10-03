@@ -92,7 +92,11 @@ def build_requests(
 
 
 def _batches(
-    indices: list[int], lengths: list[int], max_batch_tokens: int, max_batch_size: int, max_batch_attention: int | None = None
+    indices: list[int],
+    lengths: list[int],
+    max_batch_tokens: int,
+    max_batch_size: int,
+    max_batch_attention: int | None = None,
 ) -> list[list[int]]:
     """Greedy batching of length-sorted requests under three budgets: batch size, padded tokens (B * L_max)
     and attention-matrix elements (B * L_max^2). The last bound matters because padded batches use a
@@ -115,7 +119,9 @@ def _batches(
     return batches
 
 
-def _left_pad(seqs: Sequence[Sequence[int]], pad_id: int, device) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+def _left_pad(
+    seqs: Sequence[Sequence[int]], pad_id: int, device
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     length = max(len(s) for s in seqs)
     ids = torch.full((len(seqs), length), pad_id, dtype=torch.long)
     mask = torch.zeros((len(seqs), length), dtype=torch.long)
@@ -168,4 +174,15 @@ def score_requests(
 def _item(r: ScoreRequest, lps: list[float], path: str) -> ScoredItem:
     best = max(range(len(lps)), key=lambda j: (lps[j], -j))  # first argmax on ties
     pred = LETTERS[best]
-    return ScoredItem(r.qid, r.subject, r.answer, pred, pred == r.answer, lps, r.num_shots, len(r.context_ids), path, r.truncated)
+    return ScoredItem(
+        r.qid,
+        r.subject,
+        r.answer,
+        pred,
+        pred == r.answer,
+        lps,
+        r.num_shots,
+        len(r.context_ids),
+        path,
+        r.truncated,
+    )

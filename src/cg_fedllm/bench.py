@@ -51,7 +51,11 @@ def bench_config(
     t_load = time.perf_counter()
     # no tokenizer is needed (synthetic ids, no padding); the pad id is irrelevant but required by the loader
     pad = 0 if model_cfg.pad_token_id is None else model_cfg.pad_token_id
-    loaded = load_model(replace(model_cfg, gradient_checkpointing=gradient_checkpointing, pad_token_id=pad), device, with_tokenizer=False)
+    loaded = load_model(
+        replace(model_cfg, gradient_checkpointing=gradient_checkpointing, pad_token_id=pad),
+        device,
+        with_tokenizer=False,
+    )
     model = loaded.model
     if gradient_checkpointing:
         model.config.use_cache = False
@@ -62,7 +66,17 @@ def bench_config(
     torch.cuda.synchronize()
     weights_alloc = torch.cuda.memory_allocated()
     vocab = int(peft_model.get_input_embeddings().weight.shape[0])
-    trainer = LocalTrainer(peft_model, params, LocalTrainSection(batch_size=1, micro_batch_size=1, precision="bf16" if model_cfg.dtype == "bfloat16" else "fp32"), pad_token_id=0, padding_side="left", device=device, base_seed=seed)
+    trainer = LocalTrainer(
+        peft_model,
+        params,
+        LocalTrainSection(
+            batch_size=1, micro_batch_size=1, precision="bf16" if model_cfg.dtype == "bfloat16" else "fp32"
+        ),
+        pad_token_id=0,
+        padding_side="left",
+        device=device,
+        base_seed=seed,
+    )
     results = []
     for mb in micro_batches:
         _cleanup()
@@ -117,7 +131,13 @@ def bench_config(
                 }
             )
         except torch.OutOfMemoryError as exc:
-            rec.update({"status": "OOM", "error": str(exc).splitlines()[0][:200], "peak_reserved_bytes": int(torch.cuda.max_memory_reserved())})
+            rec.update(
+                {
+                    "status": "OOM",
+                    "error": str(exc).splitlines()[0][:200],
+                    "peak_reserved_bytes": int(torch.cuda.max_memory_reserved()),
+                }
+            )
         finally:
             del opt
             _cleanup()

@@ -52,7 +52,10 @@ def init_run_dir(cfg: ExperimentConfig, stage: str, extra_meta: dict[str, Any] |
     run_dir = resolve_path(cfg.run.output_root) / cfg.run.name / stage
     run_dir.mkdir(parents=True, exist_ok=True)
     atomic_write_text(run_dir / "config.resolved.yaml", dump_config_yaml(cfg))
-    atomic_write_json(run_dir / "config.sha256.json", {"config_sha256": cfg.sha256(), "identity_config_sha256": identity_config_sha256(cfg)})
+    atomic_write_json(
+        run_dir / "config.sha256.json",
+        {"config_sha256": cfg.sha256(), "identity_config_sha256": identity_config_sha256(cfg)},
+    )
     meta = {
         "stage": stage,
         "result_label": cfg.run.result_label,
@@ -114,7 +117,9 @@ class ModelBundle:
 def build_model_bundle(cfg: ExperimentConfig) -> ModelBundle:
     cfg.require("model", "lora", "local_train")
     if cfg.model.quantization == "none" and PRECISION_DTYPE[cfg.local_train.precision] != cfg.model.dtype:
-        raise ValueError(f"local_train.precision={cfg.local_train.precision} is inconsistent with model.dtype={cfg.model.dtype}")
+        raise ValueError(
+            f"local_train.precision={cfg.local_train.precision} is inconsistent with model.dtype={cfg.model.dtype}"
+        )
     device = torch.device(cfg.run.device)
     loaded = load_model(cfg.model, device, with_tokenizer=cfg.model.kind == "hf")
     if cfg.model.gradient_checkpointing:
@@ -124,7 +129,13 @@ def build_model_bundle(cfg: ExperimentConfig) -> ModelBundle:
     params = lora_parameters(peft_model)
     initial = get_adapter_state(params)
     trainer = LocalTrainer(
-        peft_model, params, cfg.local_train, pad_token_id=loaded.pad_token_id, padding_side=loaded.padding_side, device=device, base_seed=cfg.run.seed
+        peft_model,
+        params,
+        cfg.local_train,
+        pad_token_id=loaded.pad_token_id,
+        padding_side=loaded.padding_side,
+        device=device,
+        base_seed=cfg.run.seed,
     )
     return ModelBundle(loaded, peft_model, params, trainer, initial, device)
 
@@ -177,10 +188,17 @@ def build_data_bundle(cfg: ExperimentConfig) -> DataBundle:
     return DataBundle(manifest, sha256_file(path), records, sha256_file(source_cache_path(cfg.data)))
 
 
-def client_examples(cfg: ExperimentConfig, data: DataBundle, tokenizer, split: str) -> list[list[TokenizedExample]]:
+def client_examples(
+    cfg: ExperimentConfig, data: DataBundle, tokenizer, split: str
+) -> list[list[TokenizedExample]]:
     out = []
     for cid in range(data.manifest.num_clients):
-        out.append([tokenize_record(tokenizer, data.records[i], cfg.data) for i in data.manifest.split_ids(cid, split)])
+        out.append(
+            [
+                tokenize_record(tokenizer, data.records[i], cfg.data)
+                for i in data.manifest.split_ids(cid, split)
+            ]
+        )
     return out
 
 
@@ -226,10 +244,14 @@ def build_codec(cfg: ExperimentConfig, device: torch.device) -> Codec | None:
         # the frozen TGAP-fitted normaliser travels with the checkpoint (Phase-2 checkpoints carry none)
         norm = Normalizer.from_dict(meta.get("normalization"))
         info = {"checkpoint": str(ckpt), "checkpoint_sha256": sha256_file(ckpt), "ae_metadata": meta}
-        return AutoEncoderCodec(ae, device=c.device or device, latent_dtype=c.latent_dtype, info=info, normalizer=norm)
+        return AutoEncoderCodec(
+            ae, device=c.device or device, latent_dtype=c.latent_dtype, info=info, normalizer=norm
+        )
     if c.type == "constant_mean":
         path = resolve_path(c.mean_path)
-        return ConstantMeanCodec(load_tensors(path)["x"], {"mean_path": str(path), "mean_sha256": sha256_file(path)})
+        return ConstantMeanCodec(
+            load_tensors(path)["x"], {"mean_path": str(path), "mean_sha256": sha256_file(path)}
+        )
     if c.type == "gaussian_noise":
         return GaussianNoiseCodec(float(c.noise_sigma))
     raise ValueError(f"unknown codec {c.type!r}")

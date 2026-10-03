@@ -19,7 +19,9 @@ def _audited_shepherd_selection(num_clients: int, frac: float, round_index: int)
     return {int(x) for x in np.random.choice(np.arange(num_clients), k, replace=False)}
 
 
-@pytest.mark.parametrize("num_clients,frac", [(100, 0.05), (10, 0.05), (10, 0.1), (3, 1.0), (4, 0.5), (100, 0.2)])
+@pytest.mark.parametrize(
+    "num_clients,frac", [(100, 0.05), (10, 0.05), (10, 0.1), (3, 1.0), (4, 0.5), (100, 0.2)]
+)
 def test_sampler_matches_audited_shepherd_algorithm(num_clients, frac):
     for t in range(20):
         ours = shepherd_select_clients(num_clients, frac, t)
@@ -95,7 +97,9 @@ def test_factors_are_aggregated_independently_not_in_product_space():
     s = _states(2, seed=2)
     agg = aggregate(s, [1, 1], "uniform_mean")
     a_key, b_key = "layers.0.self_attn.q_proj.lora_A.weight", "layers.0.self_attn.q_proj.lora_B.weight"
-    mean_of_products = 0.5 * (s[0].tensors[b_key] @ s[0].tensors[a_key] + s[1].tensors[b_key] @ s[1].tensors[a_key])
+    mean_of_products = 0.5 * (
+        s[0].tensors[b_key] @ s[0].tensors[a_key] + s[1].tensors[b_key] @ s[1].tensors[a_key]
+    )
     product_of_means = agg.tensors[b_key] @ agg.tensors[a_key]
     assert torch.allclose(agg.tensors[a_key], 0.5 * (s[0].tensors[a_key] + s[1].tensors[a_key]))
     assert not torch.allclose(product_of_means, mean_of_products)  # documents the "LoRA subspace" semantics

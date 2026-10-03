@@ -26,8 +26,12 @@ LOGPROB_TOL = 1e-3
 
 
 def test_qwen05b_reproduces_recorded_evaluator_predictions():
-    recorded = json.loads((FIXTURES / "qwen15_0p5b_recorded_eval_subset.json").read_text(encoding="utf-8"))["items"]
-    cfg = load_config(REPO / "configs" / "eval" / "qwen15_0p5b_validation.yaml", ["model.local_files_only=true"])
+    recorded = json.loads((FIXTURES / "qwen15_0p5b_recorded_eval_subset.json").read_text(encoding="utf-8"))[
+        "items"
+    ]
+    cfg = load_config(
+        REPO / "configs" / "eval" / "qwen15_0p5b_validation.yaml", ["model.local_files_only=true"]
+    )
     device = torch.device("cuda")
     loaded = load_model(cfg.model, device)
     wanted: dict[tuple[str, str], set[str]] = defaultdict(set)
@@ -36,18 +40,38 @@ def test_qwen05b_reproduces_recorded_evaluator_predictions():
         wanted[(bench, split)].add(r["qid"])
     scored = {}
     for (bench, split), qids in sorted(wanted.items()):
-        repo, rev = (cfg.eval.ceval_repo, cfg.eval.ceval_revision) if bench == "ceval" else (cfg.eval.mmlu_repo, cfg.eval.mmlu_revision)
+        repo, rev = (
+            (cfg.eval.ceval_repo, cfg.eval.ceval_revision)
+            if bench == "ceval"
+            else (cfg.eval.mmlu_repo, cfg.eval.mmlu_revision)
+        )
         subjects = sorted({q.split("/")[1] for q in qids})
         root = download_benchmark(repo, rev, bench, sorted({split, "dev"}))
-        questions = {s: [q for q in qs if q.qid in qids] for s, qs in load_split(root, bench, split, subjects).items()}
+        questions = {
+            s: [q for q in qs if q.qid in qids] for s, qs in load_split(root, bench, split, subjects).items()
+        }
         dev = load_split(root, bench, "dev", subjects)
-        display = {s: ceval_subject_mapping()[s][1] for s in subjects} if bench == "ceval" else {s: mmlu_display_name(s) for s in subjects}
+        display = (
+            {s: ceval_subject_mapping()[s][1] for s in subjects}
+            if bench == "ceval"
+            else {s: mmlu_display_name(s) for s in subjects}
+        )
         reqs = build_requests(loaded.tokenizer, bench, questions, dev, display, 5, cfg.eval.max_context, True)
-        for it in score_requests(loaded.model, reqs, loaded.pad_token_id, device, cfg.eval.max_batch_tokens, cfg.eval.max_batch_size, cfg.eval.max_batch_attention):
+        for it in score_requests(
+            loaded.model,
+            reqs,
+            loaded.pad_token_id,
+            device,
+            cfg.eval.max_batch_tokens,
+            cfg.eval.max_batch_size,
+            cfg.eval.max_batch_attention,
+        ):
             scored[it.qid] = it
     assert set(scored) == {r["qid"] for r in recorded}
     for r in recorded:
         it = scored[r["qid"]]
         assert it.context_tokens == r["ctx_tokens"] and it.num_shots == r["shots"]
         assert it.prediction == r["pred"], r["qid"]
-        assert max(abs(a - b) for a, b in zip(it.logprobs, r["logprobs"], strict=True)) < LOGPROB_TOL, r["qid"]
+        assert max(abs(a - b) for a, b in zip(it.logprobs, r["logprobs"], strict=True)) < LOGPROB_TOL, r[
+            "qid"
+        ]

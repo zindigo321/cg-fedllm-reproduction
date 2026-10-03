@@ -38,7 +38,9 @@ class MCQuestion:
 
 
 def _resource_json(name: str) -> Any:
-    return json.loads(resources.files("cg_fedllm.evaluation.resources").joinpath(name).read_text(encoding="utf-8"))
+    return json.loads(
+        resources.files("cg_fedllm.evaluation.resources").joinpath(name).read_text(encoding="utf-8")
+    )
 
 
 def ceval_subject_mapping() -> dict[str, list[str]]:
@@ -85,16 +87,22 @@ def _read_parquet(path: Path) -> list[dict[str, Any]]:
     return pq.read_table(path).to_pylist()
 
 
-def load_split(root: Path, benchmark: str, split: str, subjects: list[str] | None = None) -> dict[str, list[MCQuestion]]:
+def load_split(
+    root: Path, benchmark: str, split: str, subjects: list[str] | None = None
+) -> dict[str, list[MCQuestion]]:
     names = CEVAL_SPLITS if benchmark == "ceval" else MMLU_SPLITS
     fname = names[split]
-    available = sorted(p.name for p in root.iterdir() if p.is_dir() and p.name not in ("all", "auxiliary_train"))
+    available = sorted(
+        p.name for p in root.iterdir() if p.is_dir() and p.name not in ("all", "auxiliary_train")
+    )
     wanted = subjects or available
     out: dict[str, list[MCQuestion]] = {}
     for subject in wanted:
         files = sorted((root / subject).glob(f"{fname}-*.parquet"))
         if len(files) != 1:
-            raise FileNotFoundError(f"{benchmark}/{subject}: expected exactly one {fname} parquet, found {files}")
+            raise FileNotFoundError(
+                f"{benchmark}/{subject}: expected exactly one {fname} parquet, found {files}"
+            )
         rows = _read_parquet(files[0])
         qs = []
         for i, row in enumerate(rows):
@@ -106,7 +114,11 @@ def load_split(root: Path, benchmark: str, split: str, subjects: list[str] | Non
                 answer = LETTERS[int(row["answer"])]
             if len(choices) != 4 or answer not in LETTERS:
                 raise ValueError(f"{benchmark}/{subject}/{split}#{i}: malformed row")
-            qs.append(MCQuestion(benchmark, subject, split, i, str(row["question"]), tuple(map(str, choices)), answer))
+            qs.append(
+                MCQuestion(
+                    benchmark, subject, split, i, str(row["question"]), tuple(map(str, choices)), answer
+                )
+            )
         out[subject] = qs
     return out
 

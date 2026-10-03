@@ -53,7 +53,9 @@ class SnapshotError(RuntimeError):
 
 
 class SnapshotWriter:
-    def __init__(self, root: str | Path, *, run_id: str, source_mode: str, representation: str, layout: Layout) -> None:
+    def __init__(
+        self, root: str | Path, *, run_id: str, source_mode: str, representation: str, layout: Layout
+    ) -> None:
         if source_mode not in ("local_pretrain", "federated_pretrain"):
             raise ValueError(f"unknown TGAP source mode {source_mode!r}")
         self.root = Path(root)
@@ -65,7 +67,15 @@ class SnapshotWriter:
         (self.root / "starts").mkdir(parents=True, exist_ok=True)
         self.index_path = self.root / "index.jsonl"
 
-    def write(self, time_index: int, client_id: int, start: AdapterState, end: AdapterState, num_samples: int, extra: Mapping[str, Any] | None = None) -> dict[str, Any]:
+    def write(
+        self,
+        time_index: int,
+        client_id: int,
+        start: AdapterState,
+        end: AdapterState,
+        num_samples: int,
+        extra: Mapping[str, Any] | None = None,
+    ) -> dict[str, Any]:
         geom = infer_geometry(end)
         if infer_geometry(start) != geom:
             raise SnapshotError("start and end states have different geometry")
@@ -74,7 +84,15 @@ class SnapshotWriter:
         if not (self.root / start_rel).exists():
             start.save(self.root / start_rel, {"role": "start_state"})
         rel = Path("snapshots") / f"t{time_index:04d}_c{client_id:04d}.safetensors"
-        end.save(self.root / rel, {"role": "end_state", "run_id": self.run_id, "time_index": str(time_index), "client_id": str(client_id)})
+        end.save(
+            self.root / rel,
+            {
+                "role": "end_state",
+                "run_id": self.run_id,
+                "time_index": str(time_index),
+                "client_id": str(client_id),
+            },
+        )
         delta = end.sub(start)
         meta = self.layout.metadata(geom)
         record = {
@@ -122,7 +140,9 @@ def read_index(root: str | Path) -> list[dict[str, Any]]:
     return records
 
 
-def load_states(root: str | Path, record: Mapping[str, Any], verify: bool = True) -> tuple[AdapterState, AdapterState]:
+def load_states(
+    root: str | Path, record: Mapping[str, Any], verify: bool = True
+) -> tuple[AdapterState, AdapterState]:
     root = Path(root)
     if verify:
         for key_file, key_sha in (("file", "file_sha256"), ("start_file", "start_file_sha256")):
@@ -130,12 +150,16 @@ def load_states(root: str | Path, record: Mapping[str, Any], verify: bool = True
                 raise SnapshotError(f"{record[key_file]}: file hash mismatch")
     end = AdapterState.load(root / record["file"])
     start = AdapterState.load(root / record["start_file"])
-    if verify and (end.sha256() != record["end_adapter_hash"] or start.sha256() != record["start_adapter_hash"]):
+    if verify and (
+        end.sha256() != record["end_adapter_hash"] or start.sha256() != record["start_adapter_hash"]
+    ):
         raise SnapshotError("adapter hash mismatch")
     return start, end
 
 
-def snapshot_tensor(root: str | Path, record: Mapping[str, Any], representation: str, layout: Layout) -> tuple[torch.Tensor, torch.Tensor]:
+def snapshot_tensor(
+    root: str | Path, record: Mapping[str, Any], representation: str, layout: Layout
+) -> tuple[torch.Tensor, torch.Tensor]:
     """Return ``(X, R)``: Phi of the requested representation and the matching innovation reference
     (Phi of the start state for ``adapter_state``; zeros for ``adapter_delta``)."""
     start, end = load_states(root, record)

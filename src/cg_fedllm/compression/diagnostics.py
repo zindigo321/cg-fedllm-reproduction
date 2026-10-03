@@ -149,20 +149,38 @@ class Pooled:
         for name, vals in (("rel_sq_error", self.per_rse), ("cosine", self.per_cos)):
             finite = [v for v in vals if math.isfinite(v)]
             if finite:
-                out[f"per_snapshot_{name}"] = {"min": min(finite), "median": float(np.median(finite)), "max": max(finite)}
+                out[f"per_snapshot_{name}"] = {
+                    "min": min(finite),
+                    "median": float(np.median(finite)),
+                    "max": max(finite),
+                }
         return out
 
 
-def _group_result(parts: dict[str, Pooled], errors: dict[str, list[np.ndarray]] | None = None, exact: bool = True) -> dict[str, Any]:
+def _group_result(
+    parts: dict[str, Pooled], errors: dict[str, list[np.ndarray]] | None = None, exact: bool = True
+) -> dict[str, Any]:
     out = {f: parts[f].result() for f in FACTORS}
     out["all"] = Pooled.merged(parts[f] for f in FACTORS).result()
     if errors is not None:
         qs = (0.5, 0.95)
         for f in FACTORS:
             q = abs_quantiles(errors[f], qs)
-            out[f].update({"abs_error_p50": q.get("p50"), "abs_error_p95": q.get("p95"), "quantiles_exact": exact and q.get("exact", True)})
+            out[f].update(
+                {
+                    "abs_error_p50": q.get("p50"),
+                    "abs_error_p95": q.get("p95"),
+                    "quantiles_exact": exact and q.get("exact", True),
+                }
+            )
         q = abs_quantiles(errors["A"] + errors["B"], qs)
-        out["all"].update({"abs_error_p50": q.get("p50"), "abs_error_p95": q.get("p95"), "quantiles_exact": exact and q.get("exact", True)})
+        out["all"].update(
+            {
+                "abs_error_p50": q.get("p50"),
+                "abs_error_p95": q.get("p95"),
+                "quantiles_exact": exact and q.get("exact", True),
+            }
+        )
     return out
 
 
@@ -189,7 +207,10 @@ class PredictorDiagnostics:
             raise ValueError(f"unknown representation {representation!r}")
         self.rep = representation
         self.error_stride = error_stride
-        self.groups = {g: {f: Pooled(keep_errors=(g == "transmitted"), error_stride=error_stride) for f in FACTORS} for g in ("transmitted", "state", "innovation")}
+        self.groups = {
+            g: {f: Pooled(keep_errors=(g == "transmitted"), error_stride=error_stride) for f in FACTORS}
+            for g in ("transmitted", "state", "innovation")
+        }
         self.product = {g: Pooled() for g in ("state", "innovation")}
         self.agg = {g: {f: [0.0, 0.0, 0.0, 0.0] for f in FACTORS} for g in ("update", "state")}
         self.shift = {"matched": Pooled(), "shifted": Pooled()}
@@ -197,9 +218,19 @@ class PredictorDiagnostics:
         self.time_indices: list[int] = []
         self.finite_outputs = True
 
-    def add_time(self, items: Sequence[SnapshotItem], truths: Sequence[dict[str, Any]], predictor: Predictor, layout: Layout, geom: LoRAGeometry, xs: Sequence[torch.Tensor]) -> None:
+    def add_time(
+        self,
+        items: Sequence[SnapshotItem],
+        truths: Sequence[dict[str, Any]],
+        predictor: Predictor,
+        layout: Layout,
+        geom: LoRAGeometry,
+        xs: Sequence[torch.Tensor],
+    ) -> None:
         """``truths[i]`` holds the float64 flats of item i (``rep``/``end``/``start`` per factor) and its key lists."""
-        weights = aggregation_weights([it.num_samples for it in items], "sample_weighted_mean").to(torch.float64)
+        weights = aggregation_weights([it.num_samples for it in items], "sample_weighted_mean").to(
+            torch.float64
+        )
         agg_u = {f: None for f in FACTORS}
         agg_uh = {f: None for f in FACTORS}
         agg_e = {f: None for f in FACTORS}
@@ -230,7 +261,12 @@ class PredictorDiagnostics:
                 if self.rep == "adapter_state":
                     e_hat_t.update({k: rep_hat.tensors[k].to(torch.float64) for k in keys})
                 else:
-                    e_hat_t.update({k: it.start.tensors[k].to(torch.float64) + rep_hat.tensors[k].to(torch.float64) for k in keys})
+                    e_hat_t.update(
+                        {
+                            k: it.start.tensors[k].to(torch.float64) + rep_hat.tensors[k].to(torch.float64)
+                            for k in keys
+                        }
+                    )
             self._add_product(it, e_hat_t)
             innov_hat.append(torch.cat(uh_cat))
             innov_true.append(torch.cat(u_cat))
@@ -244,7 +280,9 @@ class PredictorDiagnostics:
                 s[2] += float(hat @ hat)
                 s[3] += float(true @ hat)
         k = len(items)
-        if k >= 2:  # pair each reconstruction with the true innovation of the next client of the same time index
+        if (
+            k >= 2
+        ):  # pair each reconstruction with the true innovation of the next client of the same time index
             for i in range(k):
                 self.shift["matched"].add(innov_true[i], innov_hat[i])
                 self.shift["shifted"].add(innov_true[i], innov_hat[(i + 1) % k])
@@ -293,7 +331,11 @@ class PredictorDiagnostics:
         # per-snapshot signal energy over the pooled per-element MSE (reported, never gated: it scales with n)
         mean_sig = tx_all["signal_sq"] / self.num_snapshots if self.num_snapshots else math.nan
         out["snr_paper"] = mean_sig / tx_all["mse"] if tx_all["mse"] and tx_all["mse"] > 0 else math.inf
-        out["snr_standard_db"] = 10 * math.log10(tx_all["signal_sq"] / tx_all["sse"]) if tx_all["sse"] > 0 and tx_all["signal_sq"] > 0 else math.inf
+        out["snr_standard_db"] = (
+            10 * math.log10(tx_all["signal_sq"] / tx_all["sse"])
+            if tx_all["sse"] > 0 and tx_all["signal_sq"] > 0
+            else math.inf
+        )
         m, s = self.shift["matched"].result(), self.shift["shifted"].result()
         out["shift_control"] = {
             "innovation_rel_sq_error_matched": m["rel_sq_error"],

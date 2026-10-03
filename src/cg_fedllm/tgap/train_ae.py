@@ -38,7 +38,9 @@ from cg_fedllm.utils.io import atomic_write_json, save_tensors_atomic
 from cg_fedllm.utils.seeding import derive_seed, numpy_rng
 
 
-def split_indices(records: Sequence[dict], split: str, val_fraction: float, seed: int) -> tuple[list[int], list[int]]:
+def split_indices(
+    records: Sequence[dict], split: str, val_fraction: float, seed: int
+) -> tuple[list[int], list[int]]:
     n = len(records)
     if n < 2:
         raise ValueError("need at least two snapshots to form train and validation sets")
@@ -80,7 +82,16 @@ def _eval_set(
         per["train_mean"].append(reconstruction_metrics(x, mean, ref))
     out: dict[str, Any] = {}
     for name, rows in per.items():
-        keys = ("mse", "rel_sq_error", "snr_paper", "snr_standard", "snr_db", "cosine", "innovation_ratio", "delta_cosine")
+        keys = (
+            "mse",
+            "rel_sq_error",
+            "snr_paper",
+            "snr_standard",
+            "snr_db",
+            "cosine",
+            "innovation_ratio",
+            "delta_cosine",
+        )
         agg = {}
         for k in keys:
             vals = [r[k] for r in rows if k in r and isinstance(r[k], float) and math.isfinite(r[k])]
@@ -125,10 +136,20 @@ def train_autoencoder(
         ae = ResNetAutoEncoder(config_from_section(cfg))
     ae.check_input_hw(height, width)
     ae.to(device)
-    opt = torch.optim.Adam(ae.parameters(), lr=cfg.learning_rate, betas=(cfg.adam_beta1, cfg.adam_beta2), eps=cfg.adam_epsilon, weight_decay=cfg.weight_decay)
-    stack = torch.stack([xs_n[i] for i in train_idx])  # [N, 1, d, W] on CPU, in the (normalised) training space
+    opt = torch.optim.Adam(
+        ae.parameters(),
+        lr=cfg.learning_rate,
+        betas=(cfg.adam_beta1, cfg.adam_beta2),
+        eps=cfg.adam_epsilon,
+        weight_decay=cfg.weight_decay,
+    )
+    stack = torch.stack(
+        [xs_n[i] for i in train_idx]
+    )  # [N, 1, d, W] on CPU, in the (normalised) training space
     # the train-mean predictor always lives in the original space
-    mean = stack.mean(dim=0) if normalizer.is_identity else torch.stack([xs[i] for i in train_idx]).mean(dim=0)
+    mean = (
+        stack.mean(dim=0) if normalizer.is_identity else torch.stack([xs[i] for i in train_idx]).mean(dim=0)
+    )
     order_rng = numpy_rng(cfg.init_seed, "ae_batches")
     curve: list[dict[str, Any]] = []
     perm: list[int] = []
@@ -152,18 +173,29 @@ def train_autoencoder(
         if it == 1 or it % cfg.eval_every == 0 or it == cfg.iterations:
             ae.eval()
             with torch.no_grad():
-                val = [F.mse_loss(ae(xs_n[i].unsqueeze(0).to(device))[0], xs_n[i].unsqueeze(0).to(device)).item() for i in val_idx]
+                val = [
+                    F.mse_loss(ae(xs_n[i].unsqueeze(0).to(device))[0], xs_n[i].unsqueeze(0).to(device)).item()
+                    for i in val_idx
+                ]
             val_mse = sum(val) / len(val)
             curve.append({"iteration": it, "train_mse_batch": float(loss.item()), "val_mse": val_mse})
             if keep_best and it % cfg.eval_every == 0 and val_mse < best["val_mse"]:
-                best = {"iteration": it, "val_mse": val_mse, "state": {k: v.detach().to("cpu").clone() for k, v in ae.state_dict().items()}}
+                best = {
+                    "iteration": it,
+                    "val_mse": val_mse,
+                    "state": {k: v.detach().to("cpu").clone() for k, v in ae.state_dict().items()},
+                }
     train_time = time.time() - t0
     ae.eval()
     meta = {**provenance, "height": height, "width": width, "normalization": normalizer.to_dict()}
     ckpt = out_dir / "autoencoder.safetensors"
     save_autoencoder(ckpt, ae.cpu(), {**meta, "checkpoint": "final", "iteration": cfg.iterations})
     ae.to(device)
-    save_tensors_atomic(out_dir / "train_mean.safetensors", {"x": mean}, {"role": "tgap_train_mean", "representation": cfg.representation, "layout": cfg.layout})
+    save_tensors_atomic(
+        out_dir / "train_mean.safetensors",
+        {"x": mean},
+        {"role": "tgap_train_mean", "representation": cfg.representation, "layout": cfg.layout},
+    )
     latent = ae.latent_shape(height, width)
     latent_numel = latent[0] * latent[1] * latent[2]
     codec = AutoEncoderCodec(ae, device=device, normalizer=normalizer)
@@ -201,7 +233,9 @@ def train_autoencoder(
         best_ae.load_state_dict(best["state"], strict=True)
         best_ae.eval()
         save_autoencoder(
-            out_dir / "autoencoder_best_val.safetensors", best_ae, {**meta, "checkpoint": "best_val", "iteration": best["iteration"], "val_mse": best["val_mse"]}
+            out_dir / "autoencoder_best_val.safetensors",
+            best_ae,
+            {**meta, "checkpoint": "best_val", "iteration": best["iteration"], "val_mse": best["val_mse"]},
         )
         metrics["best_val"] = {
             "iteration": best["iteration"],

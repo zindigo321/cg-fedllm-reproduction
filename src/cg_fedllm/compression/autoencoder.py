@@ -81,7 +81,11 @@ class ResNetEncoder(nn.Module):
         ]
         chans = [cfg.stem_channels, *cfg.down_channels]
         for c_in, c_out in zip(chans[:-1], chans[1:]):
-            layers += [nn.Conv2d(c_in, c_out, kernel_size=3, stride=2, padding=1, bias=False), nn.BatchNorm2d(c_out), nn.ReLU(inplace=False)]
+            layers += [
+                nn.Conv2d(c_in, c_out, kernel_size=3, stride=2, padding=1, bias=False),
+                nn.BatchNorm2d(c_out),
+                nn.ReLU(inplace=False),
+            ]
         layers += [ResidualBlock(cfg.latent_channels) for _ in range(cfg.num_res_blocks)]
         self.net = nn.Sequential(*layers)
 
@@ -96,7 +100,9 @@ class ResNetDecoder(nn.Module):
         chans = [cfg.stem_channels, *cfg.down_channels]
         for c_in, c_out in zip(reversed(chans[1:]), reversed(chans[:-1])):
             layers += [
-                nn.ConvTranspose2d(c_in, c_out, kernel_size=3, stride=2, padding=1, output_padding=1, bias=False),
+                nn.ConvTranspose2d(
+                    c_in, c_out, kernel_size=3, stride=2, padding=1, output_padding=1, bias=False
+                ),
                 nn.BatchNorm2d(c_out),
                 nn.ReLU(inplace=False),
             ]
@@ -124,7 +130,9 @@ class ResNetAutoEncoder(nn.Module):
         if height % f or width % f:
             raise ValueError(f"AE input {height}x{width} must be divisible by {f}")
         if height // f < 2 or width // f < 2:
-            raise ValueError(f"AE latent grid {height // f}x{width // f} too small (reflection padding needs >= 2)")
+            raise ValueError(
+                f"AE latent grid {height // f}x{width // f} too small (reflection padding needs >= 2)"
+            )
 
     def latent_shape(self, height: int, width: int) -> tuple[int, int, int]:
         self.check_input_hw(height, width)
@@ -165,11 +173,17 @@ def config_from_section(section: Any) -> ResNetAEConfig:
 
 
 def save_autoencoder(path: str | Path, ae: ResNetAutoEncoder, metadata: dict[str, Any]) -> Path:
-    meta = {"format": "cg_fedllm.resnet_ae/v1", "config": json.dumps(asdict(ae.cfg)), "metadata": json.dumps(metadata, sort_keys=True)}
+    meta = {
+        "format": "cg_fedllm.resnet_ae/v1",
+        "config": json.dumps(asdict(ae.cfg)),
+        "metadata": json.dumps(metadata, sort_keys=True),
+    }
     return save_tensors_atomic(path, dict(ae.state_dict()), meta)
 
 
-def load_autoencoder(path: str | Path, device: str | torch.device = "cpu") -> tuple[ResNetAutoEncoder, dict[str, Any]]:
+def load_autoencoder(
+    path: str | Path, device: str | torch.device = "cpu"
+) -> tuple[ResNetAutoEncoder, dict[str, Any]]:
     from safetensors import safe_open
 
     with safe_open(str(path), framework="pt") as fh:

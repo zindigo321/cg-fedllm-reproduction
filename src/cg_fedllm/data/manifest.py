@@ -59,7 +59,9 @@ class PartitionManifest:
         return sha256_bytes(canonical_json(self.data))
 
 
-def build_manifest(cfg: DataSection, records: Sequence[DollyRecord], source_file_sha256: str) -> PartitionManifest:
+def build_manifest(
+    cfg: DataSection, records: Sequence[DollyRecord], source_file_sha256: str
+) -> PartitionManifest:
     """Run the Shepherd-compatible partition (+ per-client D1/D2 split) and assemble the manifest."""
     if source_file_sha256 != cfg.source_sha256:
         raise ManifestError("source file sha256 does not match the pinned config value")
@@ -86,7 +88,9 @@ def build_manifest(cfg: DataSection, records: Sequence[DollyRecord], source_file
     for cid, cids in enumerate(part.client_ids):
         cats = sorted(cat_of[i] for i in cids)
         comp = {c: cats.count(c) for c in sorted(set(cats))}
-        clients.append({"client_id": cid, "ids": cids, "d1_ids": d1[cid], "d2_ids": d2[cid], "category_counts": comp})
+        clients.append(
+            {"client_id": cid, "ids": cids, "d1_ids": d1[cid], "d2_ids": d2[cid], "category_counts": comp}
+        )
     data = {
         "schema": MANIFEST_SCHEMA,
         "source": {
@@ -188,8 +192,9 @@ def prepare_manifest(cfg: DataSection, write: bool = False) -> tuple[PartitionMa
         status["committed_sha256"] = sha256_file(path)
         status["identical"] = committed.sha256() == built.sha256() == status["committed_sha256"]
         if not status["identical"] and not write:
-            raise ManifestError(f"rebuilt manifest differs from committed {path}; rerun with --write only if intended")
+            raise ManifestError(
+                f"rebuilt manifest differs from committed {path}; rerun with --write only if intended"
+            )
     if write or not path.exists():
         status["written_sha256"] = write_manifest(path, built)
     return built, status
-

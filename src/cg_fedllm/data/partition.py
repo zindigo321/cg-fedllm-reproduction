@@ -52,7 +52,9 @@ class ShepherdPartition:
     numpy_version: str
 
 
-def select_subset(source_ids: Sequence[int], categories: Sequence[str], per_category: int, seed: int) -> list[int]:
+def select_subset(
+    source_ids: Sequence[int], categories: Sequence[str], per_category: int, seed: int
+) -> list[int]:
     """Deterministic per-category subset (used only by small smoke configurations)."""
     ids = np.asarray(source_ids, dtype=np.int64)
     cats = np.asarray(categories, dtype=object)
@@ -127,7 +129,9 @@ def shepherd_partition(
                 )
                 proportions = proportions / proportions.sum()
                 cuts = (np.cumsum(proportions) * len(rows_k)).astype(int)[:-1]
-                idx_partition = [idx_j + idx.tolist() for idx_j, idx in zip(idx_partition, np.split(rows_k, cuts))]
+                idx_partition = [
+                    idx_j + idx.tolist() for idx_j, idx in zip(idx_partition, np.split(rows_k, cuts))
+                ]
                 min_size = min(len(idx_j) for idx_j in idx_partition)
     elif mode == "shards":
         positions = np.arange(n_total, dtype=np.int64)
@@ -153,7 +157,9 @@ def d1_count(n: int, d1_fraction: float) -> int:
     return int(math.floor(d1_fraction * n + 0.5))
 
 
-def split_d1_d2(client_ids: Sequence[Sequence[int]], d1_fraction: float, seed: int) -> tuple[list[list[int]], list[list[int]]]:
+def split_d1_d2(
+    client_ids: Sequence[Sequence[int]], d1_fraction: float, seed: int
+) -> tuple[list[list[int]], list[list[int]]]:
     """Deterministic per-client D1/D2 split preserving each client's original example order.
 
     For client ``c`` with ordered IDs ``L_c`` we draw ``perm = PCG64(derive_seed(seed, 'd1d2', c))``

@@ -15,7 +15,9 @@ def test_bench_config_records_memory_throughput_and_oom():
 
     mcfg = ModelSection(kind="tiny_llama", dtype="float32", attn_implementation="eager")
     lora = LoRASection(r=8, alpha=16, dropout=0.0)
-    rows = bench_config(mcfg, lora, seq_len=64, micro_batches=[1, 4], gradient_checkpointing=False, steps=2, warmup=1)
+    rows = bench_config(
+        mcfg, lora, seq_len=64, micro_batches=[1, 4], gradient_checkpointing=False, steps=2, warmup=1
+    )
     assert [r["micro_batch"] for r in rows] == [1, 4]
     for r in rows:
         assert r["label"] == "LOCAL-MICROBENCH"
@@ -26,7 +28,9 @@ def test_bench_config_records_memory_throughput_and_oom():
     # an allocation beyond the allocator cap must surface as a recorded OOM, not a silent spill
     torch.cuda.set_per_process_memory_fraction(0.01)
     try:
-        oom = bench_config(mcfg, lora, seq_len=256, micro_batches=[512], gradient_checkpointing=False, steps=1, warmup=0)
+        oom = bench_config(
+            mcfg, lora, seq_len=256, micro_batches=[512], gradient_checkpointing=False, steps=1, warmup=0
+        )
     finally:
         torch.cuda.set_per_process_memory_fraction(1.0)
     assert oom[0]["status"] == "OOM"

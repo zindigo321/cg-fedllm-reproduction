@@ -25,7 +25,11 @@ def pytest_collection_modifyitems(config, items):
         if "gpu" in item.keywords and not has_cuda:
             item.add_marker(pytest.mark.skip(reason="requires CUDA"))
         if "model" in item.keywords and not run_model:
-            item.add_marker(pytest.mark.skip(reason="set CGFED_RUN_MODEL_TESTS=1 (needs pinned models in the local HF cache)"))
+            item.add_marker(
+                pytest.mark.skip(
+                    reason="set CGFED_RUN_MODEL_TESTS=1 (needs pinned models in the local HF cache)"
+                )
+            )
 
 
 @pytest.fixture(autouse=True)
@@ -36,10 +40,14 @@ def _deterministic_cpu():
 
 @pytest.fixture
 def tiny_cfg(tmp_path):
-    return load_config(REPO / "configs" / "smoke" / "tiny_cpu.yaml", [f"run.output_root={tmp_path.as_posix()}"])
+    return load_config(
+        REPO / "configs" / "smoke" / "tiny_cpu.yaml", [f"run.output_root={tmp_path.as_posix()}"]
+    )
 
 
-def synthetic_clients(sizes: list[int], vocab: int = 128, seed: int = 0, min_len: int = 6, max_len: int = 18) -> list[list]:
+def synthetic_clients(
+    sizes: list[int], vocab: int = 128, seed: int = 0, min_len: int = 6, max_len: int = 18
+) -> list[list]:
     from cg_fedllm.data.formatting import TokenizedExample
 
     rng = np.random.default_rng(seed)
@@ -61,8 +69,14 @@ def tiny_hf_llama():
     from transformers import LlamaConfig, LlamaForCausalLM
 
     cfg = LlamaConfig(
-        hidden_size=64, intermediate_size=128, num_hidden_layers=2, num_attention_heads=4, num_key_value_heads=4,
-        vocab_size=128, max_position_embeddings=512, tie_word_embeddings=False,
+        hidden_size=64,
+        intermediate_size=128,
+        num_hidden_layers=2,
+        num_attention_heads=4,
+        num_key_value_heads=4,
+        vocab_size=128,
+        max_position_embeddings=512,
+        tie_word_embeddings=False,
     )
     cfg._attn_implementation = "eager"
     with torch.random.fork_rng(devices=[]):
@@ -91,7 +105,15 @@ class ToyTokenizer:
     def _enc(self, text: str) -> list[int]:
         return [3 + (ord(c) % 997) for c in text]
 
-    def __call__(self, text, add_special_tokens=True, truncation=False, max_length=None, padding=False, return_tensors=None):
+    def __call__(
+        self,
+        text,
+        add_special_tokens=True,
+        truncation=False,
+        max_length=None,
+        padding=False,
+        return_tensors=None,
+    ):
         def one(t: str) -> list[int]:
             ids = ([self.bos_token_id] if add_special_tokens else []) + self._enc(t)
             if truncation and max_length is not None:
