@@ -181,10 +181,30 @@ The priority is:
 Before merging, confirm that:
 
 - the diff has one coherent purpose;
-- required CI checks pass;
+- required CI checks pass on the current pull request head;
 - the commit history is understandable;
 - documentation matches the implementation and evidence;
 - no experimental claim is stronger than its supporting evidence;
 - no published history has been rewritten unexpectedly.
+
+A human review must be completed after the final substantive push and after
+required CI passes.
+
+If an independent reviewer is available, use a normal pull request review.
+For single-maintainer work, leave a pull request comment recording the
+self-review before merging.
+
+The review record should confirm at least:
+
+- the full diff was reviewed;
+- commit scope and changed files were reviewed;
+- no unrelated changes are included;
+- experimental protocols, gates, and interpretation were not changed in
+  response to observed results;
+- relevant README, docs, configs, results, tests, requirements, and CI are
+  consistent;
+- required CI passed on the current pull request head.
+
+Do not merge merely because the merge button is enabled.
 
 `main` should represent the actual public state of the reproduction project.

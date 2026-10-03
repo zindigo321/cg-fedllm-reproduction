@@ -22,6 +22,26 @@
 - [ ] Experimental criteria or protocols were not changed in response to observed results
 - [ ] Claims clearly distinguish measured, derived/inferred, paper-reported, and unknown information
 - [ ] Published history was not rewritten unexpectedly
+- [ ] Required CI passed on the current pull request head
+- [ ] Human review was completed after the final substantive push
+- [ ] A review or self-review record was left on the pull request before merge
+
+## Human review record
+
+<!--
+Before merge, leave a PR review or comment recording the final human review.
+For single-maintainer work, a self-review comment is acceptable.
+
+Suggested record:
+
+Self-review completed:
+- full diff reviewed
+- commit scope and changed files reviewed
+- no unrelated changes
+- experiment protocol and acceptance gates unchanged after observing results
+- documentation and evidence consistency checked
+- required CI passed on the current PR head
+-->
 
 ## Formatting
 
