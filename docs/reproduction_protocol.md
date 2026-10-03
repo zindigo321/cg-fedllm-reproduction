@@ -70,3 +70,47 @@ Overrides: `--set key.path=value` (repeatable). A run directory is `<output_root
 Every reported number carries one label: **PAPER-REPORTED**, **PHASE2-SMOKE**, **LOCAL-MICROBENCH**,
 **DERIVED** or **UNKNOWN**. Smoke numbers are correctness evidence only and must never be compared with the
 paper's tables as reproduction results.
+
+## 6. Experiment acceptance records
+
+Any experiment intended to support a public project conclusion, change an
+experimental protocol, or serve as reproduction evidence must have an
+auditable record.
+
+Before observing the experiment result, record:
+
+- the research question or hypothesis;
+- the acceptance, failure, or decision criteria;
+- the configuration path and all relevant overrides;
+- the full commit SHA to be tested;
+- the relevant software and hardware environment;
+- the exact command to be run;
+- the planned seeds, repetitions, or evaluation set when applicable.
+
+After the run, record:
+
+- the configuration and command actually used;
+- the full commit SHA actually tested;
+- the relevant environment actually used;
+- the measured result with the appropriate result label;
+- any failure, interruption, or deviation from the preregistered plan;
+- the location of the retained evidence required to support the conclusion.
+
+Do not revise acceptance criteria, protocol choices, or interpretation rules
+after observing results. A necessary change must be recorded as a new
+experiment, protocol revision, or explicit deviation.
+
+### CI is not experiment validation
+
+The required Linux CPU CI verifies the repository's automated CPU test, lint,
+and formatting gates. Passing CI does not by itself validate:
+
+- GPU execution or GPU-specific numerical behavior;
+- model-level evaluation or pretrained-model integration;
+- hardware feasibility or memory behavior;
+- experiment-specific scientific acceptance gates;
+- reproduction of a paper-reported result.
+
+Those claims require the relevant experiment-specific validation and evidence
+record. CPU CI is a repository integration gate, not a substitute for GPU,
+model, or scientific validation.
