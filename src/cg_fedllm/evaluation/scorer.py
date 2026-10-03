@@ -119,6 +119,36 @@ def _batches(
     return batches
 
 
+def batch_plan(
+    requests: list[ScoreRequest],
+    max_batch_tokens: int = 16384,
+    max_batch_size: int = 32,
+    max_batch_attention: int | None = None,
+) -> dict[str, int]:
+    """The forward passes ``score_requests`` will run (same order and budgets), as cost statistics; no model needed."""
+    fast = [i for i, r in enumerate(requests) if all(len(c) == 1 for c in r.continuation_ids)]
+    lengths = [len(r.context_ids) for r in requests]
+    batches = _batches(
+        sorted(fast, key=lambda i: (-lengths[i], i)),
+        lengths,
+        max_batch_tokens,
+        max_batch_size,
+        max_batch_attention,
+    )
+    slow = [r for r in requests if not all(len(c) == 1 for c in r.continuation_ids)]
+    return {
+        "questions": len(requests),
+        "context_tokens": sum(lengths),
+        "single_token_batches": len(batches),
+        "padded_tokens": sum(len(b) * max(lengths[i] for i in b) for b in batches),
+        "attention_elements": sum(len(b) * max(lengths[i] for i in b) ** 2 for b in batches),
+        "multi_token_requests": len(slow),
+        "multi_token_forward_tokens": sum(
+            len(r.context_ids) + len(c) - 1 for r in slow for c in r.continuation_ids
+        ),
+    }
+
+
 def _left_pad(
     seqs: Sequence[Sequence[int]], pad_id: int, device
 ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
@@ -151,7 +181,9 @@ def score_requests(
     order = sorted(fast, key=lambda i: (-lengths[i], i))
     for batch in _batches(order, lengths, max_batch_tokens, max_batch_size, max_batch_attention):
         ids, mask, pos = _left_pad([requests[i].context_ids for i in batch], pad_token_id, device)
-        out = model(input_ids=ids, attention_mask=mask, position_ids=pos, logits_to_keep=1)
+        # no KV cache: scoring is a single forward, and a returned cache (192 KiB/token for Qwen1.5-1.8B bf16) would
+        # stay alive in ``out`` during the next batch's forward
+        out = model(input_ids=ids, attention_mask=mask, position_ids=pos, logits_to_keep=1, use_cache=False)
         logp = torch.log_softmax(out.logits[:, -1, :].float(), dim=-1).cpu()
         for row, i in enumerate(batch):
             r = requests[i]
@@ -163,7 +195,7 @@ def score_requests(
         for cont in r.continuation_ids:
             seq = r.context_ids + cont
             ids, mask, pos = _left_pad([seq[:-1]], pad_token_id, device)
-            out = model(input_ids=ids, attention_mask=mask, position_ids=pos)
+            out = model(input_ids=ids, attention_mask=mask, position_ids=pos, use_cache=False)
             logp = torch.log_softmax(out.logits[0].float(), dim=-1).cpu()
             start = len(r.context_ids) - 1
             lps.append(float(sum(logp[start + j, tok] for j, tok in enumerate(cont))))

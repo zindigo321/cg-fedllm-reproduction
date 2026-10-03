@@ -1,0 +1,29 @@
+# Phase 4, F1 small-model validation (PHASE4-DIAGNOSTIC): a model on which a true physical micro-batch of 16
+# fits, so `virtual_paper_microbatch` can be compared against it on real Dolly batches. llama-160m fp32 with
+# eager attention (deterministic kernels); everything else follows the Tier-B recipe.
+inherit: ../base/shepherd_dolly.yaml
+run:
+  name: phase4_microbatch_validation_llama160m
+  seed: 1
+  result_label: PHASE4-DIAGNOSTIC
+  device: cuda
+  deterministic: true
+  allocator_cap_margin_mb: 256
+model:
+  kind: hf
+  id: JackFram/llama-160m
+  revision: aca9b687d1425f863dcf5de9a4c96e3fe36266dd
+  license: apache-2.0
+  dtype: float32
+  quantization: none
+  attn_implementation: eager
+  gradient_checkpointing: true    # recompute only (semantics unchanged); physical micro-batch 16 at 512 tokens needs it under the 6.69 GiB cap
+  allow_patterns: [config.json, generation_config.json, model.safetensors, special_tokens_map.json, tokenizer.json, tokenizer.model, tokenizer_config.json]
+  padding_side: left
+  pad_token_id: 0
+lora:
+  init_seed: 1
+local_train:
+  batch_size: 32
+  micro_batch_size: 16            # [PAPER] logical micro-batch; the reference mode runs it physically
+  precision: fp32

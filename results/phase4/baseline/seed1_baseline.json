@@ -1,0 +1,2930 @@
+{
+  "identity_regression": {
+    "checks": {
+      "A_B_norms_every_round": true,
+      "client_records_every_round": true,
+      "codec_round_trip_bitwise": true,
+      "effective_BA_norms_every_round": true,
+      "final_adapter_bitwise_equal": true,
+      "global_adapter_hash_every_round": true,
+      "heldout_loss_every_round": true,
+      "initial_adapter_bitwise_equal": true,
+      "only_expected_config_differences": true,
+      "other_round_fields": true,
+      "same_number_of_rounds": true,
+      "selected_clients_every_round": true,
+      "update_norms_every_round": true
+    },
+    "config": {
+      "config_sha256": [
+        "972a4129cb8d355a9666a8c2a969ac51524265d5a1032c3f8ccecf78abebe599",
+        "4c3ee8fb26e233a9abfcb7ca47802d52abcdb43dd77dea828012320ed4d926a6"
+      ],
+      "expected_differences": [
+        "codec.type"
+      ],
+      "only_expected_differences": true,
+      "resolved_config_differences": {
+        "codec.type": [
+          "none",
+          "identity"
+        ]
+      }
+    },
+    "final_adapter_bitwise_equal": true,
+    "final_adapter_file_sha256": [
+      "52eb1bd507d0b72be335a8a1338503211cb523a6ecbe04ae9333c73a369112e6",
+      "52eb1bd507d0b72be335a8a1338503211cb523a6ecbe04ae9333c73a369112e6"
+    ],
+    "final_global_hash": [
+      "f22a96c718d7e1aad9ee8956fff65591bef0d36ed6f47022288c89c3b946a92e",
+      "f22a96c718d7e1aad9ee8956fff65591bef0d36ed6f47022288c89c3b946a92e"
+    ],
+    "final_relative_l2": 0.0,
+    "first_mismatch_round": null,
+    "heldout_trajectories_equal": true,
+    "mismatches": [],
+    "num_mismatches": 0,
+    "pair": [
+      "lora_ft",
+      "faf_identity"
+    ],
+    "provenance": {
+      "commits": [
+        "ad6b3ddf0764e6c9c6d6e759c095222c75e3e9ff",
+        "ff24f5e11df854a1d237a4a8f6030f4409239e6e"
+      ],
+      "dirty_files": [
+        [],
+        []
+      ],
+      "src_files_changed_between_commits": [
+        "src/cg_fedllm/cli.py",
+        "src/cg_fedllm/compression/normalization.py",
+        "src/cg_fedllm/config.py",
+        "src/cg_fedllm/evaluation/reference_eval.py",
+        "src/cg_fedllm/evaluation/scorer.py",
+        "src/cg_fedllm/federated/simulator.py",
+        "src/cg_fedllm/forensics/__init__.py",
+        "src/cg_fedllm/forensics/gradients.py",
+        "src/cg_fedllm/forensics/representations.py",
+        "src/cg_fedllm/forensics/screen.py"
+      ]
+    },
+    "round_hashes_equal": true,
+    "rounds_compared": 20,
+    "validated": true
+  },
+  "label": "PHASE4-BASELINE",
+  "provenance": {
+    "git": {
+      "available": true,
+      "branch": "phase4-representation-forensics",
+      "commit": "e8eb94954a894cf947e035c4e9fcbf13dedf5af6",
+      "dirty": false,
+      "dirty_files": []
+    },
+    "packages": {
+      "PyYAML": "6.0.3",
+      "accelerate": "1.15.0",
+      "bitsandbytes": "0.50.2",
+      "datasets": "5.0.1",
+      "huggingface_hub": "1.33.0",
+      "lm_eval": "0.4.13",
+      "numpy": "2.4.6",
+      "pandas": "3.0.6",
+      "peft": "0.21.1",
+      "pyarrow": "25.0.1",
+      "safetensors": "0.8.0",
+      "tokenizers": "0.23.2",
+      "torch": "2.14.0+cu130",
+      "transformers": "5.17.0"
+    }
+  },
+  "runs": {
+    "cent": {
+      "communication": {
+        "applicable": false,
+        "note": "centralized reference (one pooled client): no client-server communication; the simulator's logical bytes are not a communication cost"
+      },
+      "config_sha256": "574993e2c1a90abaceee9576346a1a3a73d399691bc791c22af7a1b6fdc2dc0e",
+      "final_global_hash": "2a11c234cd40c52844c4b20a52c39c8dc74bb9f104cca043cd417113552307ce",
+      "final_heldout_loss": 1.755545416013538,
+      "git_commit": "ff24f5e11df854a1d237a4a8f6030f4409239e6e",
+      "git_dirty_files": [],
+      "git_untracked_results_dirs": [
+        "?? results/phase4/screen/"
+      ],
+      "initial_heldout_loss": 2.3699266899646365,
+      "per_round": [
+        {
+          "client_mean_train_loss": [
+            1.6598412527222297
+          ],
+          "client_optimizer_steps": [
+            327
+          ],
+          "clients": [
+            0
+          ],
+          "downlink_logical_bytes": 12582912,
+          "effective_global": {
+            "A_sq_total": 272.68999995471756,
+            "B_sq_total": 8.017751745442826,
+            "M_fro_sq_total": 12.746004685586765,
+            "M_nuclear_total": 81.27652869672832,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.713657239466788,
+              "median": 1.9525535116239903,
+              "min": 1.174962264522468
+            }
+          },
+          "global_A_sq": 272.68999995471756,
+          "global_B_sq": 8.017751745442826,
+          "global_hash": "2a11c234cd40c52844c4b20a52c39c8dc74bb9f104cca043cd417113552307ce",
+          "heldout_loss": 1.755545416013538,
+          "memory": {
+            "peak_allocated_bytes": 4818264064,
+            "peak_reserved_bytes": 6341787648
+          },
+          "round": 0,
+          "sample_counts": [
+            10445
+          ],
+          "throughput": {
+            "client_train_wall_s": 3448.541,
+            "label_tokens": 1908029,
+            "label_tokens_per_s": 553.3,
+            "padded_tokens": 1944024,
+            "padded_tokens_per_s": 563.7
+          },
+          "update_norms": {
+            "A_update_fro": 3.6198426716241623,
+            "B_update_fro": 2.8315634807368926,
+            "M_update_fro": 3.5701547145168324
+          },
+          "uplink_logical_bytes": 12582912,
+          "wall_time_s": 3457.14
+        }
+      ],
+      "pooled_centralized_reference": true,
+      "rounds_completed": 1,
+      "status": "complete",
+      "vram_guard": {
+        "allocator_cap_bytes": 7182745600,
+        "allocator_cap_fraction": 0.836641,
+        "device_total_bytes": 8585216000,
+        "free_at_start_bytes": 7451181056,
+        "margin_bytes": 268435456
+      },
+      "wall_time_s": 3457.1
+    },
+    "faf_identity": {
+      "communication": {
+        "downlink_per_client_bytes": 12582912,
+        "downlink_total_bytes": 1258291200,
+        "note": "logical fp32 bytes of the uncompressed adapter state (12,582,912 B per client); no compression",
+        "per_round_two_way_bytes": [
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120
+        ],
+        "two_way_total_bytes": 2516582400,
+        "uplink_per_client_bytes": 12582912,
+        "uplink_total_bytes": 1258291200
+      },
+      "config_sha256": "4c3ee8fb26e233a9abfcb7ca47802d52abcdb43dd77dea828012320ed4d926a6",
+      "final_global_hash": "f22a96c718d7e1aad9ee8956fff65591bef0d36ed6f47022288c89c3b946a92e",
+      "final_heldout_loss": 1.766460373984055,
+      "git_commit": "ff24f5e11df854a1d237a4a8f6030f4409239e6e",
+      "git_dirty_files": [],
+      "git_untracked_results_dirs": [
+        "?? results/phase4/screen/"
+      ],
+      "initial_heldout_loss": 2.3699266899646365,
+      "per_round": [
+        {
+          "client_mean_train_loss": [
+            2.624376888386905,
+            2.2441697931633544,
+            2.3078532241510623,
+            2.6087210873762765,
+            2.2706246540695427
+          ],
+          "client_optimizer_steps": [
+            4,
+            6,
+            3,
+            3,
+            5
+          ],
+          "clients": [
+            2,
+            26,
+            55,
+            75,
+            86
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 256.311619960987,
+            "B_sq_total": 0.17413219928577875,
+            "M_fro_sq_total": 0.23312649711698696,
+            "M_nuclear_total": 11.864101451622034,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 4.210858081011197,
+              "median": 2.3818256423637862,
+              "min": 1.5052050992045694
+            }
+          },
+          "global_A_sq": 256.311619960987,
+          "global_B_sq": 0.17413219928577875,
+          "global_hash": "897b129a3ce7e7a44adc728753bbeb01e1e10d978f9e75c714e22248164f3320",
+          "heldout_loss": 2.1462867720238354,
+          "memory": {
+            "peak_allocated_bytes": 4818395136,
+            "peak_reserved_bytes": 6341787648
+          },
+          "round": 0,
+          "sample_counts": [
+            108,
+            186,
+            75,
+            72,
+            148
+          ],
+          "throughput": {
+            "client_train_wall_s": 210.154,
+            "label_tokens": 137163,
+            "label_tokens_per_s": 652.7,
+            "padded_tokens": 139120,
+            "padded_tokens_per_s": 662.0
+          },
+          "update_norms": {
+            "A_update_fro": 0.24495582866062404,
+            "B_update_fro": 0.41729150397028064,
+            "M_update_fro": 0.4828317482487941
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 219.445
+        },
+        {
+          "client_mean_train_loss": [
+            2.110763502245148,
+            2.083304359719157,
+            2.1438452110936246,
+            2.161277341842651,
+            2.1984063263982536
+          ],
+          "client_optimizer_steps": [
+            2,
+            5,
+            4,
+            5,
+            5
+          ],
+          "clients": [
+            33,
+            80,
+            81,
+            84,
+            93
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 257.11505666301264,
+            "B_sq_total": 0.493275894232876,
+            "M_fro_sq_total": 0.6652961266566486,
+            "M_nuclear_total": 19.582681416569326,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 4.017839519664362,
+              "median": 2.2072930018129684,
+              "min": 1.4048514763257927
+            }
+          },
+          "global_A_sq": 257.11505666301264,
+          "global_B_sq": 0.493275894232876,
+          "global_hash": "2518b0cf58f456c52af81c667f0198aa9b242059580b6ca676ef017bdedcf8cf",
+          "heldout_loss": 1.9754019695362255,
+          "memory": {
+            "peak_allocated_bytes": 4818198528,
+            "peak_reserved_bytes": 6341787648
+          },
+          "round": 1,
+          "sample_counts": [
+            62,
+            153,
+            108,
+            153,
+            129
+          ],
+          "throughput": {
+            "client_train_wall_s": 218.443,
+            "label_tokens": 134207,
+            "label_tokens_per_s": 614.4,
+            "padded_tokens": 136304,
+            "padded_tokens_per_s": 624.0
+          },
+          "update_norms": {
+            "A_update_fro": 0.4230828487787332,
+            "B_update_fro": 0.38239820052216644,
+            "M_update_fro": 0.44584289540611505
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 227.96
+        },
+        {
+          "client_mean_train_loss": [
+            1.8451040933529537,
+            2.083502643555403,
+            1.9455871414393187,
+            1.8997662071848198,
+            1.813187638261857
+          ],
+          "client_optimizer_steps": [
+            3,
+            5,
+            2,
+            3,
+            4
+          ],
+          "clients": [
+            16,
+            24,
+            30,
+            56,
+            83
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 257.9047508227154,
+            "B_sq_total": 0.7624729152854394,
+            "M_fro_sq_total": 1.037345527818415,
+            "M_nuclear_total": 23.95064032919067,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.800941540142291,
+              "median": 2.0503706001117745,
+              "min": 1.3039358729406156
+            }
+          },
+          "global_A_sq": 257.9047508227154,
+          "global_B_sq": 0.7624729152854394,
+          "global_hash": "f82cf020d5b951a7449005920e6f73d202d727823c92be3620f218d27d36a598",
+          "heldout_loss": 1.8864296736896093,
+          "memory": {
+            "peak_allocated_bytes": 4817575936,
+            "peak_reserved_bytes": 6341787648
+          },
+          "round": 2,
+          "sample_counts": [
+            67,
+            148,
+            52,
+            92,
+            109
+          ],
+          "throughput": {
+            "client_train_wall_s": 148.497,
+            "label_tokens": 77210,
+            "label_tokens_per_s": 519.9,
+            "padded_tokens": 78816,
+            "padded_tokens_per_s": 530.8
+          },
+          "update_norms": {
+            "A_update_fro": 0.3646727420857327,
+            "B_update_fro": 0.31830388275302857,
+            "M_update_fro": 0.3743922705105905
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 157.91
+        },
+        {
+          "client_mean_train_loss": [
+            1.9143509588275966,
+            1.7632785194992333,
+            1.7714415321078818,
+            1.8698406375944614,
+            1.912388705658496
+          ],
+          "client_optimizer_steps": [
+            4,
+            3,
+            3,
+            5,
+            3
+          ],
+          "clients": [
+            6,
+            64,
+            67,
+            93,
+            96
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 258.49495123688007,
+            "B_sq_total": 0.9386516757028289,
+            "M_fro_sq_total": 1.2851219676795695,
+            "M_nuclear_total": 26.42156452398128,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.8981427146835887,
+              "median": 1.9847419233609356,
+              "min": 1.3100809572056504
+            }
+          },
+          "global_A_sq": 258.49495123688007,
+          "global_B_sq": 0.9386516757028289,
+          "global_hash": "477b0fc0018582b206478428129e58ce32d62bfd1d1c4cc201d8402ebdbacedb",
+          "heldout_loss": 1.8348094374350419,
+          "memory": {
+            "peak_allocated_bytes": 4817608704,
+            "peak_reserved_bytes": 6341787648
+          },
+          "round": 3,
+          "sample_counts": [
+            122,
+            93,
+            90,
+            129,
+            95
+          ],
+          "throughput": {
+            "client_train_wall_s": 179.183,
+            "label_tokens": 101731,
+            "label_tokens_per_s": 567.7,
+            "padded_tokens": 103552,
+            "padded_tokens_per_s": 577.9
+          },
+          "update_norms": {
+            "A_update_fro": 0.2881482864689262,
+            "B_update_fro": 0.24991579718656204,
+            "M_update_fro": 0.2953315275664521
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 188.5
+        },
+        {
+          "client_mean_train_loss": [
+            1.5496133904760847,
+            1.8685432900157242,
+            1.8023157851913798,
+            1.9172249018835525,
+            1.8499664341009432
+          ],
+          "client_optimizer_steps": [
+            4,
+            3,
+            3,
+            4,
+            3
+          ],
+          "clients": [
+            10,
+            16,
+            20,
+            63,
+            96
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 259.20188071933916,
+            "B_sq_total": 1.113725393385673,
+            "M_fro_sq_total": 1.537442259607847,
+            "M_nuclear_total": 28.628403148407994,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.920389515394756,
+              "median": 1.9277471178456302,
+              "min": 1.2816461807752741
+            }
+          },
+          "global_A_sq": 259.20188071933916,
+          "global_B_sq": 1.113725393385673,
+          "global_hash": "5a41bb8c9aaad4ea49ebf11ee483a4b74731d498f78340ed32489e5a1a31b952",
+          "heldout_loss": 1.8147911375417474,
+          "memory": {
+            "peak_allocated_bytes": 4817608704,
+            "peak_reserved_bytes": 6341787648
+          },
+          "round": 4,
+          "sample_counts": [
+            122,
+            67,
+            77,
+            108,
+            95
+          ],
+          "throughput": {
+            "client_train_wall_s": 161.39,
+            "label_tokens": 91404,
+            "label_tokens_per_s": 566.4,
+            "padded_tokens": 93072,
+            "padded_tokens_per_s": 576.7
+          },
+          "update_norms": {
+            "A_update_fro": 0.29663782433690966,
+            "B_update_fro": 0.24104273373290244,
+            "M_update_fro": 0.287333241276405
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 170.709
+        },
+        {
+          "client_mean_train_loss": [
+            1.6533210091022907,
+            1.7082017745603535,
+            1.740806193956942,
+            1.5816224220075776,
+            1.7053142912008545
+          ],
+          "client_optimizer_steps": [
+            3,
+            3,
+            3,
+            2,
+            5
+          ],
+          "clients": [
+            28,
+            32,
+            46,
+            66,
+            74
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 259.93413517292225,
+            "B_sq_total": 1.2890998811370378,
+            "M_fro_sq_total": 1.7958059354747977,
+            "M_nuclear_total": 30.65713193116576,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.9060970173354823,
+              "median": 1.8835707174782335,
+              "min": 1.274241552372605
+            }
+          },
+          "global_A_sq": 259.93413517292225,
+          "global_B_sq": 1.2890998811370378,
+          "global_hash": "2a7a1a8c538b6d5315430e790c26ff41298c0402605f522a4ad53eb94f9820f8",
+          "heldout_loss": 1.7876410455956768,
+          "memory": {
+            "peak_allocated_bytes": 4818231296,
+            "peak_reserved_bytes": 6341787648
+          },
+          "round": 5,
+          "sample_counts": [
+            87,
+            81,
+            83,
+            39,
+            150
+          ],
+          "throughput": {
+            "client_train_wall_s": 157.472,
+            "label_tokens": 97592,
+            "label_tokens_per_s": 619.7,
+            "padded_tokens": 99048,
+            "padded_tokens_per_s": 629.0
+          },
+          "update_norms": {
+            "A_update_fro": 0.2848247373057163,
+            "B_update_fro": 0.23825495400668256,
+            "M_update_fro": 0.28609313398664576
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 166.748
+        },
+        {
+          "client_mean_train_loss": [
+            1.7688063278507729,
+            1.774202276127679,
+            1.805796034944554,
+            1.6588323328813368,
+            1.7986420185841394
+          ],
+          "client_optimizer_steps": [
+            2,
+            5,
+            4,
+            4,
+            3
+          ],
+          "clients": [
+            0,
+            17,
+            34,
+            45,
+            60
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 260.42838121977536,
+            "B_sq_total": 1.4113421258777639,
+            "M_fro_sq_total": 1.9791026644444396,
+            "M_nuclear_total": 32.013232986534,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.7378070332919173,
+              "median": 1.8673969114235915,
+              "min": 1.2743863617919553
+            }
+          },
+          "global_A_sq": 260.42838121977536,
+          "global_B_sq": 1.4113421258777639,
+          "global_hash": "502d21c574d462166d077b127bf63fcc6c527d7190df26be1dfd69d6a83ff407",
+          "heldout_loss": 1.7878746657009421,
+          "memory": {
+            "peak_allocated_bytes": 4817608704,
+            "peak_reserved_bytes": 6341787648
+          },
+          "round": 6,
+          "sample_counts": [
+            45,
+            135,
+            108,
+            118,
+            75
+          ],
+          "throughput": {
+            "client_train_wall_s": 160.886,
+            "label_tokens": 94594,
+            "label_tokens_per_s": 588.0,
+            "padded_tokens": 96256,
+            "padded_tokens_per_s": 598.3
+          },
+          "update_norms": {
+            "A_update_fro": 0.2320884497451117,
+            "B_update_fro": 0.21047956635413456,
+            "M_update_fro": 0.25319004799116085
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 170.263
+        },
+        {
+          "client_mean_train_loss": [
+            1.7260497376107826,
+            1.756837161257863,
+            1.594857892145713,
+            1.6998439762526407,
+            1.6477286393195392
+          ],
+          "client_optimizer_steps": [
+            6,
+            4,
+            3,
+            4,
+            5
+          ],
+          "clients": [
+            26,
+            37,
+            49,
+            78,
+            91
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 260.94069817025854,
+            "B_sq_total": 1.5109381860631954,
+            "M_fro_sq_total": 2.132183718221394,
+            "M_nuclear_total": 33.22006407947766,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.7677447188739075,
+              "median": 1.8382508734005378,
+              "min": 1.2701665156028923
+            }
+          },
+          "global_A_sq": 260.94069817025854,
+          "global_B_sq": 1.5109381860631954,
+          "global_hash": "2942459b49b4df8a463a38b522532e8acb8f9e97de6c8cbd3d35d0aa47264da1",
+          "heldout_loss": 1.7788862647643793,
+          "memory": {
+            "peak_allocated_bytes": 4817936384,
+            "peak_reserved_bytes": 6345981952
+          },
+          "round": 7,
+          "sample_counts": [
+            186,
+            104,
+            69,
+            109,
+            143
+          ],
+          "throughput": {
+            "client_train_wall_s": 210.6,
+            "label_tokens": 129909,
+            "label_tokens_per_s": 616.9,
+            "padded_tokens": 131976,
+            "padded_tokens_per_s": 626.7
+          },
+          "update_norms": {
+            "A_update_fro": 0.22498257479976363,
+            "B_update_fro": 0.19552806421369728,
+            "M_update_fro": 0.23524172059651538
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 219.774
+        },
+        {
+          "client_mean_train_loss": [
+            1.5781593763122435,
+            1.7573515359844478,
+            1.7247355002909899,
+            1.4993516071637472,
+            1.6116443815443553
+          ],
+          "client_optimizer_steps": [
+            5,
+            5,
+            3,
+            5,
+            3
+          ],
+          "clients": [
+            1,
+            17,
+            23,
+            44,
+            55
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 261.3247990820371,
+            "B_sq_total": 1.588224174147325,
+            "M_fro_sq_total": 2.251489502198807,
+            "M_nuclear_total": 34.167411145520205,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.7825599106608956,
+              "median": 1.8563107328782178,
+              "min": 1.2748913103095698
+            }
+          },
+          "global_A_sq": 261.3247990820371,
+          "global_B_sq": 1.588224174147325,
+          "global_hash": "d1957988aeaf7571c7e5d1c5cd178595153453a0fd4e374799b3f61d767b7fe7",
+          "heldout_loss": 1.7787726139215188,
+          "memory": {
+            "peak_allocated_bytes": 4817641472,
+            "peak_reserved_bytes": 6345981952
+          },
+          "round": 8,
+          "sample_counts": [
+            147,
+            135,
+            74,
+            158,
+            75
+          ],
+          "throughput": {
+            "client_train_wall_s": 196.095,
+            "label_tokens": 111489,
+            "label_tokens_per_s": 568.5,
+            "padded_tokens": 113528,
+            "padded_tokens_per_s": 578.9
+          },
+          "update_norms": {
+            "A_update_fro": 0.1846081242317171,
+            "B_update_fro": 0.16922881426644923,
+            "M_update_fro": 0.20323184644218398
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 205.203
+        },
+        {
+          "client_mean_train_loss": [
+            1.6647093033211098,
+            1.6547343679064628,
+            1.7024597112873667,
+            1.611947060045269,
+            1.5891691831250985
+          ],
+          "client_optimizer_steps": [
+            3,
+            3,
+            3,
+            3,
+            3
+          ],
+          "clients": [
+            3,
+            42,
+            46,
+            68,
+            75
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 261.5878185678153,
+            "B_sq_total": 1.642665120638852,
+            "M_fro_sq_total": 2.335799010658995,
+            "M_nuclear_total": 34.819196431593696,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.8020041979894144,
+              "median": 1.856921291708426,
+              "min": 1.27727705666124
+            }
+          },
+          "global_A_sq": 261.5878185678153,
+          "global_B_sq": 1.642665120638852,
+          "global_hash": "ad4ba01bf09e59e6bdb52b2180e3ea98d7ca255b848e96ee9f80e63c454cbccd",
+          "heldout_loss": 1.7730570714187972,
+          "memory": {
+            "peak_allocated_bytes": 4817674240,
+            "peak_reserved_bytes": 6345981952
+          },
+          "round": 9,
+          "sample_counts": [
+            88,
+            81,
+            83,
+            67,
+            72
+          ],
+          "throughput": {
+            "client_train_wall_s": 138.404,
+            "label_tokens": 83229,
+            "label_tokens_per_s": 601.3,
+            "padded_tokens": 84520,
+            "padded_tokens_per_s": 610.7
+          },
+          "update_norms": {
+            "A_update_fro": 0.1540410613211311,
+            "B_update_fro": 0.14505675147779157,
+            "M_update_fro": 0.17465003689672143
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 147.601
+        },
+        {
+          "client_mean_train_loss": [
+            1.6732592089101672,
+            1.5276242523188037,
+            1.7358707613311708,
+            1.6198765971511602,
+            1.5545484399689096
+          ],
+          "client_optimizer_steps": [
+            4,
+            2,
+            4,
+            5,
+            2
+          ],
+          "clients": [
+            14,
+            19,
+            37,
+            43,
+            66
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 262.02401111118974,
+            "B_sq_total": 1.7267831908160909,
+            "M_fro_sq_total": 2.467210725446694,
+            "M_nuclear_total": 35.78832641308397,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.8478502761976463,
+              "median": 1.8642355249080922,
+              "min": 1.2820895161654657
+            }
+          },
+          "global_A_sq": 262.02401111118974,
+          "global_B_sq": 1.7267831908160909,
+          "global_hash": "c6dfbe0e40aeeb3e27363bc8b51024833c597bedabae2c825dcdaf84997e7ddc",
+          "heldout_loss": 1.7752714261807985,
+          "memory": {
+            "peak_allocated_bytes": 4816625664,
+            "peak_reserved_bytes": 6345981952
+          },
+          "round": 10,
+          "sample_counts": [
+            99,
+            39,
+            104,
+            138,
+            39
+          ],
+          "throughput": {
+            "client_train_wall_s": 134.311,
+            "label_tokens": 69362,
+            "label_tokens_per_s": 516.4,
+            "padded_tokens": 70824,
+            "padded_tokens_per_s": 527.3
+          },
+          "update_norms": {
+            "A_update_fro": 0.18900239718379827,
+            "B_update_fro": 0.1776246405305887,
+            "M_update_fro": 0.21448214151738387
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 143.688
+        },
+        {
+          "client_mean_train_loss": [
+            1.8815311057093953,
+            1.6978820709304676,
+            1.6763569773746685,
+            1.5110414457817871,
+            1.3745932884514331
+          ],
+          "client_optimizer_steps": [
+            4,
+            3,
+            3,
+            3,
+            5
+          ],
+          "clients": [
+            22,
+            41,
+            46,
+            49,
+            58
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 262.3180889719622,
+            "B_sq_total": 1.7956081095858178,
+            "M_fro_sq_total": 2.5739754925744402,
+            "M_nuclear_total": 36.58086346217823,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.7841406783218954,
+              "median": 1.8678995623026011,
+              "min": 1.2905944014558135
+            }
+          },
+          "global_A_sq": 262.3180889719622,
+          "global_B_sq": 1.7956081095858178,
+          "global_hash": "24955ac5cb675290e5aac8b7e434b1edb8d95d9002c6f9b9f5245aa0f718ccba",
+          "heldout_loss": 1.7700607336014647,
+          "memory": {
+            "peak_allocated_bytes": 4817674240,
+            "peak_reserved_bytes": 6345981952
+          },
+          "round": 11,
+          "sample_counts": [
+            110,
+            67,
+            83,
+            69,
+            130
+          ],
+          "throughput": {
+            "client_train_wall_s": 159.683,
+            "label_tokens": 93746,
+            "label_tokens_per_s": 587.1,
+            "padded_tokens": 95320,
+            "padded_tokens_per_s": 596.9
+          },
+          "update_norms": {
+            "A_update_fro": 0.17541068262000892,
+            "B_update_fro": 0.16779750096625307,
+            "M_update_fro": 0.20301497583702008
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 169.269
+        },
+        {
+          "client_mean_train_loss": [
+            1.6324330183366933,
+            1.6892809872116359,
+            1.8137289246337283,
+            1.8410121585345933,
+            1.881838734683004
+          ],
+          "client_optimizer_steps": [
+            4,
+            5,
+            3,
+            3,
+            4
+          ],
+          "clients": [
+            14,
+            17,
+            41,
+            68,
+            92
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 262.68204776803157,
+            "B_sq_total": 1.8687159850461588,
+            "M_fro_sq_total": 2.6881152533539057,
+            "M_nuclear_total": 37.42547290937634,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.7607751772453413,
+              "median": 1.8657384039881801,
+              "min": 1.3038686564411202
+            }
+          },
+          "global_A_sq": 262.68204776803157,
+          "global_B_sq": 1.8687159850461588,
+          "global_hash": "a3854dd619d15154472b7028880c9c3b3fd4b1479d9c0548de66c4e9fe7c1938",
+          "heldout_loss": 1.7699845296357164,
+          "memory": {
+            "peak_allocated_bytes": 4817608704,
+            "peak_reserved_bytes": 6345981952
+          },
+          "round": 12,
+          "sample_counts": [
+            99,
+            135,
+            67,
+            67,
+            117
+          ],
+          "throughput": {
+            "client_train_wall_s": 162.145,
+            "label_tokens": 88992,
+            "label_tokens_per_s": 548.8,
+            "padded_tokens": 90728,
+            "padded_tokens_per_s": 559.5
+          },
+          "update_norms": {
+            "A_update_fro": 0.16965255698000942,
+            "B_update_fro": 0.16173185632263154,
+            "M_update_fro": 0.19580044656713746
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 171.516
+        },
+        {
+          "client_mean_train_loss": [
+            1.7106466131905713,
+            1.7075447053648531,
+            1.640559253692627,
+            1.6791866462263796,
+            1.4492642319976137
+          ],
+          "client_optimizer_steps": [
+            4,
+            4,
+            5,
+            3,
+            4
+          ],
+          "clients": [
+            14,
+            37,
+            43,
+            62,
+            83
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 263.147889341506,
+            "B_sq_total": 1.950132365729839,
+            "M_fro_sq_total": 2.820335506505665,
+            "M_nuclear_total": 38.35288336088829,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.7643953546673594,
+              "median": 1.8858292339780784,
+              "min": 1.3095448509038123
+            }
+          },
+          "global_A_sq": 263.147889341506,
+          "global_B_sq": 1.950132365729839,
+          "global_hash": "cf0628fbca8bb465d0e298e7f4cb60c7cfc425201f2f2b201d6f091c6b3678d0",
+          "heldout_loss": 1.770769077163166,
+          "memory": {
+            "peak_allocated_bytes": 4817739776,
+            "peak_reserved_bytes": 6345981952
+          },
+          "round": 13,
+          "sample_counts": [
+            99,
+            104,
+            138,
+            79,
+            109
+          ],
+          "throughput": {
+            "client_train_wall_s": 158.848,
+            "label_tokens": 76484,
+            "label_tokens_per_s": 481.5,
+            "padded_tokens": 78336,
+            "padded_tokens_per_s": 493.2
+          },
+          "update_norms": {
+            "A_update_fro": 0.17558879872798333,
+            "B_update_fro": 0.15199611269983804,
+            "M_update_fro": 0.1849958235413308
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 167.771
+        },
+        {
+          "client_mean_train_loss": [
+            1.8802013313770296,
+            1.4873277019902036,
+            1.604546144604683,
+            1.4815814972668886,
+            1.5761746475755265
+          ],
+          "client_optimizer_steps": [
+            5,
+            4,
+            4,
+            5,
+            3
+          ],
+          "clients": [
+            24,
+            35,
+            39,
+            44,
+            55
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 263.5267690160743,
+            "B_sq_total": 2.026714702637514,
+            "M_fro_sq_total": 2.9436676914621436,
+            "M_nuclear_total": 39.17394055694605,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.721814179586609,
+              "median": 1.8814207412656783,
+              "min": 1.3029971646550524
+            }
+          },
+          "global_A_sq": 263.5267690160743,
+          "global_B_sq": 2.026714702637514,
+          "global_hash": "196d4d18af0cf7b2c74f391f7b638a6a3020942b0e7ef8d3672b514f2225619c",
+          "heldout_loss": 1.7662789567500652,
+          "memory": {
+            "peak_allocated_bytes": 4817838080,
+            "peak_reserved_bytes": 6345981952
+          },
+          "round": 14,
+          "sample_counts": [
+            148,
+            125,
+            106,
+            158,
+            75
+          ],
+          "throughput": {
+            "client_train_wall_s": 210.611,
+            "label_tokens": 119485,
+            "label_tokens_per_s": 567.3,
+            "padded_tokens": 121528,
+            "padded_tokens_per_s": 577.0
+          },
+          "update_norms": {
+            "A_update_fro": 0.17518654290116004,
+            "B_update_fro": 0.1600418083464642,
+            "M_update_fro": 0.19526653890721377
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 220.243
+        },
+        {
+          "client_mean_train_loss": [
+            1.6609057032813628,
+            1.6641424855446083,
+            1.4561356642469765,
+            1.4625388895471891,
+            1.7386241854950786
+          ],
+          "client_optimizer_steps": [
+            2,
+            3,
+            2,
+            2,
+            5
+          ],
+          "clients": [
+            36,
+            46,
+            51,
+            57,
+            84
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 263.9389649597963,
+            "B_sq_total": 2.098235765989333,
+            "M_fro_sq_total": 3.0610086537951915,
+            "M_nuclear_total": 39.95869091466497,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.7184160823079164,
+              "median": 1.8946499239233618,
+              "min": 1.295656688340946
+            }
+          },
+          "global_A_sq": 263.9389649597963,
+          "global_B_sq": 2.098235765989333,
+          "global_hash": "e62927fa648a2da07a3d77345eb26a255c9ad1aaadf7687e2d74409b841f3af1",
+          "heldout_loss": 1.7650851996143477,
+          "memory": {
+            "peak_allocated_bytes": 4818198528,
+            "peak_reserved_bytes": 6345981952
+          },
+          "round": 15,
+          "sample_counts": [
+            56,
+            83,
+            57,
+            47,
+            153
+          ],
+          "throughput": {
+            "client_train_wall_s": 141.938,
+            "label_tokens": 85409,
+            "label_tokens_per_s": 601.7,
+            "padded_tokens": 86696,
+            "padded_tokens_per_s": 610.8
+          },
+          "update_norms": {
+            "A_update_fro": 0.16861277319544665,
+            "B_update_fro": 0.15214709646535401,
+            "M_update_fro": 0.18496097068152512
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 150.769
+        },
+        {
+          "client_mean_train_loss": [
+            1.22677232576044,
+            1.8241587998345494,
+            1.5951779351076658,
+            1.614053519663254,
+            1.640700820311904
+          ],
+          "client_optimizer_steps": [
+            5,
+            4,
+            3,
+            4,
+            2
+          ],
+          "clients": [
+            7,
+            25,
+            42,
+            47,
+            71
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 264.1575659089915,
+            "B_sq_total": 2.153006424256992,
+            "M_fro_sq_total": 3.1496881698086043,
+            "M_nuclear_total": 40.51854602470107,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.674709888249711,
+              "median": 1.89830132764281,
+              "min": 1.2936324898470903
+            }
+          },
+          "global_A_sq": 264.1575659089915,
+          "global_B_sq": 2.153006424256992,
+          "global_hash": "664b49214bb71a47712714df1034ce86944c1f44371326eaa18cb09fc72634ca",
+          "heldout_loss": 1.7673080850934502,
+          "memory": {
+            "peak_allocated_bytes": 4818264064,
+            "peak_reserved_bytes": 6345981952
+          },
+          "round": 16,
+          "sample_counts": [
+            147,
+            97,
+            81,
+            115,
+            57
+          ],
+          "throughput": {
+            "client_train_wall_s": 156.656,
+            "label_tokens": 81471,
+            "label_tokens_per_s": 520.1,
+            "padded_tokens": 83128,
+            "padded_tokens_per_s": 530.6
+          },
+          "update_norms": {
+            "A_update_fro": 0.15119313473726811,
+            "B_update_fro": 0.144728276506329,
+            "M_update_fro": 0.17662081273304056
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 165.91
+        },
+        {
+          "client_mean_train_loss": [
+            1.6772173838689923,
+            1.6658109605989673,
+            1.5941241215914488,
+            1.6601255915686486,
+            1.5675047902124268
+          ],
+          "client_optimizer_steps": [
+            2,
+            5,
+            3,
+            2,
+            4
+          ],
+          "clients": [
+            4,
+            9,
+            28,
+            71,
+            73
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 264.48156526756935,
+            "B_sq_total": 2.210336457023809,
+            "M_fro_sq_total": 3.245712852596509,
+            "M_nuclear_total": 41.1225677487783,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.646326438954222,
+              "median": 1.8851713040027946,
+              "min": 1.2867495999283063
+            }
+          },
+          "global_A_sq": 264.48156526756935,
+          "global_B_sq": 2.210336457023809,
+          "global_hash": "526235410d814c83d2c5aa8651d7aa19fe5c7dfb66be8a6537f9175734dcb046",
+          "heldout_loss": 1.7664030069401804,
+          "memory": {
+            "peak_allocated_bytes": 4816625664,
+            "peak_reserved_bytes": 6345981952
+          },
+          "round": 17,
+          "sample_counts": [
+            64,
+            139,
+            87,
+            57,
+            110
+          ],
+          "throughput": {
+            "client_train_wall_s": 145.937,
+            "label_tokens": 77386,
+            "label_tokens_per_s": 530.3,
+            "padded_tokens": 78944,
+            "padded_tokens_per_s": 540.9
+          },
+          "update_norms": {
+            "A_update_fro": 0.1505592001315864,
+            "B_update_fro": 0.14293002824607615,
+            "M_update_fro": 0.17452322818580965
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 155.134
+        },
+        {
+          "client_mean_train_loss": [
+            1.717660477695366,
+            1.5800285909324885,
+            1.6155216286792173,
+            1.7669883877970278,
+            1.5333799718213932
+          ],
+          "client_optimizer_steps": [
+            2,
+            5,
+            4,
+            2,
+            7
+          ],
+          "clients": [
+            33,
+            43,
+            47,
+            53,
+            54
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 264.8895715890753,
+            "B_sq_total": 2.2922413697076625,
+            "M_fro_sq_total": 3.3813705325224768,
+            "M_nuclear_total": 41.97853707651067,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.7276390258266274,
+              "median": 1.8867199118322049,
+              "min": 1.278011985659156
+            }
+          },
+          "global_A_sq": 264.8895715890753,
+          "global_B_sq": 2.2922413697076625,
+          "global_hash": "0d99121ea40ec909a9067fa5c777f2dcaa74e3d8f2335d2a609991de9f6a62c3",
+          "heldout_loss": 1.7671119583274724,
+          "memory": {
+            "peak_allocated_bytes": 4817477632,
+            "peak_reserved_bytes": 6345981952
+          },
+          "round": 18,
+          "sample_counts": [
+            62,
+            138,
+            115,
+            64,
+            197
+          ],
+          "throughput": {
+            "client_train_wall_s": 179.615,
+            "label_tokens": 92285,
+            "label_tokens_per_s": 513.8,
+            "padded_tokens": 94320,
+            "padded_tokens_per_s": 525.1
+          },
+          "update_norms": {
+            "A_update_fro": 0.18308100105120964,
+            "B_update_fro": 0.17076697248467645,
+            "M_update_fro": 0.2092491570329151
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 189.4
+        },
+        {
+          "client_mean_train_loss": [
+            1.7030774964174877,
+            1.7811783922629223,
+            1.7196052693761885,
+            1.5275502938777208,
+            1.7584576331788586
+          ],
+          "client_optimizer_steps": [
+            4,
+            3,
+            4,
+            4,
+            3
+          ],
+          "clients": [
+            2,
+            16,
+            18,
+            72,
+            85
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 265.06184137586155,
+            "B_sq_total": 2.3305280199529217,
+            "M_fro_sq_total": 3.444464971287382,
+            "M_nuclear_total": 42.38760742590038,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.7281375471511415,
+              "median": 1.887143257270767,
+              "min": 1.2734616856095529
+            }
+          },
+          "global_A_sq": 265.06184137586155,
+          "global_B_sq": 2.3305280199529217,
+          "global_hash": "f22a96c718d7e1aad9ee8956fff65591bef0d36ed6f47022288c89c3b946a92e",
+          "heldout_loss": 1.766460373984055,
+          "memory": {
+            "peak_allocated_bytes": 4817739776,
+            "peak_reserved_bytes": 6345981952
+          },
+          "round": 19,
+          "sample_counts": [
+            108,
+            67,
+            106,
+            101,
+            92
+          ],
+          "throughput": {
+            "client_train_wall_s": 150.14,
+            "label_tokens": 74200,
+            "label_tokens_per_s": 494.2,
+            "padded_tokens": 75896,
+            "padded_tokens_per_s": 505.5
+          },
+          "update_norms": {
+            "A_update_fro": 0.14028911668353808,
+            "B_update_fro": 0.13425883524054844,
+            "M_update_fro": 0.1638357584570938
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 160.236
+        }
+      ],
+      "pooled_centralized_reference": false,
+      "rounds_completed": 20,
+      "status": "complete",
+      "vram_guard": {
+        "allocator_cap_bytes": 7182745600,
+        "allocator_cap_fraction": 0.836641,
+        "device_total_bytes": 8585216000,
+        "free_at_start_bytes": 7451181056,
+        "margin_bytes": 268435456
+      },
+      "wall_time_s": 3568.0
+    },
+    "lora_ft": {
+      "communication": {
+        "downlink_per_client_bytes": 12582912,
+        "downlink_total_bytes": 1258291200,
+        "note": "logical fp32 bytes of the uncompressed adapter state (12,582,912 B per client); no compression",
+        "per_round_two_way_bytes": [
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120,
+          125829120
+        ],
+        "two_way_total_bytes": 2516582400,
+        "uplink_per_client_bytes": 12582912,
+        "uplink_total_bytes": 1258291200
+      },
+      "config_sha256": "972a4129cb8d355a9666a8c2a969ac51524265d5a1032c3f8ccecf78abebe599",
+      "final_global_hash": "f22a96c718d7e1aad9ee8956fff65591bef0d36ed6f47022288c89c3b946a92e",
+      "final_heldout_loss": 1.766460373984055,
+      "git_commit": "ad6b3ddf0764e6c9c6d6e759c095222c75e3e9ff",
+      "git_dirty_files": [],
+      "git_untracked_results_dirs": [],
+      "initial_heldout_loss": 2.3699266899646365,
+      "per_round": [
+        {
+          "client_mean_train_loss": [
+            2.624376888386905,
+            2.2441697931633544,
+            2.3078532241510623,
+            2.6087210873762765,
+            2.2706246540695427
+          ],
+          "client_optimizer_steps": [
+            4,
+            6,
+            3,
+            3,
+            5
+          ],
+          "clients": [
+            2,
+            26,
+            55,
+            75,
+            86
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 256.311619960987,
+            "B_sq_total": 0.17413219928577875,
+            "M_fro_sq_total": 0.23312649711698696,
+            "M_nuclear_total": 11.864101451622034,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 4.210858081011197,
+              "median": 2.3818256423637862,
+              "min": 1.5052050992045694
+            }
+          },
+          "global_A_sq": 256.311619960987,
+          "global_B_sq": 0.17413219928577875,
+          "global_hash": "897b129a3ce7e7a44adc728753bbeb01e1e10d978f9e75c714e22248164f3320",
+          "heldout_loss": 2.1462867720238354,
+          "memory": {
+            "peak_allocated_bytes": 4818395136,
+            "peak_reserved_bytes": 6341787648
+          },
+          "round": 0,
+          "sample_counts": [
+            108,
+            186,
+            75,
+            72,
+            148
+          ],
+          "throughput": {
+            "client_train_wall_s": 207.331,
+            "label_tokens": 137163,
+            "label_tokens_per_s": 661.6,
+            "padded_tokens": 139120,
+            "padded_tokens_per_s": 671.0
+          },
+          "update_norms": {
+            "A_update_fro": 0.24495582866062404,
+            "B_update_fro": 0.41729150397028064,
+            "M_update_fro": 0.4828317482487941
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 215.573
+        },
+        {
+          "client_mean_train_loss": [
+            2.110763502245148,
+            2.083304359719157,
+            2.1438452110936246,
+            2.161277341842651,
+            2.1984063263982536
+          ],
+          "client_optimizer_steps": [
+            2,
+            5,
+            4,
+            5,
+            5
+          ],
+          "clients": [
+            33,
+            80,
+            81,
+            84,
+            93
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 257.11505666301264,
+            "B_sq_total": 0.493275894232876,
+            "M_fro_sq_total": 0.6652961266566486,
+            "M_nuclear_total": 19.582681416569326,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 4.017839519664362,
+              "median": 2.2072930018129684,
+              "min": 1.4048514763257927
+            }
+          },
+          "global_A_sq": 257.11505666301264,
+          "global_B_sq": 0.493275894232876,
+          "global_hash": "2518b0cf58f456c52af81c667f0198aa9b242059580b6ca676ef017bdedcf8cf",
+          "heldout_loss": 1.9754019695362255,
+          "memory": {
+            "peak_allocated_bytes": 4818198528,
+            "peak_reserved_bytes": 6341787648
+          },
+          "round": 1,
+          "sample_counts": [
+            62,
+            153,
+            108,
+            153,
+            129
+          ],
+          "throughput": {
+            "client_train_wall_s": 217.167,
+            "label_tokens": 134207,
+            "label_tokens_per_s": 618.0,
+            "padded_tokens": 136304,
+            "padded_tokens_per_s": 627.6
+          },
+          "update_norms": {
+            "A_update_fro": 0.4230828487787332,
+            "B_update_fro": 0.38239820052216644,
+            "M_update_fro": 0.44584289540611505
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 225.768
+        },
+        {
+          "client_mean_train_loss": [
+            1.8451040933529537,
+            2.083502643555403,
+            1.9455871414393187,
+            1.8997662071848198,
+            1.813187638261857
+          ],
+          "client_optimizer_steps": [
+            3,
+            5,
+            2,
+            3,
+            4
+          ],
+          "clients": [
+            16,
+            24,
+            30,
+            56,
+            83
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 257.9047508227154,
+            "B_sq_total": 0.7624729152854394,
+            "M_fro_sq_total": 1.037345527818415,
+            "M_nuclear_total": 23.95064032919067,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.800941540142291,
+              "median": 2.0503706001117745,
+              "min": 1.3039358729406156
+            }
+          },
+          "global_A_sq": 257.9047508227154,
+          "global_B_sq": 0.7624729152854394,
+          "global_hash": "f82cf020d5b951a7449005920e6f73d202d727823c92be3620f218d27d36a598",
+          "heldout_loss": 1.8864296736896093,
+          "memory": {
+            "peak_allocated_bytes": 4817575936,
+            "peak_reserved_bytes": 6341787648
+          },
+          "round": 2,
+          "sample_counts": [
+            67,
+            148,
+            52,
+            92,
+            109
+          ],
+          "throughput": {
+            "client_train_wall_s": 149.443,
+            "label_tokens": 77210,
+            "label_tokens_per_s": 516.7,
+            "padded_tokens": 78816,
+            "padded_tokens_per_s": 527.4
+          },
+          "update_norms": {
+            "A_update_fro": 0.3646727420857327,
+            "B_update_fro": 0.31830388275302857,
+            "M_update_fro": 0.3743922705105905
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 158.005
+        },
+        {
+          "client_mean_train_loss": [
+            1.9143509588275966,
+            1.7632785194992333,
+            1.7714415321078818,
+            1.8698406375944614,
+            1.912388705658496
+          ],
+          "client_optimizer_steps": [
+            4,
+            3,
+            3,
+            5,
+            3
+          ],
+          "clients": [
+            6,
+            64,
+            67,
+            93,
+            96
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 258.49495123688007,
+            "B_sq_total": 0.9386516757028289,
+            "M_fro_sq_total": 1.2851219676795695,
+            "M_nuclear_total": 26.42156452398128,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.8981427146835887,
+              "median": 1.9847419233609356,
+              "min": 1.3100809572056504
+            }
+          },
+          "global_A_sq": 258.49495123688007,
+          "global_B_sq": 0.9386516757028289,
+          "global_hash": "477b0fc0018582b206478428129e58ce32d62bfd1d1c4cc201d8402ebdbacedb",
+          "heldout_loss": 1.8348094374350419,
+          "memory": {
+            "peak_allocated_bytes": 4817608704,
+            "peak_reserved_bytes": 6341787648
+          },
+          "round": 3,
+          "sample_counts": [
+            122,
+            93,
+            90,
+            129,
+            95
+          ],
+          "throughput": {
+            "client_train_wall_s": 177.978,
+            "label_tokens": 101731,
+            "label_tokens_per_s": 571.6,
+            "padded_tokens": 103552,
+            "padded_tokens_per_s": 581.8
+          },
+          "update_norms": {
+            "A_update_fro": 0.2881482864689262,
+            "B_update_fro": 0.24991579718656204,
+            "M_update_fro": 0.2953315275664521
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 185.887
+        },
+        {
+          "client_mean_train_loss": [
+            1.5496133904760847,
+            1.8685432900157242,
+            1.8023157851913798,
+            1.9172249018835525,
+            1.8499664341009432
+          ],
+          "client_optimizer_steps": [
+            4,
+            3,
+            3,
+            4,
+            3
+          ],
+          "clients": [
+            10,
+            16,
+            20,
+            63,
+            96
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 259.20188071933916,
+            "B_sq_total": 1.113725393385673,
+            "M_fro_sq_total": 1.537442259607847,
+            "M_nuclear_total": 28.628403148407994,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.920389515394756,
+              "median": 1.9277471178456302,
+              "min": 1.2816461807752741
+            }
+          },
+          "global_A_sq": 259.20188071933916,
+          "global_B_sq": 1.113725393385673,
+          "global_hash": "5a41bb8c9aaad4ea49ebf11ee483a4b74731d498f78340ed32489e5a1a31b952",
+          "heldout_loss": 1.8147911375417474,
+          "memory": {
+            "peak_allocated_bytes": 4817608704,
+            "peak_reserved_bytes": 6341787648
+          },
+          "round": 4,
+          "sample_counts": [
+            122,
+            67,
+            77,
+            108,
+            95
+          ],
+          "throughput": {
+            "client_train_wall_s": 158.186,
+            "label_tokens": 91404,
+            "label_tokens_per_s": 577.8,
+            "padded_tokens": 93072,
+            "padded_tokens_per_s": 588.4
+          },
+          "update_norms": {
+            "A_update_fro": 0.29663782433690966,
+            "B_update_fro": 0.24104273373290244,
+            "M_update_fro": 0.287333241276405
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 166.205
+        },
+        {
+          "client_mean_train_loss": [
+            1.6533210091022907,
+            1.7082017745603535,
+            1.740806193956942,
+            1.5816224220075776,
+            1.7053142912008545
+          ],
+          "client_optimizer_steps": [
+            3,
+            3,
+            3,
+            2,
+            5
+          ],
+          "clients": [
+            28,
+            32,
+            46,
+            66,
+            74
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 259.93413517292225,
+            "B_sq_total": 1.2890998811370378,
+            "M_fro_sq_total": 1.7958059354747977,
+            "M_nuclear_total": 30.65713193116576,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.9060970173354823,
+              "median": 1.8835707174782335,
+              "min": 1.274241552372605
+            }
+          },
+          "global_A_sq": 259.93413517292225,
+          "global_B_sq": 1.2890998811370378,
+          "global_hash": "2a7a1a8c538b6d5315430e790c26ff41298c0402605f522a4ad53eb94f9820f8",
+          "heldout_loss": 1.7876410455956768,
+          "memory": {
+            "peak_allocated_bytes": 4818231296,
+            "peak_reserved_bytes": 6341787648
+          },
+          "round": 5,
+          "sample_counts": [
+            87,
+            81,
+            83,
+            39,
+            150
+          ],
+          "throughput": {
+            "client_train_wall_s": 156.778,
+            "label_tokens": 97592,
+            "label_tokens_per_s": 622.5,
+            "padded_tokens": 99048,
+            "padded_tokens_per_s": 631.8
+          },
+          "update_norms": {
+            "A_update_fro": 0.2848247373057163,
+            "B_update_fro": 0.23825495400668256,
+            "M_update_fro": 0.28609313398664576
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 165.277
+        },
+        {
+          "client_mean_train_loss": [
+            1.7688063278507729,
+            1.774202276127679,
+            1.805796034944554,
+            1.6588323328813368,
+            1.7986420185841394
+          ],
+          "client_optimizer_steps": [
+            2,
+            5,
+            4,
+            4,
+            3
+          ],
+          "clients": [
+            0,
+            17,
+            34,
+            45,
+            60
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 260.42838121977536,
+            "B_sq_total": 1.4113421258777639,
+            "M_fro_sq_total": 1.9791026644444396,
+            "M_nuclear_total": 32.013232986534,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.7378070332919173,
+              "median": 1.8673969114235915,
+              "min": 1.2743863617919553
+            }
+          },
+          "global_A_sq": 260.42838121977536,
+          "global_B_sq": 1.4113421258777639,
+          "global_hash": "502d21c574d462166d077b127bf63fcc6c527d7190df26be1dfd69d6a83ff407",
+          "heldout_loss": 1.7878746657009421,
+          "memory": {
+            "peak_allocated_bytes": 4817608704,
+            "peak_reserved_bytes": 6341787648
+          },
+          "round": 6,
+          "sample_counts": [
+            45,
+            135,
+            108,
+            118,
+            75
+          ],
+          "throughput": {
+            "client_train_wall_s": 158.388,
+            "label_tokens": 94594,
+            "label_tokens_per_s": 597.2,
+            "padded_tokens": 96256,
+            "padded_tokens_per_s": 607.7
+          },
+          "update_norms": {
+            "A_update_fro": 0.2320884497451117,
+            "B_update_fro": 0.21047956635413456,
+            "M_update_fro": 0.25319004799116085
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 167.024
+        },
+        {
+          "client_mean_train_loss": [
+            1.7260497376107826,
+            1.756837161257863,
+            1.594857892145713,
+            1.6998439762526407,
+            1.6477286393195392
+          ],
+          "client_optimizer_steps": [
+            6,
+            4,
+            3,
+            4,
+            5
+          ],
+          "clients": [
+            26,
+            37,
+            49,
+            78,
+            91
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 260.94069817025854,
+            "B_sq_total": 1.5109381860631954,
+            "M_fro_sq_total": 2.132183718221394,
+            "M_nuclear_total": 33.22006407947766,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.7677447188739075,
+              "median": 1.8382508734005378,
+              "min": 1.2701665156028923
+            }
+          },
+          "global_A_sq": 260.94069817025854,
+          "global_B_sq": 1.5109381860631954,
+          "global_hash": "2942459b49b4df8a463a38b522532e8acb8f9e97de6c8cbd3d35d0aa47264da1",
+          "heldout_loss": 1.7788862647643793,
+          "memory": {
+            "peak_allocated_bytes": 4817936384,
+            "peak_reserved_bytes": 6345981952
+          },
+          "round": 7,
+          "sample_counts": [
+            186,
+            104,
+            69,
+            109,
+            143
+          ],
+          "throughput": {
+            "client_train_wall_s": 208.179,
+            "label_tokens": 129909,
+            "label_tokens_per_s": 624.0,
+            "padded_tokens": 131976,
+            "padded_tokens_per_s": 634.0
+          },
+          "update_norms": {
+            "A_update_fro": 0.22498257479976363,
+            "B_update_fro": 0.19552806421369728,
+            "M_update_fro": 0.23524172059651538
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 216.806
+        },
+        {
+          "client_mean_train_loss": [
+            1.5781593763122435,
+            1.7573515359844478,
+            1.7247355002909899,
+            1.4993516071637472,
+            1.6116443815443553
+          ],
+          "client_optimizer_steps": [
+            5,
+            5,
+            3,
+            5,
+            3
+          ],
+          "clients": [
+            1,
+            17,
+            23,
+            44,
+            55
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 261.3247990820371,
+            "B_sq_total": 1.588224174147325,
+            "M_fro_sq_total": 2.251489502198807,
+            "M_nuclear_total": 34.167411145520205,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.7825599106608956,
+              "median": 1.8563107328782178,
+              "min": 1.2748913103095698
+            }
+          },
+          "global_A_sq": 261.3247990820371,
+          "global_B_sq": 1.588224174147325,
+          "global_hash": "d1957988aeaf7571c7e5d1c5cd178595153453a0fd4e374799b3f61d767b7fe7",
+          "heldout_loss": 1.7787726139215188,
+          "memory": {
+            "peak_allocated_bytes": 4817641472,
+            "peak_reserved_bytes": 6345981952
+          },
+          "round": 8,
+          "sample_counts": [
+            147,
+            135,
+            74,
+            158,
+            75
+          ],
+          "throughput": {
+            "client_train_wall_s": 194.59,
+            "label_tokens": 111489,
+            "label_tokens_per_s": 572.9,
+            "padded_tokens": 113528,
+            "padded_tokens_per_s": 583.4
+          },
+          "update_norms": {
+            "A_update_fro": 0.1846081242317171,
+            "B_update_fro": 0.16922881426644923,
+            "M_update_fro": 0.20323184644218398
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 203.082
+        },
+        {
+          "client_mean_train_loss": [
+            1.6647093033211098,
+            1.6547343679064628,
+            1.7024597112873667,
+            1.611947060045269,
+            1.5891691831250985
+          ],
+          "client_optimizer_steps": [
+            3,
+            3,
+            3,
+            3,
+            3
+          ],
+          "clients": [
+            3,
+            42,
+            46,
+            68,
+            75
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 261.5878185678153,
+            "B_sq_total": 1.642665120638852,
+            "M_fro_sq_total": 2.335799010658995,
+            "M_nuclear_total": 34.819196431593696,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.8020041979894144,
+              "median": 1.856921291708426,
+              "min": 1.27727705666124
+            }
+          },
+          "global_A_sq": 261.5878185678153,
+          "global_B_sq": 1.642665120638852,
+          "global_hash": "ad4ba01bf09e59e6bdb52b2180e3ea98d7ca255b848e96ee9f80e63c454cbccd",
+          "heldout_loss": 1.7730570714187972,
+          "memory": {
+            "peak_allocated_bytes": 4817674240,
+            "peak_reserved_bytes": 6345981952
+          },
+          "round": 9,
+          "sample_counts": [
+            88,
+            81,
+            83,
+            67,
+            72
+          ],
+          "throughput": {
+            "client_train_wall_s": 137.876,
+            "label_tokens": 83229,
+            "label_tokens_per_s": 603.7,
+            "padded_tokens": 84520,
+            "padded_tokens_per_s": 613.0
+          },
+          "update_norms": {
+            "A_update_fro": 0.1540410613211311,
+            "B_update_fro": 0.14505675147779157,
+            "M_update_fro": 0.17465003689672143
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 146.399
+        },
+        {
+          "client_mean_train_loss": [
+            1.6732592089101672,
+            1.5276242523188037,
+            1.7358707613311708,
+            1.6198765971511602,
+            1.5545484399689096
+          ],
+          "client_optimizer_steps": [
+            4,
+            2,
+            4,
+            5,
+            2
+          ],
+          "clients": [
+            14,
+            19,
+            37,
+            43,
+            66
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 262.02401111118974,
+            "B_sq_total": 1.7267831908160909,
+            "M_fro_sq_total": 2.467210725446694,
+            "M_nuclear_total": 35.78832641308397,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.8478502761976463,
+              "median": 1.8642355249080922,
+              "min": 1.2820895161654657
+            }
+          },
+          "global_A_sq": 262.02401111118974,
+          "global_B_sq": 1.7267831908160909,
+          "global_hash": "c6dfbe0e40aeeb3e27363bc8b51024833c597bedabae2c825dcdaf84997e7ddc",
+          "heldout_loss": 1.7752714261807985,
+          "memory": {
+            "peak_allocated_bytes": 4816625664,
+            "peak_reserved_bytes": 6345981952
+          },
+          "round": 10,
+          "sample_counts": [
+            99,
+            39,
+            104,
+            138,
+            39
+          ],
+          "throughput": {
+            "client_train_wall_s": 131.866,
+            "label_tokens": 69362,
+            "label_tokens_per_s": 526.0,
+            "padded_tokens": 70824,
+            "padded_tokens_per_s": 537.1
+          },
+          "update_norms": {
+            "A_update_fro": 0.18900239718379827,
+            "B_update_fro": 0.1776246405305887,
+            "M_update_fro": 0.21448214151738387
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 140.62
+        },
+        {
+          "client_mean_train_loss": [
+            1.8815311057093953,
+            1.6978820709304676,
+            1.6763569773746685,
+            1.5110414457817871,
+            1.3745932884514331
+          ],
+          "client_optimizer_steps": [
+            4,
+            3,
+            3,
+            3,
+            5
+          ],
+          "clients": [
+            22,
+            41,
+            46,
+            49,
+            58
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 262.3180889719622,
+            "B_sq_total": 1.7956081095858178,
+            "M_fro_sq_total": 2.5739754925744402,
+            "M_nuclear_total": 36.58086346217823,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.7841406783218954,
+              "median": 1.8678995623026011,
+              "min": 1.2905944014558135
+            }
+          },
+          "global_A_sq": 262.3180889719622,
+          "global_B_sq": 1.7956081095858178,
+          "global_hash": "24955ac5cb675290e5aac8b7e434b1edb8d95d9002c6f9b9f5245aa0f718ccba",
+          "heldout_loss": 1.7700607336014647,
+          "memory": {
+            "peak_allocated_bytes": 4817674240,
+            "peak_reserved_bytes": 6345981952
+          },
+          "round": 11,
+          "sample_counts": [
+            110,
+            67,
+            83,
+            69,
+            130
+          ],
+          "throughput": {
+            "client_train_wall_s": 156.328,
+            "label_tokens": 93746,
+            "label_tokens_per_s": 599.7,
+            "padded_tokens": 95320,
+            "padded_tokens_per_s": 609.7
+          },
+          "update_norms": {
+            "A_update_fro": 0.17541068262000892,
+            "B_update_fro": 0.16779750096625307,
+            "M_update_fro": 0.20301497583702008
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 165.029
+        },
+        {
+          "client_mean_train_loss": [
+            1.6324330183366933,
+            1.6892809872116359,
+            1.8137289246337283,
+            1.8410121585345933,
+            1.881838734683004
+          ],
+          "client_optimizer_steps": [
+            4,
+            5,
+            3,
+            3,
+            4
+          ],
+          "clients": [
+            14,
+            17,
+            41,
+            68,
+            92
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 262.68204776803157,
+            "B_sq_total": 1.8687159850461588,
+            "M_fro_sq_total": 2.6881152533539057,
+            "M_nuclear_total": 37.42547290937634,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.7607751772453413,
+              "median": 1.8657384039881801,
+              "min": 1.3038686564411202
+            }
+          },
+          "global_A_sq": 262.68204776803157,
+          "global_B_sq": 1.8687159850461588,
+          "global_hash": "a3854dd619d15154472b7028880c9c3b3fd4b1479d9c0548de66c4e9fe7c1938",
+          "heldout_loss": 1.7699845296357164,
+          "memory": {
+            "peak_allocated_bytes": 4817608704,
+            "peak_reserved_bytes": 6345981952
+          },
+          "round": 12,
+          "sample_counts": [
+            99,
+            135,
+            67,
+            67,
+            117
+          ],
+          "throughput": {
+            "client_train_wall_s": 160.966,
+            "label_tokens": 88992,
+            "label_tokens_per_s": 552.9,
+            "padded_tokens": 90728,
+            "padded_tokens_per_s": 563.6
+          },
+          "update_norms": {
+            "A_update_fro": 0.16965255698000942,
+            "B_update_fro": 0.16173185632263154,
+            "M_update_fro": 0.19580044656713746
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 169.52
+        },
+        {
+          "client_mean_train_loss": [
+            1.7106466131905713,
+            1.7075447053648531,
+            1.640559253692627,
+            1.6791866462263796,
+            1.4492642319976137
+          ],
+          "client_optimizer_steps": [
+            4,
+            4,
+            5,
+            3,
+            4
+          ],
+          "clients": [
+            14,
+            37,
+            43,
+            62,
+            83
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 263.147889341506,
+            "B_sq_total": 1.950132365729839,
+            "M_fro_sq_total": 2.820335506505665,
+            "M_nuclear_total": 38.35288336088829,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.7643953546673594,
+              "median": 1.8858292339780784,
+              "min": 1.3095448509038123
+            }
+          },
+          "global_A_sq": 263.147889341506,
+          "global_B_sq": 1.950132365729839,
+          "global_hash": "cf0628fbca8bb465d0e298e7f4cb60c7cfc425201f2f2b201d6f091c6b3678d0",
+          "heldout_loss": 1.770769077163166,
+          "memory": {
+            "peak_allocated_bytes": 4817739776,
+            "peak_reserved_bytes": 6345981952
+          },
+          "round": 13,
+          "sample_counts": [
+            99,
+            104,
+            138,
+            79,
+            109
+          ],
+          "throughput": {
+            "client_train_wall_s": 156.156,
+            "label_tokens": 76484,
+            "label_tokens_per_s": 489.8,
+            "padded_tokens": 78336,
+            "padded_tokens_per_s": 501.7
+          },
+          "update_norms": {
+            "A_update_fro": 0.17558879872798333,
+            "B_update_fro": 0.15199611269983804,
+            "M_update_fro": 0.1849958235413308
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 164.744
+        },
+        {
+          "client_mean_train_loss": [
+            1.8802013313770296,
+            1.4873277019902036,
+            1.604546144604683,
+            1.4815814972668886,
+            1.5761746475755265
+          ],
+          "client_optimizer_steps": [
+            5,
+            4,
+            4,
+            5,
+            3
+          ],
+          "clients": [
+            24,
+            35,
+            39,
+            44,
+            55
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 263.5267690160743,
+            "B_sq_total": 2.026714702637514,
+            "M_fro_sq_total": 2.9436676914621436,
+            "M_nuclear_total": 39.17394055694605,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.721814179586609,
+              "median": 1.8814207412656783,
+              "min": 1.3029971646550524
+            }
+          },
+          "global_A_sq": 263.5267690160743,
+          "global_B_sq": 2.026714702637514,
+          "global_hash": "196d4d18af0cf7b2c74f391f7b638a6a3020942b0e7ef8d3672b514f2225619c",
+          "heldout_loss": 1.7662789567500652,
+          "memory": {
+            "peak_allocated_bytes": 4817838080,
+            "peak_reserved_bytes": 6345981952
+          },
+          "round": 14,
+          "sample_counts": [
+            148,
+            125,
+            106,
+            158,
+            75
+          ],
+          "throughput": {
+            "client_train_wall_s": 206.826,
+            "label_tokens": 119485,
+            "label_tokens_per_s": 577.7,
+            "padded_tokens": 121528,
+            "padded_tokens_per_s": 587.6
+          },
+          "update_norms": {
+            "A_update_fro": 0.17518654290116004,
+            "B_update_fro": 0.1600418083464642,
+            "M_update_fro": 0.19526653890721377
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 215.369
+        },
+        {
+          "client_mean_train_loss": [
+            1.6609057032813628,
+            1.6641424855446083,
+            1.4561356642469765,
+            1.4625388895471891,
+            1.7386241854950786
+          ],
+          "client_optimizer_steps": [
+            2,
+            3,
+            2,
+            2,
+            5
+          ],
+          "clients": [
+            36,
+            46,
+            51,
+            57,
+            84
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 263.9389649597963,
+            "B_sq_total": 2.098235765989333,
+            "M_fro_sq_total": 3.0610086537951915,
+            "M_nuclear_total": 39.95869091466497,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.7184160823079164,
+              "median": 1.8946499239233618,
+              "min": 1.295656688340946
+            }
+          },
+          "global_A_sq": 263.9389649597963,
+          "global_B_sq": 2.098235765989333,
+          "global_hash": "e62927fa648a2da07a3d77345eb26a255c9ad1aaadf7687e2d74409b841f3af1",
+          "heldout_loss": 1.7650851996143477,
+          "memory": {
+            "peak_allocated_bytes": 4818198528,
+            "peak_reserved_bytes": 6345981952
+          },
+          "round": 15,
+          "sample_counts": [
+            56,
+            83,
+            57,
+            47,
+            153
+          ],
+          "throughput": {
+            "client_train_wall_s": 140.528,
+            "label_tokens": 85409,
+            "label_tokens_per_s": 607.8,
+            "padded_tokens": 86696,
+            "padded_tokens_per_s": 616.9
+          },
+          "update_norms": {
+            "A_update_fro": 0.16861277319544665,
+            "B_update_fro": 0.15214709646535401,
+            "M_update_fro": 0.18496097068152512
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 149.166
+        },
+        {
+          "client_mean_train_loss": [
+            1.22677232576044,
+            1.8241587998345494,
+            1.5951779351076658,
+            1.614053519663254,
+            1.640700820311904
+          ],
+          "client_optimizer_steps": [
+            5,
+            4,
+            3,
+            4,
+            2
+          ],
+          "clients": [
+            7,
+            25,
+            42,
+            47,
+            71
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 264.1575659089915,
+            "B_sq_total": 2.153006424256992,
+            "M_fro_sq_total": 3.1496881698086043,
+            "M_nuclear_total": 40.51854602470107,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.674709888249711,
+              "median": 1.89830132764281,
+              "min": 1.2936324898470903
+            }
+          },
+          "global_A_sq": 264.1575659089915,
+          "global_B_sq": 2.153006424256992,
+          "global_hash": "664b49214bb71a47712714df1034ce86944c1f44371326eaa18cb09fc72634ca",
+          "heldout_loss": 1.7673080850934502,
+          "memory": {
+            "peak_allocated_bytes": 4818264064,
+            "peak_reserved_bytes": 6345981952
+          },
+          "round": 16,
+          "sample_counts": [
+            147,
+            97,
+            81,
+            115,
+            57
+          ],
+          "throughput": {
+            "client_train_wall_s": 154.983,
+            "label_tokens": 81471,
+            "label_tokens_per_s": 525.7,
+            "padded_tokens": 83128,
+            "padded_tokens_per_s": 536.4
+          },
+          "update_norms": {
+            "A_update_fro": 0.15119313473726811,
+            "B_update_fro": 0.144728276506329,
+            "M_update_fro": 0.17662081273304056
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 163.601
+        },
+        {
+          "client_mean_train_loss": [
+            1.6772173838689923,
+            1.6658109605989673,
+            1.5941241215914488,
+            1.6601255915686486,
+            1.5675047902124268
+          ],
+          "client_optimizer_steps": [
+            2,
+            5,
+            3,
+            2,
+            4
+          ],
+          "clients": [
+            4,
+            9,
+            28,
+            71,
+            73
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 264.48156526756935,
+            "B_sq_total": 2.210336457023809,
+            "M_fro_sq_total": 3.245712852596509,
+            "M_nuclear_total": 41.1225677487783,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.646326438954222,
+              "median": 1.8851713040027946,
+              "min": 1.2867495999283063
+            }
+          },
+          "global_A_sq": 264.48156526756935,
+          "global_B_sq": 2.210336457023809,
+          "global_hash": "526235410d814c83d2c5aa8651d7aa19fe5c7dfb66be8a6537f9175734dcb046",
+          "heldout_loss": 1.7664030069401804,
+          "memory": {
+            "peak_allocated_bytes": 4816625664,
+            "peak_reserved_bytes": 6345981952
+          },
+          "round": 17,
+          "sample_counts": [
+            64,
+            139,
+            87,
+            57,
+            110
+          ],
+          "throughput": {
+            "client_train_wall_s": 143.554,
+            "label_tokens": 77386,
+            "label_tokens_per_s": 539.1,
+            "padded_tokens": 78944,
+            "padded_tokens_per_s": 549.9
+          },
+          "update_norms": {
+            "A_update_fro": 0.1505592001315864,
+            "B_update_fro": 0.14293002824607615,
+            "M_update_fro": 0.17452322818580965
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 152.204
+        },
+        {
+          "client_mean_train_loss": [
+            1.717660477695366,
+            1.5800285909324885,
+            1.6155216286792173,
+            1.7669883877970278,
+            1.5333799718213932
+          ],
+          "client_optimizer_steps": [
+            2,
+            5,
+            4,
+            2,
+            7
+          ],
+          "clients": [
+            33,
+            43,
+            47,
+            53,
+            54
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 264.8895715890753,
+            "B_sq_total": 2.2922413697076625,
+            "M_fro_sq_total": 3.3813705325224768,
+            "M_nuclear_total": 41.97853707651067,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.7276390258266274,
+              "median": 1.8867199118322049,
+              "min": 1.278011985659156
+            }
+          },
+          "global_A_sq": 264.8895715890753,
+          "global_B_sq": 2.2922413697076625,
+          "global_hash": "0d99121ea40ec909a9067fa5c777f2dcaa74e3d8f2335d2a609991de9f6a62c3",
+          "heldout_loss": 1.7671119583274724,
+          "memory": {
+            "peak_allocated_bytes": 4817477632,
+            "peak_reserved_bytes": 6345981952
+          },
+          "round": 18,
+          "sample_counts": [
+            62,
+            138,
+            115,
+            64,
+            197
+          ],
+          "throughput": {
+            "client_train_wall_s": 177.007,
+            "label_tokens": 92285,
+            "label_tokens_per_s": 521.4,
+            "padded_tokens": 94320,
+            "padded_tokens_per_s": 532.9
+          },
+          "update_norms": {
+            "A_update_fro": 0.18308100105120964,
+            "B_update_fro": 0.17076697248467645,
+            "M_update_fro": 0.2092491570329151
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 186.139
+        },
+        {
+          "client_mean_train_loss": [
+            1.7030774964174877,
+            1.7811783922629223,
+            1.7196052693761885,
+            1.5275502938777208,
+            1.7584576331788586
+          ],
+          "client_optimizer_steps": [
+            4,
+            3,
+            4,
+            4,
+            3
+          ],
+          "clients": [
+            2,
+            16,
+            18,
+            72,
+            85
+          ],
+          "downlink_logical_bytes": 62914560,
+          "effective_global": {
+            "A_sq_total": 265.06184137586155,
+            "B_sq_total": 2.3305280199529217,
+            "M_fro_sq_total": 3.444464971287382,
+            "M_nuclear_total": 42.38760742590038,
+            "lora_scaling": 2.0,
+            "stable_rank": {
+              "max": 3.7281375471511415,
+              "median": 1.887143257270767,
+              "min": 1.2734616856095529
+            }
+          },
+          "global_A_sq": 265.06184137586155,
+          "global_B_sq": 2.3305280199529217,
+          "global_hash": "f22a96c718d7e1aad9ee8956fff65591bef0d36ed6f47022288c89c3b946a92e",
+          "heldout_loss": 1.766460373984055,
+          "memory": {
+            "peak_allocated_bytes": 4817739776,
+            "peak_reserved_bytes": 6345981952
+          },
+          "round": 19,
+          "sample_counts": [
+            108,
+            67,
+            106,
+            101,
+            92
+          ],
+          "throughput": {
+            "client_train_wall_s": 146.943,
+            "label_tokens": 74200,
+            "label_tokens_per_s": 505.0,
+            "padded_tokens": 75896,
+            "padded_tokens_per_s": 516.5
+          },
+          "update_norms": {
+            "A_update_fro": 0.14028911668353808,
+            "B_update_fro": 0.13425883524054844,
+            "M_update_fro": 0.1638357584570938
+          },
+          "uplink_logical_bytes": 62914560,
+          "wall_time_s": 155.572
+        }
+      ],
+      "pooled_centralized_reference": false,
+      "rounds_completed": 20,
+      "status": "complete",
+      "vram_guard": {
+        "allocator_cap_bytes": 7182745600,
+        "allocator_cap_fraction": 0.836641,
+        "device_total_bytes": 8585216000,
+        "free_at_start_bytes": 7451181056,
+        "margin_bytes": 268435456
+      },
+      "wall_time_s": 3512.0
+    }
+  }
+}

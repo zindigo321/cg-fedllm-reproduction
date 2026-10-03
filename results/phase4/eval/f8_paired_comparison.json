@@ -1,0 +1,64 @@
+{
+  "benchmarks": {
+    "ceval_val_5shot": {
+      "a_only_correct": 29,
+      "accuracy_a": 0.5832095096582467,
+      "accuracy_b": 0.5832095096582467,
+      "b_only_correct": 29,
+      "both_correct": 756,
+      "mcnemar_exact_two_sided_p": 1.0,
+      "neither_correct": 532,
+      "questions": 1346
+    },
+    "mmlu_test_5shot": {
+      "a_only_correct": 268,
+      "accuracy_a": 0.45249964392536673,
+      "accuracy_b": 0.4570573992308788,
+      "b_only_correct": 332,
+      "both_correct": 6086,
+      "mcnemar_exact_two_sided_p": 0.01005367786636303,
+      "neither_correct": 7356,
+      "questions": 14042
+    }
+  },
+  "label": "DERIVED",
+  "note": "question-level paired comparison (question-weighted); the C-Eval headline is a subject macro average",
+  "pair": [
+    "base",
+    "lora_ft"
+  ],
+  "provenance": {
+    "git": {
+      "available": true,
+      "branch": "phase4-representation-forensics",
+      "commit": "b88ce2dca69d88f1c2d3765b9b6811bf3ae2cf23",
+      "dirty": true,
+      "dirty_files": [
+        "?? results/phase4/eval/f8_eval_base_full.json",
+        "?? results/phase4/eval/f8_eval_lora_ft_full.json",
+        "?? results/phase4/microbatch/f1_llama160m_validation_rerun_clean.json",
+        "?? results/phase4/microbatch/f1_qwen_validation_rerun_clean.json"
+      ]
+    },
+    "packages": {
+      "PyYAML": "6.0.3",
+      "accelerate": "1.15.0",
+      "bitsandbytes": "0.50.2",
+      "datasets": "5.0.1",
+      "huggingface_hub": "1.33.0",
+      "lm_eval": "0.4.13",
+      "numpy": "2.4.6",
+      "pandas": "3.0.6",
+      "peft": "0.21.1",
+      "pyarrow": "25.0.1",
+      "safetensors": "0.8.0",
+      "tokenizers": "0.23.2",
+      "torch": "2.14.0+cu130",
+      "transformers": "5.17.0"
+    }
+  },
+  "runs": {
+    "base": "D:/cgfed-runs/phase4_eval_qwen15_1p8b_seed1/eval_base_full",
+    "lora_ft": "D:/cgfed-runs/phase4_eval_qwen15_1p8b_seed1/eval_lora_ft_full"
+  }
+}

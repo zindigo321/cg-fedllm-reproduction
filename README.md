@@ -176,3 +176,32 @@ paper-faithful. Labels: PHASE3-DIAGNOSTIC, PHASE3-SENSITIVITY, DERIVED.
 
 Details: `docs/phase3_findings.md`. Evidence: `results/phase3/`. Deviations and discrepancies:
 `docs/deviations.md` (rows 25-34), `docs/discrepancies.md` (section C).
+
+## 10. Phase-4 Status (representation forensics, micro-batch fidelity, seed-1 baseline)
+
+Branch `phase4-representation-forensics`. Phase 4 audits what the CG-FedLLM AutoEncoder encodes, emulates the paper's micro-batch, and produces one trustworthy seed-1 Tier-B baseline.
+* Protocol: pre-registered in `docs/phase4_preregistration.md`.
+* Evidence audit: `docs/representation_forensics.md`.
+* Labels: PHASE4-FORENSIC, PHASE4-BASELINE, PHASE4-DIAGNOSTIC, DERIVED.
+* No benchmark result was used to select a representation, and no operational AE/FAF compressor run was started.
+
+**Outcome (seed 1).**
+* *Paper forensics (F0).* No official code or supplement was found. The PAPER-LITERAL object is the transmitted factor pair `[A_i, B_i]`, and whether it is a state, an increment or a gradient remains UNKNOWN. New paper inconsistencies: DR-22..28.
+* *Micro-batch (F1).*
+  * A virtual paper micro-batch (logical 16 x 2, streamed in chunks) is implemented and exact in code.
+  * On the GPU it misses the pre-registered adapter criterion (5.0e-5 > 1e-5), through Adam first-step sign flips at near-zero gradients.
+  * The baseline therefore keeps micro-batch 1 x 32, a PROMINENT deviation: gradient cosine with the paper's micro-batch 0.866 on a fixed batch.
+* *Gauge (F2-F4).*
+  * Raw LoRA factor norms (and the paper's 14.29) are gauge-dependent.
+  * A balanced, gauge-invariant canonical representation is implemented and tested.
+  * The per-round effective increment keeps 98.7 % of its energy at rank 8.
+* *Gradients (F5).*
+  * The real-gradient collection is bitwise identical to Phase 3.
+  * Raw factor gradients have 0.69-0.72x the paper's per-element RMS; 1-3-step increments 0.08-0.15x.
+* *Screen (F6).*
+  * No representation passes (R0-R4).
+  * For R2-R4 the fixed AE never reached the zero-output MSE on its own training data under the pre-registered `none` mode, so the screen does not measure their intrinsic 1/64 compressibility.
+* *Baseline (F7).* LoRA-FT over 20 rounds: held-out loss 2.370 → 1.766. FAF-Identity is bitwise identical (13/13 checks). The resource-matched centralized reference reaches 1.756. Logical communication: 2,516,582,400 B two-way over 20 rounds.
+* *Evaluation (F8).* Timed first (projected 23.2 / 28.7 min per model, under the 45-min rule), then the full run: MMLU test Base 45.25 % / LoRA-FT 45.71 % (paired McNemar p = 0.010); C-Eval val 59.08 % / 58.56 % (question-level accuracy identical, p = 1.0). One seed; not used for any representation decision.
+
+Details: `docs/phase4_findings.md`. Evidence: `results/phase4/`. Deviations and discrepancies: `docs/deviations.md` (rows 35-43) and `docs/discrepancies.md` (DR-28, section D).

@@ -1,0 +1,260 @@
+{
+  "client_rounds": 10,
+  "collection_wall_s": 190.1,
+  "consecutive_step_delta_cosine_mean": 0.8353670561424625,
+  "families": {
+    "last_step_gradient": {
+      "A_over_B_energy": 0.04067976937427056,
+      "elements_per_sample": 3145728,
+      "first_order_effective_fro": {
+        "max": 2.495438612496492,
+        "mean": 1.8111163465629871,
+        "min": 1.2535247538347825
+      },
+      "inter_client_cosine_mean": 0.6897038646064593,
+      "inter_time_cosine_of_means": [
+        0.64124399776022
+      ],
+      "max_abs": 0.08991875499486923,
+      "paper_comparison": {
+        "gauge_invariant": false,
+        "ours": "Qwen1.5-1.8B, r 8, q/k/v/o, n = 3145728, s = alpha/r = 2.0",
+        "paper": "||G||^2 = 14.29 over n = 8388608 (LLaMA-7B, r 8, q/k/v/o; alpha unknown) -> per-element RMS 1.305e-03",
+        "per_element_rms_ratio_ours_over_paper": 0.7115883671521814
+      },
+      "per_element_rms": 0.0009287525175533815,
+      "rms_over_max_abs": 0.010328796451934595,
+      "samples": 10,
+      "total_sq_norm": {
+        "max": 4.736156801012299,
+        "mean": 2.7134459553620767,
+        "min": 1.3117919416183879
+      }
+    },
+    "local_epoch_delta": {
+      "A_over_B_energy": 0.6304121765255072,
+      "elements_per_sample": 3145728,
+      "first_order_effective_fro": {
+        "max": 0.40132351879412437,
+        "mean": 0.30096934647845686,
+        "min": 0.2172473660890995
+      },
+      "inter_client_cosine_mean": 0.7757456199518327,
+      "inter_time_cosine_of_means": [
+        0.7112265077385707
+      ],
+      "max_abs": 0.0003003156743943691,
+      "paper_comparison": {
+        "gauge_invariant": false,
+        "ours": "Qwen1.5-1.8B, r 8, q/k/v/o, n = 3145728, s = alpha/r = 2.0",
+        "paper": "||G||^2 = 14.29 over n = 8388608 (LLaMA-7B, r 8, q/k/v/o; alpha unknown) -> per-element RMS 1.305e-03",
+        "per_element_rms_ratio_ours_over_paper": 0.14675948295264904
+      },
+      "per_element_rms": 0.00019154787452835826,
+      "rms_over_max_abs": 0.6378217684263161,
+      "samples": 10,
+      "total_sq_norm": {
+        "max": 0.2225184486674721,
+        "mean": 0.1154186107514992,
+        "min": 0.03535731065706605
+      }
+    },
+    "mean_step_gradient": {
+      "A_over_B_energy": 0.03776303873476564,
+      "elements_per_sample": 3145728,
+      "first_order_effective_fro": {
+        "max": 2.6486821337602775,
+        "mean": 1.7612806304797342,
+        "min": 0.9622327506446444
+      },
+      "inter_client_cosine_mean": 0.8779802542350718,
+      "inter_time_cosine_of_means": [
+        0.8825220570341858
+      ],
+      "max_abs": 0.0643031895160675,
+      "paper_comparison": {
+        "gauge_invariant": false,
+        "ours": "Qwen1.5-1.8B, r 8, q/k/v/o, n = 3145728, s = alpha/r = 2.0",
+        "paper": "||G||^2 = 14.29 over n = 8388608 (LLaMA-7B, r 8, q/k/v/o; alpha unknown) -> per-element RMS 1.305e-03",
+        "per_element_rms_ratio_ours_over_paper": 0.6944841196194455
+      },
+      "per_element_rms": 0.0009064283569990713,
+      "rms_over_max_abs": 0.014096164806453046,
+      "samples": 10,
+      "total_sq_norm": {
+        "max": 5.299561710329077,
+        "mean": 2.584569026042771,
+        "min": 0.7525786913365974
+      }
+    },
+    "optimizer_step_delta": {
+      "A_over_B_energy": 0.5763906427030516,
+      "elements_per_sample": 3145728,
+      "first_order_effective_fro": {
+        "max": 0.21754454777454504,
+        "mean": 0.15540576521323704,
+        "min": 0.052973299054302675
+      },
+      "inter_client_cosine_mean": 0.7217982838241056,
+      "inter_time_cosine_of_means": [
+        0.7112265077502574
+      ],
+      "max_abs": 0.0001500006765127182,
+      "paper_comparison": {
+        "gauge_invariant": false,
+        "ours": "Qwen1.5-1.8B, r 8, q/k/v/o, n = 3145728, s = alpha/r = 2.0",
+        "paper": "||G||^2 = 14.29 over n = 8388608 (LLaMA-7B, r 8, q/k/v/o; alpha unknown) -> per-element RMS 1.305e-03",
+        "per_element_rms_ratio_ours_over_paper": 0.078996843920336
+      },
+      "per_element_rms": 0.00010310527976083804,
+      "rms_over_max_abs": 0.6873654316625432,
+      "samples": 20,
+      "total_sq_norm": {
+        "max": 0.07062380641309733,
+        "mean": 0.033441286605957535,
+        "min": 0.004598221803617631
+      }
+    },
+    "pre_clip_step_gradient": {
+      "A_over_B_energy": 0.04599234558306913,
+      "elements_per_sample": 3145728,
+      "first_order_effective_fro": {
+        "max": 3.0070881480541702,
+        "mean": 1.7958637986824548,
+        "min": 0.968397660848114
+      },
+      "inter_client_cosine_mean": 0.7324512551635138,
+      "inter_time_cosine_of_means": [
+        0.8737116687754195
+      ],
+      "max_abs": 0.08991875499486923,
+      "paper_comparison": {
+        "gauge_invariant": false,
+        "ours": "Qwen1.5-1.8B, r 8, q/k/v/o, n = 3145728, s = alpha/r = 2.0",
+        "paper": "||G||^2 = 14.29 over n = 8388608 (LLaMA-7B, r 8, q/k/v/o; alpha unknown) -> per-element RMS 1.305e-03",
+        "per_element_rms_ratio_ours_over_paper": 0.7199177238667713
+      },
+      "per_element_rms": 0.0009396238462250897,
+      "rms_over_max_abs": 0.010449698133372784,
+      "samples": 20,
+      "total_sq_norm": {
+        "max": 6.7601466186131045,
+        "mean": 2.777341144265647,
+        "min": 0.7856403116739307
+      }
+    }
+  },
+  "fl_status": "complete",
+  "label": "PHASE4-FORENSIC",
+  "local_epoch_delta_first_order_vs_exact": {
+    "cosine_mean": 0.999799461499307,
+    "rel_fro_error_max": 0.033372809397357366,
+    "rel_fro_error_mean": 0.015981106522133016
+  },
+  "optimizer_steps": {
+    "per_client_round": [
+      2,
+      3,
+      1,
+      1,
+      2,
+      1,
+      3,
+      2,
+      3,
+      2
+    ],
+    "total": 20
+  },
+  "pre_clip_total_norm": {
+    "fraction_clipped": 0.9,
+    "max": 2.6000282764434814,
+    "mean": 1.590401393175125,
+    "min": 0.8863635063171387
+  },
+  "provenance": {
+    "git": {
+      "available": true,
+      "branch": "phase4-representation-forensics",
+      "commit": "e8100e9dd19ed4df98777646d6907d718790014e",
+      "dirty": true,
+      "dirty_files": [
+        "?? results/phase4/eval/"
+      ]
+    },
+    "packages": {
+      "PyYAML": "6.0.3",
+      "accelerate": "1.15.0",
+      "bitsandbytes": "0.50.2",
+      "datasets": "5.0.1",
+      "huggingface_hub": "1.33.0",
+      "lm_eval": "0.4.13",
+      "numpy": "2.4.6",
+      "pandas": "3.0.6",
+      "peft": "0.21.1",
+      "pyarrow": "25.0.1",
+      "safetensors": "0.8.0",
+      "tokenizers": "0.23.2",
+      "torch": "2.14.0+cu130",
+      "transformers": "5.17.0"
+    }
+  },
+  "rounds": 2,
+  "schedule": [
+    [
+      0,
+      2,
+      47
+    ],
+    [
+      0,
+      26,
+      80
+    ],
+    [
+      0,
+      55,
+      32
+    ],
+    [
+      0,
+      75,
+      31
+    ],
+    [
+      0,
+      86,
+      63
+    ],
+    [
+      1,
+      33,
+      27
+    ],
+    [
+      1,
+      80,
+      65
+    ],
+    [
+      1,
+      81,
+      47
+    ],
+    [
+      1,
+      84,
+      66
+    ],
+    [
+      1,
+      93,
+      55
+    ]
+  ],
+  "unchanged_optimisation_check": {
+    "all_equal": true,
+    "bitwise_equal": 10,
+    "compared": 10
+  }
+}

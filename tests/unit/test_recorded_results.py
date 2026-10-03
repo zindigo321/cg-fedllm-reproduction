@@ -7,7 +7,7 @@ import json
 
 import pytest
 
-from cg_fedllm.config import PHASE2_RESULT_LABELS, RESULT_LABELS, canonical_result_label
+from cg_fedllm.config import PHASE2_RESULT_LABELS, PHASE3_RESULT_LABELS, RESULT_LABELS, canonical_result_label
 from tests.conftest import REPO
 
 RESULTS = REPO / "results" / "phase2"
@@ -45,6 +45,10 @@ def test_every_committed_result_stays_valid_under_the_current_label_schema():
             assert canonical <= set(PHASE2_RESULT_LABELS), path
         else:
             assert set(labels) <= set(RESULT_LABELS), path  # post-Phase-2 writers emit exact labels only
+        if path.is_relative_to(REPO / "results" / "phase3"):
+            assert set(labels) <= set(PHASE3_RESULT_LABELS), (
+                path
+            )  # Phase-3 evidence stays valid under later schemas
         annotated += [(path.name, v) for v in labels if v not in RESULT_LABELS]
     # the one historical annotated label (Phase 2), accepted by the read-side migration rule
     assert annotated == [

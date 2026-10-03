@@ -1,0 +1,102 @@
+{
+  "families": {
+    "local_epoch_delta": {
+      "abs_quantiles": {
+        "p50": 0.00015057501150295138,
+        "p90": 0.000291899373405613,
+        "p99": 0.000299745996017009,
+        "p99.9": 0.0003002469894126989
+      },
+      "exact_zeros": 3145729,
+      "excess_kurtosis": -1.3901183791057052,
+      "fraction_abs_gt_0_01": 0.0,
+      "max_abs": 0.0003003156743943691,
+      "quantile_subsample": 2000000,
+      "std": 0.0001915478479381101,
+      "values": 31457280,
+      "zeros_excluded": false
+    },
+    "mean_step_gradient": {
+      "abs_quantiles": {
+        "p50": 0.0001173455675598234,
+        "p90": 0.0011375176254659893,
+        "p99": 0.004063375890254977,
+        "p99.9": 0.008682531815953453
+      },
+      "exact_zeros": 3145728,
+      "excess_kurtosis": 72.44071847300312,
+      "fraction_abs_gt_0_01": 0.0005742532235604745,
+      "max_abs": 0.0643031895160675,
+      "quantile_subsample": 2000000,
+      "std": 0.0009554592126949898,
+      "values": 28311552,
+      "zeros_excluded": true
+    },
+    "optimizer_step_delta": {
+      "abs_quantiles": {
+        "p50": 7.495879253838211e-05,
+        "p90": 0.00014999535051174462,
+        "p99": 0.00014999917766544968,
+        "p99.9": 0.000149999643326737
+      },
+      "exact_zeros": 7864334,
+      "excess_kurtosis": -1.199973936455542,
+      "fraction_abs_gt_0_01": 0.0,
+      "max_abs": 0.0001500006765127182,
+      "quantile_subsample": 2000000,
+      "std": 0.00010310526681630234,
+      "values": 62914560,
+      "zeros_excluded": false
+    },
+    "pre_clip_step_gradient": {
+      "abs_quantiles": {
+        "p50": 0.00013412078988039866,
+        "p90": 0.0011703609838150445,
+        "p99": 0.00420473859179765,
+        "p99.9": 0.009143171155825112
+      },
+      "exact_zeros": 7864320,
+      "excess_kurtosis": 85.64404452635513,
+      "fraction_abs_gt_0_01": 0.0007305508568173363,
+      "max_abs": 0.08991875499486923,
+      "quantile_subsample": 2000000,
+      "std": 0.0010045000313631846,
+      "values": 55050240,
+      "zeros_excluded": true
+    }
+  },
+  "label": "PHASE4-FORENSIC",
+  "provenance": {
+    "git": {
+      "available": true,
+      "branch": "phase4-representation-forensics",
+      "commit": "0d436c39aee331d392159d1e6d5a9a8571d55db0",
+      "dirty": true,
+      "dirty_files": [
+        "?? results/phase4/eval/",
+        "?? results/phase4/forensics/f5_gradient_forensics.json",
+        "?? results/phase4/screen/f6_r2_balanced_effective_state.json",
+        "?? results/phase4/screen/f6_r3_balanced_effective_delta_r8.json",
+        "?? results/phase4/screen/f6_r4_mean_step_gradient.json"
+      ]
+    },
+    "packages": {
+      "PyYAML": "6.0.3",
+      "accelerate": "1.15.0",
+      "bitsandbytes": "0.50.2",
+      "datasets": "5.0.1",
+      "huggingface_hub": "1.33.0",
+      "lm_eval": "0.4.13",
+      "numpy": "2.4.6",
+      "pandas": "3.0.6",
+      "peft": "0.21.1",
+      "pyarrow": "25.0.1",
+      "safetensors": "0.8.0",
+      "tokenizers": "0.23.2",
+      "torch": "2.14.0+cu130",
+      "transformers": "5.17.0"
+    }
+  },
+  "snapshot_index_sha256": "560cb0f8153fc0a44e2910ae119ebdccdf228271f963969ff4352401833af9b2",
+  "source": "F5 gradient dumps (outside Git)"
+}

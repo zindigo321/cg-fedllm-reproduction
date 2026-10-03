@@ -1,0 +1,489 @@
+{
+  "batch_rule": "consecutive batches of 32 in the trainer's FL round-0 data order of the round-0 client with the most D2 examples",
+  "batch_size": 32,
+  "batches_available": 5,
+  "client_id": 26,
+  "cutoff_len": 512,
+  "deterministic": true,
+  "dropout_off": {
+    "physical:16": {
+      "clip_norm": 0.5046798586845398,
+      "loss": 3.053486943244934,
+      "stats": {
+        "forward_chunks": 2,
+        "label_tokens": 9771,
+        "padded_tokens": 16384,
+        "peak_allocated_bytes": 4262475264,
+        "peak_reserved_bytes": 4865392640,
+        "wall_s": 3.292
+      }
+    },
+    "physical:16@cublaslt": {
+      "clip_norm": 0.5046798586845398,
+      "loss": 3.053486943244934,
+      "stats": {
+        "forward_chunks": 2,
+        "label_tokens": 9771,
+        "padded_tokens": 16384,
+        "peak_allocated_bytes": 4262475264,
+        "peak_reserved_bytes": 4865392640,
+        "wall_s": 3.197
+      },
+      "vs_reference": {
+        "acceptance": {
+          "checks": {
+            "adapter_rel_l2": true,
+            "grad_cosine": true,
+            "grad_rel_l2": true,
+            "loss": true
+          },
+          "pass": true,
+          "thresholds": {
+            "adapter_rel_l2_max": 1e-05,
+            "grad_cosine_min": 0.99999,
+            "grad_rel_l2_max": 0.0001,
+            "loss_rel_diff_max": 1e-06
+          }
+        },
+        "clip_norm_a": 0.5046798586845398,
+        "clip_norm_b": 0.5046798586845398,
+        "end_bitwise_equal": true,
+        "gradient": {
+          "A": {
+            "cosine": 0.9999999999999715,
+            "norm_ratio": 1.0,
+            "rel_l2": 0.0
+          },
+          "B": {
+            "cosine": 0.9999999999999579,
+            "norm_ratio": 1.0,
+            "rel_l2": 0.0
+          },
+          "all": {
+            "cosine": 0.9999999999999527,
+            "norm_ratio": 1.0,
+            "rel_l2": 0.0
+          }
+        },
+        "loss_a": 3.053486943244934,
+        "loss_b": 3.053486943244934,
+        "loss_rel_diff": 0.0,
+        "state_rel_l2": 0.0,
+        "update_flips": {
+          "elements": 589824,
+          "flipped": 0,
+          "flipped_fraction": 0.0
+        },
+        "update_rel_l2": 0.0
+      }
+    },
+    "virtual:1": {
+      "clip_norm": 0.5046749711036682,
+      "loss": 3.053487233508695,
+      "stats": {
+        "forward_chunks": 32,
+        "label_tokens": 9771,
+        "padded_tokens": 16384,
+        "peak_allocated_bytes": 946827776,
+        "peak_reserved_bytes": 4865392640,
+        "wall_s": 3.119
+      },
+      "vs_reference": {
+        "acceptance": {
+          "checks": {
+            "adapter_rel_l2": false,
+            "grad_cosine": true,
+            "grad_rel_l2": true,
+            "loss": true
+          },
+          "pass": false,
+          "thresholds": {
+            "adapter_rel_l2_max": 1e-05,
+            "grad_cosine_min": 0.99999,
+            "grad_rel_l2_max": 0.0001,
+            "loss_rel_diff_max": 1e-06
+          }
+        },
+        "clip_norm_a": 0.5046749711036682,
+        "clip_norm_b": 0.5046798586845398,
+        "end_bitwise_equal": false,
+        "gradient": {
+          "A": {
+            "cosine": 0.9999999998831398,
+            "norm_ratio": 0.9999895929479127,
+            "rel_l2": 1.8492764354336964e-05
+          },
+          "B": {
+            "cosine": 0.9999999969615322,
+            "norm_ratio": 0.9999903571484338,
+            "rel_l2": 7.854797390061401e-05
+          },
+          "all": {
+            "cosine": 0.9999999970610816,
+            "norm_ratio": 0.9999903311056437,
+            "rel_l2": 7.727342053751581e-05
+          }
+        },
+        "loss_a": 3.053487233508695,
+        "loss_b": 3.053486943244934,
+        "loss_rel_diff": 9.50597682001084e-08,
+        "state_rel_l2": 5.000125633950308e-05,
+        "update_flips": {
+          "all_grad_abs_median": 7.104183896444738e-05,
+          "elements": 589824,
+          "flipped": 9,
+          "flipped_fraction": 1.52587890625e-05,
+          "flipped_grad_abs_max": 1.9068829715251923e-07,
+          "flipped_grad_abs_median": 1.5937985153868794e-08
+        },
+        "update_rel_l2": 0.004920396482850757
+      }
+    },
+    "virtual:16": {
+      "clip_norm": 0.5046798586845398,
+      "loss": 3.0534869721704005,
+      "stats": {
+        "forward_chunks": 2,
+        "label_tokens": 9771,
+        "padded_tokens": 16384,
+        "peak_allocated_bytes": 4212143104,
+        "peak_reserved_bytes": 4865392640,
+        "wall_s": 3.23
+      },
+      "vs_reference": {
+        "acceptance": {
+          "checks": {
+            "adapter_rel_l2": true,
+            "grad_cosine": true,
+            "grad_rel_l2": true,
+            "loss": true
+          },
+          "pass": true,
+          "thresholds": {
+            "adapter_rel_l2_max": 1e-05,
+            "grad_cosine_min": 0.99999,
+            "grad_rel_l2_max": 0.0001,
+            "loss_rel_diff_max": 1e-06
+          }
+        },
+        "clip_norm_a": 0.5046798586845398,
+        "clip_norm_b": 0.5046798586845398,
+        "end_bitwise_equal": true,
+        "gradient": {
+          "A": {
+            "cosine": 0.9999999999999715,
+            "norm_ratio": 1.0,
+            "rel_l2": 0.0
+          },
+          "B": {
+            "cosine": 0.9999999999999579,
+            "norm_ratio": 1.0,
+            "rel_l2": 0.0
+          },
+          "all": {
+            "cosine": 0.9999999999999527,
+            "norm_ratio": 1.0,
+            "rel_l2": 0.0
+          }
+        },
+        "loss_a": 3.0534869721704005,
+        "loss_b": 3.053486943244934,
+        "loss_rel_diff": 9.472929475097245e-09,
+        "state_rel_l2": 0.0,
+        "update_flips": {
+          "elements": 589824,
+          "flipped": 0,
+          "flipped_fraction": 0.0
+        },
+        "update_rel_l2": 0.0
+      }
+    },
+    "virtual:2": {
+      "clip_norm": 0.5046751499176025,
+      "loss": 3.0534871554228715,
+      "stats": {
+        "forward_chunks": 16,
+        "label_tokens": 9771,
+        "padded_tokens": 16384,
+        "peak_allocated_bytes": 1164580352,
+        "peak_reserved_bytes": 4865392640,
+        "wall_s": 3.232
+      },
+      "vs_reference": {
+        "acceptance": {
+          "checks": {
+            "adapter_rel_l2": false,
+            "grad_cosine": true,
+            "grad_rel_l2": true,
+            "loss": true
+          },
+          "pass": false,
+          "thresholds": {
+            "adapter_rel_l2_max": 1e-05,
+            "grad_cosine_min": 0.99999,
+            "grad_rel_l2_max": 0.0001,
+            "loss_rel_diff_max": 1e-06
+          }
+        },
+        "clip_norm_a": 0.5046751499176025,
+        "clip_norm_b": 0.5046798586845398,
+        "end_bitwise_equal": false,
+        "gradient": {
+          "A": {
+            "cosine": 0.9999999998803834,
+            "norm_ratio": 0.9999901532121153,
+            "rel_l2": 1.8334005056218127e-05
+          },
+          "B": {
+            "cosine": 0.9999999969567454,
+            "norm_ratio": 0.9999906188949529,
+            "rel_l2": 7.857721018850827e-05
+          },
+          "all": {
+            "cosine": 0.9999999970563707,
+            "norm_ratio": 0.9999906030251876,
+            "rel_l2": 7.730083755923878e-05
+          }
+        },
+        "loss_a": 3.0534871554228715,
+        "loss_b": 3.053486943244934,
+        "loss_rel_diff": 6.948709504436653e-08,
+        "state_rel_l2": 5.002209085680402e-05,
+        "update_flips": {
+          "all_grad_abs_median": 7.104183896444738e-05,
+          "elements": 589824,
+          "flipped": 9,
+          "flipped_fraction": 1.52587890625e-05,
+          "flipped_grad_abs_max": 1.9068829715251923e-07,
+          "flipped_grad_abs_median": 1.5937985153868794e-08
+        },
+        "update_rel_l2": 0.004922446713144495
+      }
+    }
+  },
+  "dropout_on": {
+    "lora_dropout_p": [
+      0.05
+    ],
+    "loss_ratio_to_reference": {
+      "physical:16@cublaslt": {
+        "max_abs_dev": 0.0,
+        "mean": 1.0,
+        "per_batch": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "virtual:1": {
+        "max_abs_dev": 3.286418179793138e-05,
+        "mean": 1.0000096206576348,
+        "per_batch": [
+          0.9999849182036155,
+          1.000032864181798,
+          1.0000129472787478,
+          1.0000077529663776
+        ]
+      },
+      "virtual:16": {
+        "max_abs_dev": 2.929035192167362e-08,
+        "mean": 1.0000000101835256,
+        "per_batch": [
+          1.000000029290352,
+          0.9999999968189457,
+          1.000000018683888,
+          0.9999999959409158
+        ]
+      },
+      "virtual:2": {
+        "max_abs_dev": 1.9124815709981036e-05,
+        "mean": 1.0000000012291805,
+        "per_batch": [
+          0.99998087518429,
+          1.0000120606634557,
+          1.0000159922699043,
+          0.9999910767990722
+        ]
+      }
+    },
+    "reproducibility": {
+      "physical:16": {
+        "bitwise_reproducible": true,
+        "loss": 3.0446697473526
+      },
+      "physical:16@cublaslt": {
+        "bitwise_reproducible": true,
+        "loss": 3.0446697473526
+      },
+      "virtual:1": {
+        "bitwise_reproducible": true,
+        "loss": 3.0446813667908375
+      },
+      "virtual:16": {
+        "bitwise_reproducible": true,
+        "loss": 3.0446697568284167
+      },
+      "virtual:2": {
+        "bitwise_reproducible": true,
+        "loss": 3.044612725504148
+      }
+    }
+  },
+  "elapsed_s": 119.8,
+  "gradient_checkpointing": true,
+  "label": "PHASE4-DIAGNOSTIC",
+  "logical_micro_batch_size": 16,
+  "model": {
+    "attn_implementation": "eager",
+    "dtype": "float32",
+    "id": "JackFram/llama-160m",
+    "quantization": "none",
+    "revision": "aca9b687d1425f863dcf5de9a4c96e3fe36266dd"
+  },
+  "modes": [
+    "physical:16",
+    "physical:16@cublaslt",
+    "virtual:16",
+    "virtual:1",
+    "virtual:2"
+  ],
+  "noise_floor": {
+    "acceptance": {
+      "checks": {
+        "adapter_rel_l2": true,
+        "grad_cosine": true,
+        "grad_rel_l2": true,
+        "loss": true
+      },
+      "pass": true,
+      "thresholds": {
+        "adapter_rel_l2_max": 1e-05,
+        "grad_cosine_min": 0.99999,
+        "grad_rel_l2_max": 0.0001,
+        "loss_rel_diff_max": 1e-06
+      }
+    },
+    "clip_norm_a": 0.5046799182891846,
+    "clip_norm_b": 0.5046798586845398,
+    "description": "physical:16 with the rows of every micro-batch reversed (same objective, different reduction order) vs physical:16",
+    "end_bitwise_equal": false,
+    "gradient": {
+      "A": {
+        "cosine": 0.9999999999999558,
+        "norm_ratio": 1.0000000115592844,
+        "rel_l2": 1.660535428151589e-07
+      },
+      "B": {
+        "cosine": 0.9999999999923915,
+        "norm_ratio": 1.0000000305977812,
+        "rel_l2": 3.890118451975996e-06
+      },
+      "all": {
+        "cosine": 0.9999999999926448,
+        "norm_ratio": 1.0000000299489773,
+        "rel_l2": 3.823382106591144e-06
+      }
+    },
+    "loss_a": 3.053486943244934,
+    "loss_b": 3.053486943244934,
+    "loss_rel_diff": 0.0,
+    "state_rel_l2": 1.5174251364461297e-06,
+    "update_flips": {
+      "elements": 589824,
+      "flipped": 0,
+      "flipped_fraction": 0.0
+    },
+    "update_rel_l2": 0.00014932292629493845
+  },
+  "pairwise": {
+    "physical:16@cublaslt vs virtual:1": {
+      "grad_cosine": 0.9999999970610816,
+      "grad_rel_l2": 7.727416769327972e-05,
+      "loss_rel_diff": 9.505975916374972e-08,
+      "state_rel_l2": 5.000125646517109e-05,
+      "update_flips": 9,
+      "update_rel_l2": 0.004920399054159052
+    },
+    "physical:16@cublaslt vs virtual:16": {
+      "grad_cosine": 0.9999999999999527,
+      "grad_rel_l2": 0.0,
+      "loss_rel_diff": 9.472929385360853e-09,
+      "state_rel_l2": 0.0,
+      "update_flips": 0,
+      "update_rel_l2": 0.0
+    },
+    "physical:16@cublaslt vs virtual:2": {
+      "grad_cosine": 0.9999999970563707,
+      "grad_rel_l2": 7.730156396008828e-05,
+      "loss_rel_diff": 6.94870902159105e-08,
+      "state_rel_l2": 5.002209105299669e-05,
+      "update_flips": 9,
+      "update_rel_l2": 0.00492245023057997
+    },
+    "virtual:1 vs virtual:2": {
+      "grad_cosine": 0.9999999999930219,
+      "grad_rel_l2": 3.7348919451221014e-06,
+      "loss_rel_diff": 2.557267137877121e-08,
+      "state_rel_l2": 2.0828245874798566e-06,
+      "update_flips": 0,
+      "update_rel_l2": 0.00020496144161252035
+    },
+    "virtual:16 vs virtual:1": {
+      "grad_cosine": 0.9999999970610816,
+      "grad_rel_l2": 7.727416769327972e-05,
+      "loss_rel_diff": 8.558683058914687e-08,
+      "state_rel_l2": 5.000125646517109e-05,
+      "update_flips": 9,
+      "update_rel_l2": 0.004920399054159052
+    },
+    "virtual:16 vs virtual:2": {
+      "grad_cosine": 0.9999999970563707,
+      "grad_rel_l2": 7.730156396008828e-05,
+      "loss_rel_diff": 6.001416139905955e-08,
+      "state_rel_l2": 5.002209105299669e-05,
+      "update_flips": 9,
+      "update_rel_l2": 0.00492245023057997
+    }
+  },
+  "provenance": {
+    "git": {
+      "available": true,
+      "branch": "phase4-representation-forensics",
+      "commit": "3c73e66332add1d6836b2d0097c0e5fbc16b4395",
+      "dirty": true,
+      "dirty_files": [
+        "?? results/phase4/eval/f8_eval_base_full.json",
+        "?? results/phase4/eval/f8_eval_lora_ft_full.json"
+      ]
+    },
+    "packages": {
+      "PyYAML": "6.0.3",
+      "accelerate": "1.15.0",
+      "bitsandbytes": "0.50.2",
+      "datasets": "5.0.1",
+      "huggingface_hub": "1.33.0",
+      "lm_eval": "0.4.13",
+      "numpy": "2.4.6",
+      "pandas": "3.0.6",
+      "peft": "0.21.1",
+      "pyarrow": "25.0.1",
+      "safetensors": "0.8.0",
+      "tokenizers": "0.23.2",
+      "torch": "2.14.0+cu130",
+      "transformers": "5.17.0"
+    }
+  },
+  "reference_mode": "physical:16",
+  "start_adapter": {
+    "description": "one local round on client 26's D1 from the initial adapter",
+    "sha256": "c57bf33f8e42ec1646aa37bc48ac7bf0c102435554560f10f972f311763d7fdf"
+  },
+  "vram_guard": {
+    "allocator_cap_bytes": 7182745600,
+    "allocator_cap_fraction": 0.836641,
+    "device_total_bytes": 8585216000,
+    "free_at_start_bytes": 7451181056,
+    "margin_bytes": 268435456
+  }
+}

@@ -9,6 +9,8 @@ presented as recovered paper behaviour.
 * ``factor_rms``  -- two scalars ``s_A`` / ``s_B`` = RMS over all A (resp. B) elements of the D1 AE-training
                      split; every Phi column block is divided by the scale of the factor it holds before the
                      encoder and multiplied by it after the decoder (layout-aware, so it works for any layout).
+* ``global_maxabs_train`` (Phase 4, PHASE4 diagnostic preprocessing) -- one scalar ``s = p99.9(|x|) / 0.95``
+                     over the D1 training split, so 99.9 % of the training values fall inside |0.95|.
 
 The statistics are fitted once on the training split only, frozen, stored in the AE checkpoint metadata and
 known to both client and server, so normalisation transmits nothing (zero logical uplink bytes). There is no
@@ -27,7 +29,8 @@ import torch
 
 from cg_fedllm.compression.layout import Layout, LoRAGeometry, geometry_from_dict, get_layout
 
-NORMALIZATION_MODES = ("none", "global_rms", "factor_rms")
+NORMALIZATION_MODES = ("none", "global_rms", "factor_rms", "global_maxabs_train")
+MAXABS_QUANTILE, MAXABS_TARGET = 0.999, 0.95
 QUANTILE_MAX_ELEMENTS = 2**26  # exact quantiles up to 64 Mi elements, a strided subsample above
 
 
@@ -52,9 +55,11 @@ class Normalizer:
     def __post_init__(self) -> None:
         if self.mode not in NORMALIZATION_MODES:
             raise ValueError(f"unknown normalisation mode {self.mode!r}")
-        scales = {"global_rms": (self.scale_global,), "factor_rms": (self.scale_A, self.scale_B)}.get(
-            self.mode, ()
-        )
+        scales = {
+            "global_rms": (self.scale_global,),
+            "global_maxabs_train": (self.scale_global,),
+            "factor_rms": (self.scale_A, self.scale_B),
+        }.get(self.mode, ())
         for s in scales:
             if s is None or not math.isfinite(s) or s <= 0:
                 raise ValueError(f"{self.mode}: scales must be finite and positive, got {scales}")
@@ -76,7 +81,7 @@ class Normalizer:
         )
 
     def _scale_like(self, x: torch.Tensor) -> torch.Tensor:
-        if self.mode == "global_rms":
+        if self.mode in ("global_rms", "global_maxabs_train"):
             return torch.tensor(self.scale_global, dtype=torch.float32, device=x.device)
         cs = self.column_scales().to(x.device)
         if x.shape[-1] != cs.numel():
@@ -118,6 +123,13 @@ def fit_normalizer(
     }
     if mode == "none":
         return Normalizer("none", fit=fit)
+    if mode == "global_maxabs_train":
+        q = train_abs_quantile(xs, train_idx, MAXABS_QUANTILE)
+        return Normalizer(
+            "global_maxabs_train",
+            scale_global=q["value"] / MAXABS_TARGET,
+            fit={**fit, "quantile": MAXABS_QUANTILE, "target": MAXABS_TARGET, **q},
+        )
     if mode == "global_rms":
         ss, n = 0.0, 0
         for i in train_idx:
@@ -145,6 +157,14 @@ def fit_normalizer(
         geometry=geom.to_dict(),
         fit={**fit, "num_elements_A": n_a, "num_elements_B": n_b},
     )
+
+
+def train_abs_quantile(
+    xs: Sequence[torch.Tensor], idx: Sequence[int], q: float, max_elements: int = QUANTILE_MAX_ELEMENTS
+) -> dict[str, Any]:
+    """Quantile ``q`` of |x| over ``xs[i] for i in idx`` (exact unless a strided subsample is needed)."""
+    r = abs_quantiles([xs[i].reshape(-1).numpy() for i in idx], (q,), max_elements)
+    return {"value": r[f"p{_qname(q)}"], "n": r["n"], "exact": r["exact"], "stride": r["stride"]}
 
 
 def abs_quantiles(

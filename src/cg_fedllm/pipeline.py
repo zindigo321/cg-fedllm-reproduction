@@ -149,7 +149,7 @@ def make_heldout_fn(cfg: ExperimentConfig, bundle: ModelBundle, heldout: list[To
         return heldout_loss(
             bundle.peft_model,
             heldout,
-            micro_batch_size=cfg.local_train.micro_batch_size,
+            micro_batch_size=cfg.local_train.eval_micro_batch_size or cfg.local_train.micro_batch_size,
             pad_token_id=bundle.loaded.pad_token_id,
             padding_side=bundle.loaded.padding_side,
             device=bundle.device,
@@ -226,6 +226,7 @@ def simulator_spec(cfg: ExperimentConfig, num_clients: int, namespace: str = "fl
         namespace=namespace,
         heldout_eval_every=f.heldout_eval_every,
         stop_after_round=f.stop_after_round,
+        lora_scaling=(cfg.lora.alpha / cfg.lora.r) if cfg.lora else None,
     )
 
 
