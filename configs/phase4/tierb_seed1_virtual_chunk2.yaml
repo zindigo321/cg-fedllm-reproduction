@@ -1,0 +1,14 @@
+# PHASE 4, F1 (PHASE4-DIAGNOSTIC via --set run.result_label): the virtual paper micro-batch on Qwen1.5-1.8B
+# (logical micro-batch 16 x accumulation 2, streamed in physical chunks of 2 rows). Used for the Qwen F1 test
+# (results/phase4/microbatch/f1_qwen_validation.json); NOT the baseline semantics, because the F1 adapter-level
+# criterion was not met on the GPU (see configs/phase4/tierb_seed1.yaml). Values unchanged since that run.
+inherit: ../phase3/tierb_seed1.yaml
+run:
+  name: phase4_tierb_qwen15_1p8b_seed1
+  result_label: PHASE4-BASELINE
+local_train:
+  batch_size: 32                  # [PAPER]
+  micro_batch_size: 16            # [PAPER] logical micro-batch (virtual)
+  microbatch_mode: virtual_paper_microbatch
+  physical_chunk_size: 2          # [ENVIRONMENT] rows per forward/backward; set from the F1 calibration
+  eval_micro_batch_size: 1

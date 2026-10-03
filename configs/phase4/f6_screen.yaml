@@ -1,0 +1,10 @@
+# Phase 4, F6 (PHASE4-FORENSIC): the fixed compressibility screen of R2-R4 with the Phase-3 AE protocol
+# (fixed ResNet-3, latent 1/64, MSE, Adam 2e-4, batch 4, 3000 iterations, eval every 50, best-D1-validation
+# checkpoint, AE init seed 1). Normalisation: `none`, plus `global_maxabs_train` only when the training-split
+# p99.9 of |x| exceeds 0.95 (docs/phase4_preregistration.md, section 4).
+inherit: ../phase3/tierb_seed1.yaml
+run:
+  name: phase4_forensic_screen_seed1
+  result_label: PHASE4-FORENSIC
+autoencoder:
+  normalization: none

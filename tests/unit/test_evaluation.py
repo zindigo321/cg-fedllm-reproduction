@@ -211,3 +211,176 @@ def test_scores_are_invariant_to_batching(tiny_hf_llama, toy_tokenizer):
     )
     assert [x.prediction for x in a] == [x.prediction for x in b]
     assert max(abs(u - v) for x, y in zip(a, b) for u, v in zip(x.logprobs, y.logprobs)) < 1e-4
+
+
+def test_stratified_subset_is_seeded_per_subject_and_keeps_order():
+    from cg_fedllm.config import BenchmarkSpec, ConfigError, build_dataclass
+    from cg_fedllm.evaluation.reference_eval import stratified_subset
+
+    qs = {"a": [q("mmlu", "a", i) for i in range(10)], "b": [q("mmlu", "b", i) for i in range(3)]}
+    sub = stratified_subset(qs, 0.25, 7, "mmlu", "test")
+    assert [len(v) for v in sub.values()] == [3, 1]  # ceil(2.5), ceil(0.75)
+    assert [x.index for x in sub["a"]] == sorted(x.index for x in sub["a"])
+    assert sub == stratified_subset(qs, 0.25, 7, "mmlu", "test")
+    assert (
+        stratified_subset({"a": qs["a"]}, 0.25, 7, "mmlu", "test")["a"] == sub["a"]
+    )  # independent of other subjects
+    assert stratified_subset(qs, 1.0, 7, "mmlu", "test") == qs
+    with pytest.raises(ConfigError):
+        build_dataclass(
+            BenchmarkSpec, {"name": "mmlu", "split": "test", "subset_fraction": 0.2, "limit_per_subject": 5}
+        )
+    with pytest.raises(ConfigError):
+        build_dataclass(BenchmarkSpec, {"name": "mmlu", "split": "test", "subset_fraction": 0.0})
+
+
+def test_batch_plan_counts_the_forward_passes_of_the_scorer(tiny_hf_llama, toy_tokenizer):
+    from cg_fedllm.evaluation.scorer import batch_plan
+
+    class Ascii(type(toy_tokenizer)):  # ids inside the tiny model's vocabulary (C-Eval template is not ASCII)
+        def _enc(self, text):
+            return [3 + (ord(c) % 120) for c in text]
+
+    tok = Ascii()
+    model, orig = tiny_hf_llama, tiny_hf_llama.forward
+    for bench, display in (
+        ("ceval", "s"),
+        ("mmlu", "s"),
+    ):  # per-character ids: C-Eval single-token, MMLU multi-token
+        questions = {"s": [q(bench, "s", i, question="x " * (3 + 5 * i)) for i in range(7)]}
+        dev = {"s": [q(bench, "s", 100 + i) for i in range(5)]}
+        reqs = build_requests(tok, bench, questions, dev, {"s": display}, 2, None)
+        calls = []
+
+        def spy(*a, calls=calls, **k):
+            calls.append(tuple(k["input_ids"].shape))
+            return orig(*a, **k)
+
+        model.forward = spy
+        try:
+            score_requests(model, reqs, 0, "cpu", max_batch_tokens=200, max_batch_size=3)
+        finally:
+            model.forward = orig
+        plan = batch_plan(reqs, max_batch_tokens=200, max_batch_size=3)
+        assert plan["questions"] == 7 and plan["context_tokens"] == sum(len(r.context_ids) for r in reqs)
+        if bench == "ceval":
+            assert plan["multi_token_requests"] == 0 and plan["single_token_batches"] == len(calls) >= 3
+            assert plan["padded_tokens"] == sum(b * n for b, n in calls) >= plan["context_tokens"]
+        else:
+            assert plan["single_token_batches"] == 0 and plan["multi_token_requests"] == 7
+            assert plan["multi_token_forward_tokens"] == sum(b * n for b, n in calls) and len(calls) == 7 * 4
+
+
+def test_eval_projection_scales_the_timed_sample_by_padded_tokens(tmp_path):
+    import json
+
+    from cg_fedllm.cli import main
+
+    full = {
+        "benchmarks": {
+            "mmlu/test": {"questions": 1000, "padded_tokens": 100_000},
+            "ceval/val": {"questions": 100, "padded_tokens": 10_000},
+        }
+    }
+    sample = {
+        "benchmarks": {
+            "mmlu/test": {"questions": 100, "padded_tokens": 10_000},
+            "ceval/val": {"questions": 50, "padded_tokens": 5_000},
+        }
+    }
+    (tmp_path / "full.json").write_text(json.dumps(full), encoding="utf-8")
+    (tmp_path / "sample.json").write_text(json.dumps(sample), encoding="utf-8")
+    for name, score in (("fast", 60.0), ("slow", 300.0)):
+        (tmp_path / name).mkdir()
+        timed = {b: {"timing_s": {"prepare": 2.0, "score": score}} for b in ("mmlu/test", "ceval/val")}
+        (tmp_path / name / "eval_summary.json").write_text(json.dumps(timed), encoding="utf-8")
+    out = tmp_path / "proj.json"
+    common = [
+        "--cost-full",
+        str(tmp_path / "full.json"),
+        "--cost-sample",
+        str(tmp_path / "sample.json"),
+        "--out",
+        str(out),
+    ]
+    assert main(["eval-projection", "--timing-run", f"base={tmp_path / 'fast'}", *common]) == 0
+    p = json.loads(out.read_text(encoding="utf-8"))
+    m = p["models"]["base"]["benchmarks"]["mmlu/test"]
+    assert m["projected_full_score_s"] == 600.0 and m["projected_full_prepare_s_upper"] == 20.0
+    # (600 + 20) + (120 + 4) seconds = 12.4 minutes <= 45 -> full
+    assert abs(p["models"]["base"]["projected_full_minutes"] - 744 / 60) < 1e-12 and p["decision"] == "full"
+    # one slow model (3000 + 20 + 600 + 4 s > 45 min) forces the subset for every model
+    assert (
+        main(
+            [
+                "eval-projection",
+                "--timing-run",
+                f"base={tmp_path / 'fast'}",
+                "--timing-run",
+                f"lora={tmp_path / 'slow'}",
+                *common,
+            ]
+        )
+        == 0
+    )
+    assert json.loads(out.read_text(encoding="utf-8"))["decision"] == "subset"
+
+
+def test_scoring_without_kv_cache_is_bitwise_unchanged(tiny_hf_llama, toy_tokenizer):
+    from cg_fedllm.evaluation.scorer import _left_pad
+
+    class Ascii(type(toy_tokenizer)):
+        def _enc(self, text):
+            return [3 + (ord(c) % 120) for c in text]
+
+    dev = {
+        "s": [
+            MCQuestion("ceval", "s", "dev", i, f"q{i}?", ("a", "b", "c", "d"), "ABCD"[i % 4])
+            for i in range(3)
+        ]
+    }
+    qs = {
+        "s": [
+            MCQuestion("ceval", "s", "test", i, "x" * (i + 1), ("e", "f", "g", "h"), "ABCD"[i % 4])
+            for i in range(6)
+        ]
+    }
+    reqs = build_requests(Ascii(), "ceval", qs, dev, {"s": "s"}, 3, None)
+    ids, mask, pos = _left_pad([r.context_ids for r in reqs], 0, "cpu")
+    with torch.no_grad():
+        cached = tiny_hf_llama(input_ids=ids, attention_mask=mask, position_ids=pos, use_cache=True)
+        plain = tiny_hf_llama(input_ids=ids, attention_mask=mask, position_ids=pos, use_cache=False)
+    assert cached.past_key_values is not None and plain.past_key_values is None
+    assert torch.equal(cached.logits, plain.logits)
+    plain_items = score_requests(tiny_hf_llama, reqs, 0, "cpu", max_batch_tokens=10_000, max_batch_size=4)
+    orig = tiny_hf_llama.forward
+    tiny_hf_llama.forward = lambda *a, **k: orig(
+        *a, **{**k, "use_cache": True}
+    )  # the scorer's calls, cache forced on
+    try:
+        cached_items = score_requests(
+            tiny_hf_llama, reqs, 0, "cpu", max_batch_tokens=10_000, max_batch_size=4
+        )
+    finally:
+        tiny_hf_llama.forward = orig
+    assert [it.logprobs for it in plain_items] == [it.logprobs for it in cached_items]
+
+
+def test_paired_comparison_counts_and_exact_mcnemar():
+    from cg_fedllm.evaluation.aggregate import paired_comparison
+
+    a = {f"q{i}": i < 60 for i in range(100)}  # 60 correct
+    b = {f"q{i}": 10 <= i < 75 for i in range(100)}  # 65 correct; 10 a-only, 15 b-only
+    r = paired_comparison(a, b)
+    assert (r["both_correct"], r["a_only_correct"], r["b_only_correct"], r["neither_correct"]) == (
+        50,
+        10,
+        15,
+        25,
+    )
+    assert r["accuracy_a"] == 0.60 and r["accuracy_b"] == 0.65
+    # exact two-sided binomial test on 25 discordant pairs, k = 10: 2 * P(X <= 10 | Bin(25, 1/2)) = 0.4244
+    assert abs(r["mcnemar_exact_two_sided_p"] - 0.42435622215270996) < 1e-12
+    assert paired_comparison(a, a)["mcnemar_exact_two_sided_p"] == 1.0
+    with pytest.raises(ValueError):
+        paired_comparison(a, {"q0": True})

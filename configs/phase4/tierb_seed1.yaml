@@ -1,0 +1,22 @@
+# PHASE 4 Tier-B seed-1 BASELINE (PHASE4-BASELINE): Qwen1.5-1.8B bf16 + GC, uncompressed federated LoRA.
+# RESOURCE-FEASIBLE, not paper-faithful. Local training semantics: physical micro-batch 1 x 32 accumulation (the
+# Phase-3 mode). This is the pre-registered F7 fallback: the virtual paper micro-batch (logical 16 x 2) met the
+# loss and gradient criteria but not the adapter-level criterion (<= 1e-5) on the GPU small-model validation
+# (results/phase4/microbatch/). PROMINENT DEVIATION: on a fixed real batch the micro-batch-1 gradient has cosine
+# 0.866 with the micro-batch-16 gradient (results/phase4/microbatch/f1_qwen_validation.json).
+# Held-out Dolly loss is evaluated one example at a time for every arm.
+inherit: ../phase3/tierb_seed1.yaml
+run:
+  name: phase4_tierb_qwen15_1p8b_seed1
+  result_label: PHASE4-BASELINE
+local_train:
+  eval_micro_batch_size: 1
+federated:
+  num_rounds: 20                  # [PAPER]
+  client_fraction: 0.05           # [PAPER]
+  client_split: d2                # FAF / LoRA-FT train on D2
+  aggregation: sample_weighted_mean   # [RECOVERED-BASELINE] Shepherd FedAvg
+  representation: adapter_state
+  heldout_eval_every: 1
+codec:
+  type: none                      # LoRA-FT; FAF-Identity runs with --set codec.type=identity

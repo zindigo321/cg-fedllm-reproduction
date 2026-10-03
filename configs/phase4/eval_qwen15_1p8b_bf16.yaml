@@ -1,0 +1,30 @@
+# Phase 4, F8 (PHASE4-BASELINE): reference_eval_v1 on Qwen1.5-1.8B in bf16 (the training precision; the Phase-2
+# fp32 Qwen1.5-0.5B lm-eval cross-check remains the evaluator correctness evidence). Full MMLU test and full
+# C-Eval val, 5-shot; C-Eval test is not run in Phase 4. Base = no adapter; LoRA-FT = --adapter <final_adapter>.
+inherit: ../eval/reference_eval_v1.yaml
+run:
+  name: phase4_eval_qwen15_1p8b_seed1
+  result_label: PHASE4-BASELINE
+  allocator_cap_margin_mb: 256
+model:
+  kind: hf
+  id: Qwen/Qwen1.5-1.8B
+  revision: 7846de7ed421727b318d6605a0bfab659da2c067
+  license: tongyi-qianwen-research (non-commercial research use)
+  dtype: bfloat16
+  quantization: none
+  attn_implementation: sdpa
+  allow_patterns: [config.json, generation_config.json, model.safetensors, tokenizer.json, tokenizer_config.json, vocab.json, merges.txt, LICENSE]
+  padding_side: left
+  pad_token_id: null
+lora:
+  init_seed: 1
+eval:
+  # ENVIRONMENT: the Phase-2 budget (16,384 tokens, B*L^2 <= 4e6, sized for the 0.5B fp32 model) ran out of memory
+  # under the 6.69 GiB allocator cap with the 1.8B bf16 weights (5.62 GiB allocated + 1.05 GiB fragmented) before any
+  # result existed. Halved for this model; batching only groups requests, and Base and LoRA-FT use the same budget.
+  max_batch_tokens: 8192
+  max_batch_attention: 2000000
+  benchmarks:
+    - {name: mmlu, split: test, num_shots: 5}
+    - {name: ceval, split: val, num_shots: 5}

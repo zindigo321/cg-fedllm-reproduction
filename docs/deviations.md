@@ -58,6 +58,20 @@ reconstructed baseline), **ENVIRONMENT** (forced by hardware/software), **SCOPE*
 | 33 | Left-padding label shift | the last pad position of a left-padded example predicts its first real token (one extra label token per padded example; the count depends on micro-batch composition) | identical in Shepherd/HF Trainer with left padding | — (inherited, documented, unchanged) | — |
 | 34 | Result-label schema | three Phase-3 labels added; one Phase-2 record's annotated label (`"DERIVED (...)"`) is accepted by a read-side migration rule instead of rewriting reviewed evidence | n/a | OURS | `canonical_result_label` |
 
+## Phase 4 (pre-registered in `phase4_preregistration.md`)
+
+| # | Topic | Our choice | Paper / Shepherd | Label | Configurable |
+|---|---|---|---|---|---|
+| 35 | Baseline local micro-batch | **physical 1 x 32 accumulation** (the pre-registered F7 fallback). `virtual_paper_microbatch` (logical 16 x 2, streamed in chunks) is implemented. It is exact on CPU and meets the GPU loss/gradient criteria, but fails the adapter criterion (5.0e-5 > 1e-5) through 9 Adam first-step sign flips at \|g\| <= 1.9e-7. On Qwen, the micro-batch-1 gradient has cosine 0.866 with the logical-16 gradient on a fixed batch (`results/phase4/microbatch/`) | paper 16 x 2 | ENVIRONMENT + pre-registered rule; **PROMINENT** | `local_train.microbatch_mode`, `local_train.physical_chunk_size` |
+| 36 | Held-out loss batching | one example at a time for every baseline arm | n/a | OURS (removes the padding dependence of the held-out loss) | `local_train.eval_micro_batch_size` |
+| 37 | Gradient instrumentation | read-only hooks (pre-clip gradient, clipped gradient, step delta). A no-op for the optimisation: bitwise on CPU (test) and against the Phase-3 GPU snapshots (F5) | n/a | OURS | `observer_factory` (simulator) |
+| 38 | Screen input scaling | `none`; `global_maxabs_train` (frozen scalar p99.9(\|x\|)/0.95, 0 uplink bytes) only if the training p99.9 exceeds 0.95 | paper silent | PHASE4 diagnostic (pre-registered) | `autoencoder.normalization` |
+| 39 | Centralized reference | `cent_resource_matched_seed1`: one pooled client with every client's D2, one pass, same local recipe (10,445 examples vs 10,076 seen by the FL run) | paper's Cent configuration unknown | OURS (reference, **not** the paper's Cent) | `federated.pooled` |
+| 40 | Benchmark precision | Qwen1.5-1.8B bf16 (the training precision) with `reference_eval_v1`; the evaluator's correctness evidence remains the Phase-2 fp32 lm-eval cross-check | paper unknown | ENVIRONMENT | `model.dtype` |
+| 41 | R0/R1 screen | reused from Phase 3 (not retrained) and read against S1-S7 (`screen-reuse`, DERIVED). S6 there pairs factor-space innovations | n/a | OURS (reviewer R2) | — |
+| 42 | Result-label schema | PHASE4-FORENSIC, PHASE4-BASELINE, PHASE4-DIAGNOSTIC added; Phase-2/3 labels unchanged and still accepted | n/a | OURS | `ResultLabel` |
+| 43 | Evaluation memory (Qwen1.5-1.8B bf16) | The scorer calls the model with `use_cache=False`, and the batch budget is `max_batch_tokens` 8,192, B·L² <= 2e6, batch size 16. Two timing attempts ran out of memory under the 6.69 GiB cap before any result existed; both run directories are preserved. Root cause: the default KV cache (192 KiB/token) of the previous batch stayed alive during the next forward. The first fix (halving the Phase-2 budget of 16,384 / 4e6) was based on an incomplete diagnosis and is kept as margin. With both changes, the real scorer loop over the worst-case region of the full plan peaks at 3.76 GiB allocated / 4.43 GiB reserved. The Phase-2 recorded-evaluation regression (model test) still passes | n/a | ENVIRONMENT (logits are bitwise unchanged without the cache, as tested; batching only groups requests; Base and LoRA-FT use identical settings) | `eval.max_batch_tokens`, `eval.max_batch_attention` |
+
 ## Scope (reviewer decisions)
 
 U-Former and 1-D CNN AEs, DP, all 7B experiments, Qwen-7B rows, formal replicate policy and mechanistic

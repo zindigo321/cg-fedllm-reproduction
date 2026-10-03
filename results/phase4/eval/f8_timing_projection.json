@@ -1,0 +1,110 @@
+{
+  "decision": "full",
+  "label": "DERIVED",
+  "max_projected_full_minutes": 28.666273190255033,
+  "models": {
+    "base": {
+      "benchmarks": {
+        "ceval/val": {
+          "full_padded_tokens": 713823,
+          "full_questions": 1346,
+          "projected_full_prepare_s_upper": 2.277846153846154,
+          "projected_full_s": 96.24599895734511,
+          "projected_full_score_s": 93.96815280349895,
+          "sample_padded_tokens": 279169,
+          "sample_padded_tokens_per_s": 7596.43537414966,
+          "sample_questions": 520,
+          "sample_timing_s": {
+            "prepare": 0.88,
+            "score": 36.75
+          }
+        },
+        "mmlu/test": {
+          "full_padded_tokens": 9778411,
+          "full_questions": 14042,
+          "projected_full_prepare_s_upper": 23.403333333333332,
+          "projected_full_s": 1298.232250924883,
+          "projected_full_score_s": 1274.8289175915495,
+          "sample_padded_tokens": 347161,
+          "sample_padded_tokens_per_s": 7670.3711886875835,
+          "sample_questions": 570,
+          "sample_timing_s": {
+            "prepare": 0.95,
+            "score": 45.26
+          }
+        }
+      },
+      "projected_full_minutes": 23.241304164703802,
+      "timing_run": "D:/cgfed-runs/phase4_eval_qwen15_1p8b_seed1/eval_timing_base"
+    },
+    "lora_ft": {
+      "benchmarks": {
+        "ceval/val": {
+          "full_padded_tokens": 713823,
+          "full_questions": 1346,
+          "projected_full_prepare_s_upper": 1.8636923076923078,
+          "projected_full_s": 117.71939308392463,
+          "projected_full_score_s": 115.85570077623233,
+          "sample_padded_tokens": 279169,
+          "sample_padded_tokens_per_s": 6161.310968881042,
+          "sample_questions": 520,
+          "sample_timing_s": {
+            "prepare": 0.72,
+            "score": 45.31
+          }
+        },
+        "mmlu/test": {
+          "full_padded_tokens": 9778411,
+          "full_questions": 14042,
+          "projected_full_prepare_s_upper": 24.635087719298244,
+          "projected_full_s": 1602.2569983313774,
+          "projected_full_score_s": 1577.621910612079,
+          "sample_padded_tokens": 347161,
+          "sample_padded_tokens_per_s": 6198.196750580254,
+          "sample_questions": 570,
+          "sample_timing_s": {
+            "prepare": 1.0,
+            "score": 56.01
+          }
+        }
+      },
+      "projected_full_minutes": 28.666273190255033,
+      "timing_run": "D:/cgfed-runs/phase4_eval_qwen15_1p8b_seed1/eval_timing_lora_ft"
+    }
+  },
+  "projection": "full_score = sample_score_s * full_padded_tokens / sample_padded_tokens; prepare scaled by question count (upper bound)",
+  "provenance": {
+    "git": {
+      "available": true,
+      "branch": "phase4-representation-forensics",
+      "commit": "0d436c39aee331d392159d1e6d5a9a8571d55db0",
+      "dirty": true,
+      "dirty_files": [
+        "?? results/phase4/eval/",
+        "?? results/phase4/forensics/f5_distribution_shape.json",
+        "?? results/phase4/forensics/f5_gradient_forensics.json",
+        "?? results/phase4/screen/f6_r2_balanced_effective_state.json",
+        "?? results/phase4/screen/f6_r3_balanced_effective_delta_r8.json",
+        "?? results/phase4/screen/f6_r4_mean_step_gradient.json"
+      ]
+    },
+    "packages": {
+      "PyYAML": "6.0.3",
+      "accelerate": "1.15.0",
+      "bitsandbytes": "0.50.2",
+      "datasets": "5.0.1",
+      "huggingface_hub": "1.33.0",
+      "lm_eval": "0.4.13",
+      "numpy": "2.4.6",
+      "pandas": "3.0.6",
+      "peft": "0.21.1",
+      "pyarrow": "25.0.1",
+      "safetensors": "0.8.0",
+      "tokenizers": "0.23.2",
+      "torch": "2.14.0+cu130",
+      "transformers": "5.17.0"
+    }
+  },
+  "rule": "full MMLU test + C-Eval val per model if the projected time is <= 45.0 min for every model; otherwise a fixed seeded stratified subset (docs/phase4_preregistration.md, section 5)",
+  "threshold_minutes": 45.0
+}

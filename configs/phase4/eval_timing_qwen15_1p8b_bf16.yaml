@@ -1,0 +1,9 @@
+# Phase 4, F8 timing sample (PHASE4-DIAGNOSTIC): the first 10 questions of every MMLU-test and C-Eval-val subject
+# (deterministic order) with the full-evaluation settings; the projected full cost decides full vs subset evaluation.
+inherit: eval_qwen15_1p8b_bf16.yaml
+run:
+  result_label: PHASE4-DIAGNOSTIC
+eval:
+  benchmarks:
+    - {name: mmlu, split: test, num_shots: 5, limit_per_subject: 10}
+    - {name: ceval, split: val, num_shots: 5, limit_per_subject: 10}
