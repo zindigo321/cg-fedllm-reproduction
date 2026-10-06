@@ -1,0 +1,318 @@
+{
+  "archive": {
+    "bytes": 11163077,
+    "file": "p5a_invocation1_full_review_20261006.zip",
+    "files": 50,
+    "sha256": "1e5cc8ed95c4dd13864aa53f66918c7984be9268e2d15bd4b3bac89ce9d3164f"
+  },
+  "checkpoint_policy": "Checkpoints are retained in the original run root and full review ZIP; their bytes and SHA-256 are indexed, not added to Git",
+  "committed_producer_artifacts": [
+    "results/phase5/p5a_v2/R2_balanced_effective_state_fixed_subset4/config.resolved.yaml",
+    "results/phase5/p5a_v2/R2_balanced_effective_state_fixed_subset4/config.sha256.json",
+    "results/phase5/p5a_v2/R2_balanced_effective_state_fixed_subset4/p5a_record.json",
+    "results/phase5/p5a_v2/R2_balanced_effective_state_fixed_subset4/run_metadata.json",
+    "results/phase5/p5a_v2/R2_balanced_effective_state_single_snapshot/config.resolved.yaml",
+    "results/phase5/p5a_v2/R2_balanced_effective_state_single_snapshot/config.sha256.json",
+    "results/phase5/p5a_v2/R2_balanced_effective_state_single_snapshot/p5a_record.json",
+    "results/phase5/p5a_v2/R2_balanced_effective_state_single_snapshot/run_metadata.json",
+    "results/phase5/p5a_v2/R3_balanced_effective_delta_r8_fixed_subset4/config.resolved.yaml",
+    "results/phase5/p5a_v2/R3_balanced_effective_delta_r8_fixed_subset4/config.sha256.json",
+    "results/phase5/p5a_v2/R3_balanced_effective_delta_r8_fixed_subset4/p5a_record.json",
+    "results/phase5/p5a_v2/R3_balanced_effective_delta_r8_fixed_subset4/run_metadata.json",
+    "results/phase5/p5a_v2/R3_balanced_effective_delta_r8_single_snapshot/config.resolved.yaml",
+    "results/phase5/p5a_v2/R3_balanced_effective_delta_r8_single_snapshot/config.sha256.json",
+    "results/phase5/p5a_v2/R3_balanced_effective_delta_r8_single_snapshot/p5a_record.json",
+    "results/phase5/p5a_v2/R3_balanced_effective_delta_r8_single_snapshot/run_metadata.json",
+    "results/phase5/p5a_v2/R4_mean_step_gradient_fixed_subset4/config.resolved.yaml",
+    "results/phase5/p5a_v2/R4_mean_step_gradient_fixed_subset4/config.sha256.json",
+    "results/phase5/p5a_v2/R4_mean_step_gradient_fixed_subset4/p5a_record.json",
+    "results/phase5/p5a_v2/R4_mean_step_gradient_fixed_subset4/run_metadata.json",
+    "results/phase5/p5a_v2/R4_mean_step_gradient_single_snapshot/config.resolved.yaml",
+    "results/phase5/p5a_v2/R4_mean_step_gradient_single_snapshot/config.sha256.json",
+    "results/phase5/p5a_v2/R4_mean_step_gradient_single_snapshot/p5a_record.json",
+    "results/phase5/p5a_v2/R4_mean_step_gradient_single_snapshot/run_metadata.json",
+    "results/phase5/p5a_v2/ledger/end_R2_fixed_subset4.json",
+    "results/phase5/p5a_v2/ledger/end_R2_single_snapshot.json",
+    "results/phase5/p5a_v2/ledger/end_R3_fixed_subset4.json",
+    "results/phase5/p5a_v2/ledger/end_R3_single_snapshot.json",
+    "results/phase5/p5a_v2/ledger/end_R4_fixed_subset4.json",
+    "results/phase5/p5a_v2/ledger/end_R4_single_snapshot.json",
+    "results/phase5/p5a_v2/ledger/invocation_1.json",
+    "results/phase5/p5a_v2/ledger/start_R2_fixed_subset4.json",
+    "results/phase5/p5a_v2/ledger/start_R2_single_snapshot.json",
+    "results/phase5/p5a_v2/ledger/start_R3_fixed_subset4.json",
+    "results/phase5/p5a_v2/ledger/start_R3_single_snapshot.json",
+    "results/phase5/p5a_v2/ledger/start_R4_fixed_subset4.json",
+    "results/phase5/p5a_v2/ledger/start_R4_single_snapshot.json",
+    "results/phase5/p5a_v2/ledger/summary_1.json",
+    "results/phase5/p5a_v2/preflight/preflight_1.json"
+  ],
+  "execution_head": "6603bd8d9156831562dd76c0bf9dba5a071e867f",
+  "external_execution_artifacts": [
+    {
+      "bytes": 40562,
+      "path": "execution/training_invocation1_native_20261006_112552Z.txt",
+      "sha256": "150097ee88f61dc2875cd7b188f16cdeadfcb1205b5176e56193dd9429594f00",
+      "source_relative": "training_invocation1_native_20261006_112552Z.txt",
+      "source_root": "execution_directory"
+    },
+    {
+      "bytes": 12680,
+      "path": "execution/p5a_v2_execution_record_version_a_e36de843549ef2e169ba79e6883e265de69a0f91fac93aa66a0df8fbc08c0c02.md",
+      "sha256": "e36de843549ef2e169ba79e6883e265de69a0f91fac93aa66a0df8fbc08c0c02",
+      "source_relative": "versions/p5a_v2_execution_record_version_a_e36de843549ef2e169ba79e6883e265de69a0f91fac93aa66a0df8fbc08c0c02.md",
+      "source_root": "execution_directory"
+    },
+    {
+      "bytes": 23176,
+      "path": "execution/training_invocation1_console_20261006_112552Z.txt",
+      "sha256": "ae7a4d0e4a6b79a2e80e60ee937126e79cfa9e5b518b8035d93dc2a00fc50d9f",
+      "source_relative": "training_invocation1_console_20261006_112552Z.txt",
+      "source_root": "execution_directory"
+    },
+    {
+      "bytes": 23179,
+      "path": "execution/p5a_v2_execution_record.md",
+      "sha256": "fc7bc274efd7c705fb3d60d9a03ebd5b0a42620b7002d82305e18262a2976dba",
+      "source_relative": "p5a_v2_execution_record.md",
+      "source_root": "execution_directory"
+    },
+    {
+      "bytes": 1023,
+      "path": "execution/training_invocation1_wrapper_attempt_20261006_112552Z.json",
+      "sha256": "8357200ef1e4cfdc437c80d677059b6b08116b628f6129ab05fca082346b4dce",
+      "source_relative": "training_invocation1_wrapper_attempt_20261006_112552Z.json",
+      "source_root": "execution_directory"
+    }
+  ],
+  "label": "DERIVED",
+  "mapping": "phase5_p5a_v2_seed1/<relative path> maps byte-for-byte to results/phase5/p5a_v2/<relative path>, except checkpoints, which remain external",
+  "run_root_artifacts": [
+    {
+      "bytes": 2824,
+      "path": "phase5_p5a_v2_seed1/ledger/end_R2_fixed_subset4.json",
+      "sha256": "00268238098dc2be81b04945f214872826d36bc73fc2629ea7467f2be6074a2b"
+    },
+    {
+      "bytes": 2805,
+      "path": "phase5_p5a_v2_seed1/ledger/end_R2_single_snapshot.json",
+      "sha256": "4d50220fc4d871c6d594ece8566198e15f8339af297e44383ef90f74f5ef14c9"
+    },
+    {
+      "bytes": 2824,
+      "path": "phase5_p5a_v2_seed1/ledger/end_R3_fixed_subset4.json",
+      "sha256": "7f09e1cb112ecbf4366077b2442e7e907bc72f6cc8d1f8171c4e48c3e5f38c97"
+    },
+    {
+      "bytes": 2828,
+      "path": "phase5_p5a_v2_seed1/ledger/end_R3_single_snapshot.json",
+      "sha256": "17f94832b3123a0c31ab341a6a462b6a185107c91969289a5026ebbe7129f9e7"
+    },
+    {
+      "bytes": 2823,
+      "path": "phase5_p5a_v2_seed1/ledger/end_R4_fixed_subset4.json",
+      "sha256": "b47c2d9bb723945dd3800b9fa844d5b370f78cb9bd47e4b8d0bd0dcb31c3c67b"
+    },
+    {
+      "bytes": 2828,
+      "path": "phase5_p5a_v2_seed1/ledger/end_R4_single_snapshot.json",
+      "sha256": "4ed4abaad03312a7e15bcbe1e01edecba25571afc55a1cc2dd36fd0640e91a77"
+    },
+    {
+      "bytes": 2767,
+      "path": "phase5_p5a_v2_seed1/ledger/invocation_1.json",
+      "sha256": "ae96c6c58d821c2e03ef63f6fe278b92782888fe2e7caaacb5cd04202a77ca08"
+    },
+    {
+      "bytes": 2943,
+      "path": "phase5_p5a_v2_seed1/ledger/start_R2_fixed_subset4.json",
+      "sha256": "c22eb6bfdcfb7c50288d3280a7ce9cc22874b63e05f06e32137b2b3bcb5ea2ef"
+    },
+    {
+      "bytes": 2940,
+      "path": "phase5_p5a_v2_seed1/ledger/start_R2_single_snapshot.json",
+      "sha256": "6012a941d4d49020b5f2e065751378f0ece08ca2fca3ff25aff808490cf67048"
+    },
+    {
+      "bytes": 2953,
+      "path": "phase5_p5a_v2_seed1/ledger/start_R3_fixed_subset4.json",
+      "sha256": "5ff0d2e246f7828c5738402cdd892f1a6c5e53b65c104f37141199760c5458b8"
+    },
+    {
+      "bytes": 2955,
+      "path": "phase5_p5a_v2_seed1/ledger/start_R3_single_snapshot.json",
+      "sha256": "ea44e3580cba9db89bdb4e7fed27fc4d26fc658cbe2db86165a38a9028d790ca"
+    },
+    {
+      "bytes": 2955,
+      "path": "phase5_p5a_v2_seed1/ledger/start_R4_fixed_subset4.json",
+      "sha256": "2b9c396c7e9ae293850510e972d650edc9093d78767b48d83beab355f9987b15"
+    },
+    {
+      "bytes": 2956,
+      "path": "phase5_p5a_v2_seed1/ledger/start_R4_single_snapshot.json",
+      "sha256": "4f4fd082cb0d7056014c0922da19ff30279325da96546786a70597cfabcd7e1d"
+    },
+    {
+      "bytes": 22603,
+      "path": "phase5_p5a_v2_seed1/ledger/summary_1.json",
+      "sha256": "d72770b874a0933f816390cbade7c50bf20d85bd9e9f3ef894e700df8393dcb9"
+    },
+    {
+      "bytes": 139339,
+      "path": "phase5_p5a_v2_seed1/preflight/preflight_1.json",
+      "sha256": "b058eb1bf01d101e1800bdf05d7701b5ac3de515ea71cd542f70403ee5d48cee"
+    },
+    {
+      "bytes": 1996500,
+      "path": "phase5_p5a_v2_seed1/R2_balanced_effective_state_fixed_subset4/autoencoder_p5a_final.safetensors",
+      "sha256": "b82fae484e40c36bc06159c37439a6e2a82acd94ab570df1fe9aa1f5def6e155"
+    },
+    {
+      "bytes": 4217,
+      "path": "phase5_p5a_v2_seed1/R2_balanced_effective_state_fixed_subset4/config.resolved.yaml",
+      "sha256": "a0abaddb4de16108805f233b3d3b4a9e76be827b7af7bf9dd2a3928c67fef536"
+    },
+    {
+      "bytes": 186,
+      "path": "phase5_p5a_v2_seed1/R2_balanced_effective_state_fixed_subset4/config.sha256.json",
+      "sha256": "2505f361562204f0dd20d3d0c6f8e1bd3f342d123deb9956d9c18b746738979d"
+    },
+    {
+      "bytes": 29009,
+      "path": "phase5_p5a_v2_seed1/R2_balanced_effective_state_fixed_subset4/p5a_record.json",
+      "sha256": "a8e150cc4918560a51657da528dee7213f35669a0e808d64c21dc6057ff80e94"
+    },
+    {
+      "bytes": 3210,
+      "path": "phase5_p5a_v2_seed1/R2_balanced_effective_state_fixed_subset4/run_metadata.json",
+      "sha256": "2c169e2dcfff4cf1baa0184914619c78ac18f73bfdaa219816631d0cee7e9c76"
+    },
+    {
+      "bytes": 1996500,
+      "path": "phase5_p5a_v2_seed1/R2_balanced_effective_state_single_snapshot/autoencoder_p5a_final.safetensors",
+      "sha256": "7205d2c64650a0093e8cd13e29e37196cee1c892b5714d31ff18bb2ff244a2aa"
+    },
+    {
+      "bytes": 4217,
+      "path": "phase5_p5a_v2_seed1/R2_balanced_effective_state_single_snapshot/config.resolved.yaml",
+      "sha256": "a0abaddb4de16108805f233b3d3b4a9e76be827b7af7bf9dd2a3928c67fef536"
+    },
+    {
+      "bytes": 186,
+      "path": "phase5_p5a_v2_seed1/R2_balanced_effective_state_single_snapshot/config.sha256.json",
+      "sha256": "2505f361562204f0dd20d3d0c6f8e1bd3f342d123deb9956d9c18b746738979d"
+    },
+    {
+      "bytes": 17237,
+      "path": "phase5_p5a_v2_seed1/R2_balanced_effective_state_single_snapshot/p5a_record.json",
+      "sha256": "1b32cf7f35fd2b2cb5c8867416086313220793fb92c48f27c67e47bfc39553c3"
+    },
+    {
+      "bytes": 3210,
+      "path": "phase5_p5a_v2_seed1/R2_balanced_effective_state_single_snapshot/run_metadata.json",
+      "sha256": "2c169e2dcfff4cf1baa0184914619c78ac18f73bfdaa219816631d0cee7e9c76"
+    },
+    {
+      "bytes": 1996500,
+      "path": "phase5_p5a_v2_seed1/R3_balanced_effective_delta_r8_fixed_subset4/autoencoder_p5a_final.safetensors",
+      "sha256": "9a62a2c724a8db4611f54e2309718fcc5ed1e63655d0d0b1d579f7eb4641da36"
+    },
+    {
+      "bytes": 4217,
+      "path": "phase5_p5a_v2_seed1/R3_balanced_effective_delta_r8_fixed_subset4/config.resolved.yaml",
+      "sha256": "a0abaddb4de16108805f233b3d3b4a9e76be827b7af7bf9dd2a3928c67fef536"
+    },
+    {
+      "bytes": 186,
+      "path": "phase5_p5a_v2_seed1/R3_balanced_effective_delta_r8_fixed_subset4/config.sha256.json",
+      "sha256": "2505f361562204f0dd20d3d0c6f8e1bd3f342d123deb9956d9c18b746738979d"
+    },
+    {
+      "bytes": 28964,
+      "path": "phase5_p5a_v2_seed1/R3_balanced_effective_delta_r8_fixed_subset4/p5a_record.json",
+      "sha256": "ff7614daedf3bfed2f919258de31ca67b951f590c8ff8ca5b2b76fc590fc6fed"
+    },
+    {
+      "bytes": 3210,
+      "path": "phase5_p5a_v2_seed1/R3_balanced_effective_delta_r8_fixed_subset4/run_metadata.json",
+      "sha256": "2c169e2dcfff4cf1baa0184914619c78ac18f73bfdaa219816631d0cee7e9c76"
+    },
+    {
+      "bytes": 1996508,
+      "path": "phase5_p5a_v2_seed1/R3_balanced_effective_delta_r8_single_snapshot/autoencoder_p5a_final.safetensors",
+      "sha256": "dd46dbccba65c53b3c709ea46cedaaea9a470177d2d72dc2cfe1a19cb2dbbbc0"
+    },
+    {
+      "bytes": 4217,
+      "path": "phase5_p5a_v2_seed1/R3_balanced_effective_delta_r8_single_snapshot/config.resolved.yaml",
+      "sha256": "a0abaddb4de16108805f233b3d3b4a9e76be827b7af7bf9dd2a3928c67fef536"
+    },
+    {
+      "bytes": 186,
+      "path": "phase5_p5a_v2_seed1/R3_balanced_effective_delta_r8_single_snapshot/config.sha256.json",
+      "sha256": "2505f361562204f0dd20d3d0c6f8e1bd3f342d123deb9956d9c18b746738979d"
+    },
+    {
+      "bytes": 17238,
+      "path": "phase5_p5a_v2_seed1/R3_balanced_effective_delta_r8_single_snapshot/p5a_record.json",
+      "sha256": "f60d3d15788b1945953d16394c39762b3a7a304e440d5bd63b96d87a23e97b2d"
+    },
+    {
+      "bytes": 3210,
+      "path": "phase5_p5a_v2_seed1/R3_balanced_effective_delta_r8_single_snapshot/run_metadata.json",
+      "sha256": "2c169e2dcfff4cf1baa0184914619c78ac18f73bfdaa219816631d0cee7e9c76"
+    },
+    {
+      "bytes": 1996500,
+      "path": "phase5_p5a_v2_seed1/R4_mean_step_gradient_fixed_subset4/autoencoder_p5a_final.safetensors",
+      "sha256": "4979cecd64b6914cc7f34fed673516929072cc865548d01e83d2ba4aac152ecd"
+    },
+    {
+      "bytes": 4217,
+      "path": "phase5_p5a_v2_seed1/R4_mean_step_gradient_fixed_subset4/config.resolved.yaml",
+      "sha256": "a0abaddb4de16108805f233b3d3b4a9e76be827b7af7bf9dd2a3928c67fef536"
+    },
+    {
+      "bytes": 186,
+      "path": "phase5_p5a_v2_seed1/R4_mean_step_gradient_fixed_subset4/config.sha256.json",
+      "sha256": "2505f361562204f0dd20d3d0c6f8e1bd3f342d123deb9956d9c18b746738979d"
+    },
+    {
+      "bytes": 28408,
+      "path": "phase5_p5a_v2_seed1/R4_mean_step_gradient_fixed_subset4/p5a_record.json",
+      "sha256": "2a28187a8c35f3cb3cf26483dbf58462f8f664d8fea385da3e8201e86dcaf234"
+    },
+    {
+      "bytes": 3210,
+      "path": "phase5_p5a_v2_seed1/R4_mean_step_gradient_fixed_subset4/run_metadata.json",
+      "sha256": "2c169e2dcfff4cf1baa0184914619c78ac18f73bfdaa219816631d0cee7e9c76"
+    },
+    {
+      "bytes": 1996500,
+      "path": "phase5_p5a_v2_seed1/R4_mean_step_gradient_single_snapshot/autoencoder_p5a_final.safetensors",
+      "sha256": "a3cd6259df4d3aa6516ac0c2e79cb6194016d2803846ef540ce2e28639345441"
+    },
+    {
+      "bytes": 4217,
+      "path": "phase5_p5a_v2_seed1/R4_mean_step_gradient_single_snapshot/config.resolved.yaml",
+      "sha256": "a0abaddb4de16108805f233b3d3b4a9e76be827b7af7bf9dd2a3928c67fef536"
+    },
+    {
+      "bytes": 186,
+      "path": "phase5_p5a_v2_seed1/R4_mean_step_gradient_single_snapshot/config.sha256.json",
+      "sha256": "2505f361562204f0dd20d3d0c6f8e1bd3f342d123deb9956d9c18b746738979d"
+    },
+    {
+      "bytes": 16970,
+      "path": "phase5_p5a_v2_seed1/R4_mean_step_gradient_single_snapshot/p5a_record.json",
+      "sha256": "a4271ae5b8d02f6408bd5d3486040bbcad32863672f966e4876c679a6673a34a"
+    },
+    {
+      "bytes": 3210,
+      "path": "phase5_p5a_v2_seed1/R4_mean_step_gradient_single_snapshot/run_metadata.json",
+      "sha256": "2c169e2dcfff4cf1baa0184914619c78ac18f73bfdaa219816631d0cee7e9c76"
+    }
+  ],
+  "schema": "p5a-v2-invocation1-evidence-manifest-v1"
+}

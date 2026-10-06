@@ -145,11 +145,16 @@ compressor at the paper's target ratio.
 - [x] Pre-register the P5-A control for R2-R4 (v1, `docs/phase5_preregistration.md`; historical, never executed)
 - [x] Approve the revised protocol v2 for implementation (`docs/phase5_preregistration_v2.md`)
 - [x] Freeze the v2.1 addendum on recovery and publication states (`docs/phase5_preregistration_v2_1.md`)
-- [x] Implement P5-A v2 and validate it on synthetic data (CPU tests only)
-- [ ] Run the CPU input preflight (needs a reviewed launch record and a separate written authorisation)
-- [ ] Run P5-A v2 (needs the preflight, the launch record and a separate written run authorisation)
+- [x] Implement P5-A v2 and validate it on synthetic data (implementation review)
+- [x] Run the separately authorised real CPU preflight 1 (passed)
+- [x] Run the separately authorised P5-A v2 + v2.1 GPU invocation 1 (closed; six completed controls)
+- [x] Record the negative fit outcomes and review the complete invocation-1 evidence
 
-The real P5-A input preflight and training have not been performed; no Phase-5 result exists yet.
+All six controls completed 3,000 iterations and received `FIT FAIL`. R2/R3
+(primary) and R4 (secondary) each have `CAPACITY FIT NOT DEMONSTRATED` under
+the frozen protocol; this does not establish incompressibility or insufficient
+general AE capacity. No downstream experiment is authorised by these outcomes.
+See `docs/phase5_p5a_v2_findings.md` and `results/phase5/p5a_v2/`.
 
 ## 5. Related Projects and Baselines
 
@@ -232,13 +237,16 @@ experimental claims.
   `docs/phase4_preregistration.md`, `docs/phase4_findings.md`,
   `docs/representation_forensics.md`, and `results/phase4/`.
 
-- **Phase 5 — P5-A fit control:** the v2 protocol
-  (`docs/phase5_preregistration_v2.md`, with the v2.1 addendum
-  `docs/phase5_preregistration_v2_1.md`) is approved for implementation and
-  implemented with synthetic CPU tests (`docs/phase5_implementation_review.md`);
-  v1 (`docs/phase5_preregistration.md`) is kept as the historical record. The
-  real P5-A preflight and run have **not** been performed, so there is no
-  Phase-5 result.
+- **Phase 5 — P5-A fit control:** the separately authorised real preflight 1
+  passed, and GPU invocation 1 completed all six 3,000-iteration controls
+  under the frozen v2 + v2.1 protocol on 2026-10-06. All six controls are
+  `FIT FAIL`; each of R2/R3 (primary) and R4 (secondary) has
+  `CAPACITY FIT NOT DEMONSTRATED` under that fixed protocol. This result
+  does not establish incompressibility, insufficient general AE capacity,
+  or a cause of earlier screening failures, and authorises no downstream
+  experiment. The complete artifact review found no discrepancy within its
+  stated limits. See `docs/phase5_p5a_v2_findings.md` and
+  `results/phase5/p5a_v2/`; v1 remains historical and was never executed.
 
 The remaining project-level goals are to determine whether a viable operational
 compressed FAF path can be established, and to reproduce the

@@ -1,0 +1,77 @@
+{
+  "control": "single_snapshot",
+  "ended_utc": "2026-10-06T11:57:14+00:00",
+  "identity": {
+    "command": "D:\\projects-cd\\cg-fedllm-reproduction\\.claude\\worktrees\\p5a-engineering-support\\src\\cg_fedllm\\cli.py p5a --config configs/phase5/p5a_v2_seed1.yaml --runs-root D:\\cgfed-runs --launch-record D:\\p5a_v2_execution\\p5a_v2_execution_record.md",
+    "config_path": "configs/phase5/p5a_v2_seed1.yaml",
+    "config_sha256": "e5ac614c5f176f39b40ddd96cfe311f50c8209151578a1535794cd55d87bb122",
+    "cpu_environment": {
+      "cuda_matmul_allow_tf32": false,
+      "cudnn_allow_tf32": false,
+      "cudnn_benchmark": false,
+      "cudnn_deterministic": true,
+      "default_dtype": "torch.float32",
+      "deterministic_algorithms": true,
+      "deterministic_warn_only": false,
+      "env": {
+        "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+        "KMP_AFFINITY": null,
+        "KMP_BLOCKTIME": null,
+        "MKL_CBWR": null,
+        "MKL_DYNAMIC": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "OMP_DYNAMIC": null,
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null
+      },
+      "float32_matmul_precision": "highest",
+      "interpreter": "D:\\conda_envs\\cgfedllm\\python.exe",
+      "numpy": "2.4.6",
+      "python": "3.11.16",
+      "safetensors": "0.8.0",
+      "torch": "2.14.0+cu130",
+      "torch_cuda_build": "13.0",
+      "torch_git_version": "08187d9e0fba026dc8217405802ab5381dc88d90",
+      "torch_num_interop_threads": 24,
+      "torch_num_threads": 24
+    },
+    "execution_commit": "6603bd8d9156831562dd76c0bf9dba5a071e867f",
+    "execution_git": {
+      "available": true,
+      "branch": "worktree-p5a-engineering-support",
+      "commit": "6603bd8d9156831562dd76c0bf9dba5a071e867f",
+      "dirty": false,
+      "dirty_files": []
+    },
+    "launch_record": {
+      "path": "D:/p5a_v2_execution/p5a_v2_execution_record.md",
+      "sha256": "fc7bc274efd7c705fb3d60d9a03ebd5b0a42620b7002d82305e18262a2976dba"
+    }
+  },
+  "invocation": 1,
+  "is_result": true,
+  "iterations_done": 3000,
+  "label": "PHASE5-DIAGNOSTIC",
+  "profile": "PRODUCTION",
+  "protocol": {
+    "addendum": {
+      "blob": "28e05f9ee33ed13386d346fce6e47e9108c937d7",
+      "commit": "33e51fd63c6cd0679e76e12380ae5d418158d698",
+      "path": "docs/phase5_preregistration_v2_1.md"
+    },
+    "blob": "e80d21aeda653ab6d1339d34f7b88118588855df",
+    "commit": "dd4bf3f4348fd3b2b1b2c4ad23e7204fbef8369c",
+    "path": "docs/phase5_preregistration_v2.md"
+  },
+  "representation": "R3",
+  "retained_bytes_before_this_file": 4211045,
+  "timing": {
+    "charge_reason": "measured",
+    "gpu_wall_s_charged": 316.04699999999866,
+    "gpu_wall_s_measured": 316.04699999999866,
+    "timing_status": "measured"
+  },
+  "training_end": "completed"
+}

@@ -1,0 +1,103 @@
+{
+  "config_sha256": "e5ac614c5f176f39b40ddd96cfe311f50c8209151578a1535794cd55d87bb122",
+  "cpu_environment": {
+    "cuda_matmul_allow_tf32": false,
+    "cudnn_allow_tf32": false,
+    "cudnn_benchmark": false,
+    "cudnn_deterministic": true,
+    "default_dtype": "torch.float32",
+    "deterministic_algorithms": true,
+    "deterministic_warn_only": false,
+    "env": {
+      "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+      "KMP_AFFINITY": null,
+      "KMP_BLOCKTIME": null,
+      "MKL_CBWR": null,
+      "MKL_DYNAMIC": null,
+      "MKL_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "OMP_DYNAMIC": null,
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "VECLIB_MAXIMUM_THREADS": null
+    },
+    "float32_matmul_precision": "highest",
+    "interpreter": "D:\\conda_envs\\cgfedllm\\python.exe",
+    "numpy": "2.4.6",
+    "python": "3.11.16",
+    "safetensors": "0.8.0",
+    "torch": "2.14.0+cu130",
+    "torch_cuda_build": "13.0",
+    "torch_git_version": "08187d9e0fba026dc8217405802ab5381dc88d90",
+    "torch_num_interop_threads": 24,
+    "torch_num_threads": 24
+  },
+  "determinism": {
+    "allow_tf32": false,
+    "cublas_workspace_config": ":4096:8",
+    "cudnn_benchmark": false,
+    "deterministic_algorithms": true,
+    "torch_num_threads": 24
+  },
+  "environment": {
+    "captured_utc": "2026-10-06T11:40:02+00:00",
+    "cuda": {
+      "bf16_supported": true,
+      "compute_capability": "8.9",
+      "cuda_available": true,
+      "cudnn_version": 92400,
+      "device_name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+      "device_total_memory_bytes": 8585216000,
+      "nvidia_smi": "NVIDIA GeForce RTX 4060 Laptop GPU, 595.97, 8188 MiB",
+      "torch_cuda_version": "13.0",
+      "torch_version": "2.14.0+cu130"
+    },
+    "env": {
+      "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+      "CUDA_VISIBLE_DEVICES": null,
+      "HF_HOME": null,
+      "HF_HUB_OFFLINE": "1",
+      "PYTHONHASHSEED": null
+    },
+    "git": {
+      "available": true,
+      "branch": "worktree-p5a-engineering-support",
+      "commit": "6603bd8d9156831562dd76c0bf9dba5a071e867f",
+      "dirty": false,
+      "dirty_files": []
+    },
+    "machine": "AMD64",
+    "packages": {
+      "PyYAML": "6.0.3",
+      "accelerate": "1.15.0",
+      "bitsandbytes": "0.50.2",
+      "datasets": "5.0.1",
+      "huggingface_hub": "1.33.0",
+      "lm_eval": "0.4.13",
+      "numpy": "2.4.6",
+      "pandas": "3.0.6",
+      "peft": "0.21.1",
+      "pyarrow": "25.0.1",
+      "safetensors": "0.8.0",
+      "tokenizers": "0.23.2",
+      "torch": "2.14.0+cu130",
+      "transformers": "5.17.0"
+    },
+    "platform": "Windows-10-10.0.26100-SP0",
+    "processor": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+    "python": "3.11.16 | packaged by Anaconda, Inc. | (main, Aug 27 2026, 14:36:16) [MSC v.1942 64 bit (AMD64)]",
+    "python_executable": "D:\\conda_envs\\cgfedllm\\python.exe"
+  },
+  "result_label": "PHASE5-DIAGNOSTIC",
+  "seeds": {
+    "autoencoder.init_seed": 1
+  },
+  "stage": "p5a_v2",
+  "vram_guard": {
+    "allocator_cap_bytes": 7182745600,
+    "allocator_cap_fraction": 0.836641,
+    "device_total_bytes": 8585216000,
+    "free_at_start_bytes": 7451181056,
+    "margin_bytes": 268435456
+  }
+}
