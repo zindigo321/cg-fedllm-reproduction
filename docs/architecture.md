@@ -42,8 +42,12 @@ src/cg_fedllm/
   bench.py               bounded GPU micro-benchmarks
   calibration.py         [P3] realistic-sequence timing/memory, micro-batch decision rule, loss-normalisation
                          diagnostic
+  phase5/                [P5] P5-A v2 fit control: protocol constants, selection, outcome records (p5a), metrics and
+                         C0-C4 (p5a_metrics), frozen inputs, exact-max scale and allowlisted R4 reader (p5a_inputs),
+                         byte caps and no-clobber publication (p5a_artifacts), attempt states (p5a_state), CPU input
+                         preflight (p5a_preflight), training invocations, recovery and closure (p5a_run)
   cli.py                 `cgfed` command line (P3: calibrate-train, microbatch-diag, tgap-stats, ae-viability,
-                         ae-select)
+                         ae-select; P5: p5a-preflight, p5a)
 ```
 
 ## Data flow of one FAF round

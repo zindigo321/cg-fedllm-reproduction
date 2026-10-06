@@ -1,0 +1,186 @@
+autoencoder:
+  adam_beta1: 0.9
+  adam_beta2: 0.999
+  adam_epsilon: 1.0e-08
+  arch: resnet3
+  batch_size: 4
+  checkpoint_policy: final
+  down_channels:
+  - 2
+  - 4
+  - 8
+  - 16
+  - 32
+  - 64
+  eval_every: 50
+  final_kernel: 7
+  init_seed: 1
+  iterations: 3000
+  layout: layer_major_qkvo_AtB
+  learning_rate: 0.0002
+  norm: batch
+  normalization: global_exact_maxabs_train
+  num_res_blocks: 3
+  output_activation: tanh
+  representation: adapter_state
+  split: temporal
+  split_seed: 0
+  stem_channels: 1
+  stem_kernel: 3
+  val_fraction: 0.2
+  weight_decay: 0.0
+codec:
+  ae_checkpoint: null
+  device: null
+  latent_dtype: float32
+  layout: layer_major_qkvo_AtB
+  mean_path: null
+  noise_sigma: null
+  type: none
+data:
+  add_eos_token: true
+  cache_dir: ${CGFED_CACHE:-cache}/data
+  cutoff_len: 512
+  d1_fraction: 0.3
+  d1d2_split_seed: 42
+  dirichlet_alpha: 0.5
+  heldout_max_examples: null
+  holdout_per_category: 10
+  manifest_path: manifests/dolly_shepherd_dirichlet100_seed42.json
+  min_require_size: 40
+  num_clients: 100
+  partition_mode: dirichlet
+  partition_seed: 42
+  prompt_template:
+    prompt_input: 'Below is an instruction that describes a task, paired with an input
+      that provides further context. Write a response that appropriately completes
+      the request.
+
+
+      ### Instruction:
+
+      {instruction}
+
+
+      ### Input:
+
+      {input}
+
+
+      ### Response:
+
+      '
+    prompt_no_input: 'Below is an instruction that describes a task. Write a response
+      that appropriately completes the request.
+
+
+      ### Instruction:
+
+      {instruction}
+
+
+      ### Response:
+
+      '
+  shards_per_client: 2
+  source_license: CC BY-SA 3.0 (databricks-dolly-15k); file distributed in Shepherd
+    (Apache-2.0 repo)
+  source_name: shepherd_dolly_v1
+  source_num_records: 15015
+  source_revision: bcffa00e9642990ecc6210363a7f0dab91bef4dc
+  source_sha256: 52e0c44e2155bfc920927f94f28cb06fd27122338ce3f0bafb2955d86f58e066
+  source_url: https://raw.githubusercontent.com/JayZhang42/FederatedGPT-Shepherd/bcffa00e9642990ecc6210363a7f0dab91bef4dc/new-databricks-dolly-15k.json
+  subset_per_category: null
+  subset_seed: 0
+  train_on_inputs: true
+eval: null
+federated:
+  aggregation: sample_weighted_mean
+  client_fraction: 0.05
+  client_split: d2
+  heldout_eval_every: 1
+  num_rounds: 20
+  pooled: false
+  representation: adapter_state
+  sampler: shepherd_round_seeded
+  stop_after_round: null
+local_train:
+  accumulation_normalization: mean_over_group
+  adam_beta1: 0.9
+  adam_beta2: 0.999
+  adam_epsilon: 1.0e-08
+  batch_size: 32
+  epochs: 1
+  eval_micro_batch_size: null
+  learning_rate: 0.00015
+  loss_reduction: token_mean_per_microbatch
+  lr_scheduler: linear
+  max_grad_norm: 1.0
+  micro_batch_size: 1
+  microbatch_mode: physical_microbatch
+  optimizer: adamw_torch
+  pad_to_multiple_of: 8
+  partial_accumulation: flush_at_epoch_end
+  physical_chunk_size: null
+  precision: bf16
+  reset_optimizer_each_round: true
+  warmup_steps: 0
+  weight_decay: 0.0
+lora:
+  alpha: 16
+  bias: none
+  dropout: 0.05
+  init: kaiming_uniform_A_zero_B
+  init_seed: 1
+  r: 8
+  target_modules:
+  - q_proj
+  - k_proj
+  - v_proj
+  - o_proj
+model:
+  allow_patterns:
+  - config.json
+  - generation_config.json
+  - model.safetensors
+  - tokenizer.json
+  - tokenizer_config.json
+  - vocab.json
+  - merges.txt
+  - LICENSE
+  attn_implementation: sdpa
+  dtype: bfloat16
+  gradient_checkpointing: true
+  id: Qwen/Qwen1.5-1.8B
+  kind: hf
+  license: tongyi-qianwen-research (non-commercial research use)
+  local_files_only: false
+  pad_token_id: null
+  padding_side: left
+  quantization: none
+  revision: 7846de7ed421727b318d6605a0bfab659da2c067
+  tiny_hidden_size: 128
+  tiny_init_seed: 0
+  tiny_intermediate_size: 256
+  tiny_max_position_embeddings: 256
+  tiny_num_heads: 4
+  tiny_num_layers: 2
+  tiny_vocab_size: 128
+notes: ''
+run:
+  allocator_cap_margin_mb: 256
+  deterministic: true
+  device: cuda
+  name: phase5_p5a_v2_seed1
+  num_threads: null
+  output_root: ${CGFED_RUNS:-runs}
+  result_label: PHASE5-DIAGNOSTIC
+  seed: 1
+tgap:
+  client_fraction: 0.05
+  client_split: d1
+  layout: layer_major_qkvo_AtB
+  local_client_selection: shepherd_round0
+  num_time_steps: 20
+  representation: adapter_state
+  source: federated_pretrain

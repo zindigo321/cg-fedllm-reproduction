@@ -1,0 +1,1886 @@
+{
+  "archive": {
+    "bytes": 11163077,
+    "file": "p5a_invocation1_full_review_20261006.zip",
+    "files": 50,
+    "sha256": "1e5cc8ed95c4dd13864aa53f66918c7984be9268e2d15bd4b3bac89ce9d3164f"
+  },
+  "assertions_passed": 7833,
+  "checkpoint_layout": {
+    "decoder.net.0.block.1.weight": {
+      "dtype": "F32",
+      "shape": [
+        64,
+        64,
+        3,
+        3
+      ]
+    },
+    "decoder.net.0.block.2.bias": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "decoder.net.0.block.2.num_batches_tracked": {
+      "dtype": "I64",
+      "shape": []
+    },
+    "decoder.net.0.block.2.running_mean": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "decoder.net.0.block.2.running_var": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "decoder.net.0.block.2.weight": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "decoder.net.0.block.5.weight": {
+      "dtype": "F32",
+      "shape": [
+        64,
+        64,
+        3,
+        3
+      ]
+    },
+    "decoder.net.0.block.6.bias": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "decoder.net.0.block.6.num_batches_tracked": {
+      "dtype": "I64",
+      "shape": []
+    },
+    "decoder.net.0.block.6.running_mean": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "decoder.net.0.block.6.running_var": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "decoder.net.0.block.6.weight": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "decoder.net.1.block.1.weight": {
+      "dtype": "F32",
+      "shape": [
+        64,
+        64,
+        3,
+        3
+      ]
+    },
+    "decoder.net.1.block.2.bias": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "decoder.net.1.block.2.num_batches_tracked": {
+      "dtype": "I64",
+      "shape": []
+    },
+    "decoder.net.1.block.2.running_mean": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "decoder.net.1.block.2.running_var": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "decoder.net.1.block.2.weight": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "decoder.net.1.block.5.weight": {
+      "dtype": "F32",
+      "shape": [
+        64,
+        64,
+        3,
+        3
+      ]
+    },
+    "decoder.net.1.block.6.bias": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "decoder.net.1.block.6.num_batches_tracked": {
+      "dtype": "I64",
+      "shape": []
+    },
+    "decoder.net.1.block.6.running_mean": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "decoder.net.1.block.6.running_var": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "decoder.net.1.block.6.weight": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "decoder.net.10.bias": {
+      "dtype": "F32",
+      "shape": [
+        8
+      ]
+    },
+    "decoder.net.10.num_batches_tracked": {
+      "dtype": "I64",
+      "shape": []
+    },
+    "decoder.net.10.running_mean": {
+      "dtype": "F32",
+      "shape": [
+        8
+      ]
+    },
+    "decoder.net.10.running_var": {
+      "dtype": "F32",
+      "shape": [
+        8
+      ]
+    },
+    "decoder.net.10.weight": {
+      "dtype": "F32",
+      "shape": [
+        8
+      ]
+    },
+    "decoder.net.12.weight": {
+      "dtype": "F32",
+      "shape": [
+        8,
+        4,
+        3,
+        3
+      ]
+    },
+    "decoder.net.13.bias": {
+      "dtype": "F32",
+      "shape": [
+        4
+      ]
+    },
+    "decoder.net.13.num_batches_tracked": {
+      "dtype": "I64",
+      "shape": []
+    },
+    "decoder.net.13.running_mean": {
+      "dtype": "F32",
+      "shape": [
+        4
+      ]
+    },
+    "decoder.net.13.running_var": {
+      "dtype": "F32",
+      "shape": [
+        4
+      ]
+    },
+    "decoder.net.13.weight": {
+      "dtype": "F32",
+      "shape": [
+        4
+      ]
+    },
+    "decoder.net.15.weight": {
+      "dtype": "F32",
+      "shape": [
+        4,
+        2,
+        3,
+        3
+      ]
+    },
+    "decoder.net.16.bias": {
+      "dtype": "F32",
+      "shape": [
+        2
+      ]
+    },
+    "decoder.net.16.num_batches_tracked": {
+      "dtype": "I64",
+      "shape": []
+    },
+    "decoder.net.16.running_mean": {
+      "dtype": "F32",
+      "shape": [
+        2
+      ]
+    },
+    "decoder.net.16.running_var": {
+      "dtype": "F32",
+      "shape": [
+        2
+      ]
+    },
+    "decoder.net.16.weight": {
+      "dtype": "F32",
+      "shape": [
+        2
+      ]
+    },
+    "decoder.net.18.weight": {
+      "dtype": "F32",
+      "shape": [
+        2,
+        1,
+        3,
+        3
+      ]
+    },
+    "decoder.net.19.bias": {
+      "dtype": "F32",
+      "shape": [
+        1
+      ]
+    },
+    "decoder.net.19.num_batches_tracked": {
+      "dtype": "I64",
+      "shape": []
+    },
+    "decoder.net.19.running_mean": {
+      "dtype": "F32",
+      "shape": [
+        1
+      ]
+    },
+    "decoder.net.19.running_var": {
+      "dtype": "F32",
+      "shape": [
+        1
+      ]
+    },
+    "decoder.net.19.weight": {
+      "dtype": "F32",
+      "shape": [
+        1
+      ]
+    },
+    "decoder.net.2.block.1.weight": {
+      "dtype": "F32",
+      "shape": [
+        64,
+        64,
+        3,
+        3
+      ]
+    },
+    "decoder.net.2.block.2.bias": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "decoder.net.2.block.2.num_batches_tracked": {
+      "dtype": "I64",
+      "shape": []
+    },
+    "decoder.net.2.block.2.running_mean": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "decoder.net.2.block.2.running_var": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "decoder.net.2.block.2.weight": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "decoder.net.2.block.5.weight": {
+      "dtype": "F32",
+      "shape": [
+        64,
+        64,
+        3,
+        3
+      ]
+    },
+    "decoder.net.2.block.6.bias": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "decoder.net.2.block.6.num_batches_tracked": {
+      "dtype": "I64",
+      "shape": []
+    },
+    "decoder.net.2.block.6.running_mean": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "decoder.net.2.block.6.running_var": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "decoder.net.2.block.6.weight": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "decoder.net.22.bias": {
+      "dtype": "F32",
+      "shape": [
+        1
+      ]
+    },
+    "decoder.net.22.weight": {
+      "dtype": "F32",
+      "shape": [
+        1,
+        1,
+        7,
+        7
+      ]
+    },
+    "decoder.net.3.weight": {
+      "dtype": "F32",
+      "shape": [
+        64,
+        32,
+        3,
+        3
+      ]
+    },
+    "decoder.net.4.bias": {
+      "dtype": "F32",
+      "shape": [
+        32
+      ]
+    },
+    "decoder.net.4.num_batches_tracked": {
+      "dtype": "I64",
+      "shape": []
+    },
+    "decoder.net.4.running_mean": {
+      "dtype": "F32",
+      "shape": [
+        32
+      ]
+    },
+    "decoder.net.4.running_var": {
+      "dtype": "F32",
+      "shape": [
+        32
+      ]
+    },
+    "decoder.net.4.weight": {
+      "dtype": "F32",
+      "shape": [
+        32
+      ]
+    },
+    "decoder.net.6.weight": {
+      "dtype": "F32",
+      "shape": [
+        32,
+        16,
+        3,
+        3
+      ]
+    },
+    "decoder.net.7.bias": {
+      "dtype": "F32",
+      "shape": [
+        16
+      ]
+    },
+    "decoder.net.7.num_batches_tracked": {
+      "dtype": "I64",
+      "shape": []
+    },
+    "decoder.net.7.running_mean": {
+      "dtype": "F32",
+      "shape": [
+        16
+      ]
+    },
+    "decoder.net.7.running_var": {
+      "dtype": "F32",
+      "shape": [
+        16
+      ]
+    },
+    "decoder.net.7.weight": {
+      "dtype": "F32",
+      "shape": [
+        16
+      ]
+    },
+    "decoder.net.9.weight": {
+      "dtype": "F32",
+      "shape": [
+        16,
+        8,
+        3,
+        3
+      ]
+    },
+    "encoder.net.1.weight": {
+      "dtype": "F32",
+      "shape": [
+        1,
+        1,
+        3,
+        3
+      ]
+    },
+    "encoder.net.10.weight": {
+      "dtype": "F32",
+      "shape": [
+        8,
+        4,
+        3,
+        3
+      ]
+    },
+    "encoder.net.11.bias": {
+      "dtype": "F32",
+      "shape": [
+        8
+      ]
+    },
+    "encoder.net.11.num_batches_tracked": {
+      "dtype": "I64",
+      "shape": []
+    },
+    "encoder.net.11.running_mean": {
+      "dtype": "F32",
+      "shape": [
+        8
+      ]
+    },
+    "encoder.net.11.running_var": {
+      "dtype": "F32",
+      "shape": [
+        8
+      ]
+    },
+    "encoder.net.11.weight": {
+      "dtype": "F32",
+      "shape": [
+        8
+      ]
+    },
+    "encoder.net.13.weight": {
+      "dtype": "F32",
+      "shape": [
+        16,
+        8,
+        3,
+        3
+      ]
+    },
+    "encoder.net.14.bias": {
+      "dtype": "F32",
+      "shape": [
+        16
+      ]
+    },
+    "encoder.net.14.num_batches_tracked": {
+      "dtype": "I64",
+      "shape": []
+    },
+    "encoder.net.14.running_mean": {
+      "dtype": "F32",
+      "shape": [
+        16
+      ]
+    },
+    "encoder.net.14.running_var": {
+      "dtype": "F32",
+      "shape": [
+        16
+      ]
+    },
+    "encoder.net.14.weight": {
+      "dtype": "F32",
+      "shape": [
+        16
+      ]
+    },
+    "encoder.net.16.weight": {
+      "dtype": "F32",
+      "shape": [
+        32,
+        16,
+        3,
+        3
+      ]
+    },
+    "encoder.net.17.bias": {
+      "dtype": "F32",
+      "shape": [
+        32
+      ]
+    },
+    "encoder.net.17.num_batches_tracked": {
+      "dtype": "I64",
+      "shape": []
+    },
+    "encoder.net.17.running_mean": {
+      "dtype": "F32",
+      "shape": [
+        32
+      ]
+    },
+    "encoder.net.17.running_var": {
+      "dtype": "F32",
+      "shape": [
+        32
+      ]
+    },
+    "encoder.net.17.weight": {
+      "dtype": "F32",
+      "shape": [
+        32
+      ]
+    },
+    "encoder.net.19.weight": {
+      "dtype": "F32",
+      "shape": [
+        64,
+        32,
+        3,
+        3
+      ]
+    },
+    "encoder.net.2.bias": {
+      "dtype": "F32",
+      "shape": [
+        1
+      ]
+    },
+    "encoder.net.2.num_batches_tracked": {
+      "dtype": "I64",
+      "shape": []
+    },
+    "encoder.net.2.running_mean": {
+      "dtype": "F32",
+      "shape": [
+        1
+      ]
+    },
+    "encoder.net.2.running_var": {
+      "dtype": "F32",
+      "shape": [
+        1
+      ]
+    },
+    "encoder.net.2.weight": {
+      "dtype": "F32",
+      "shape": [
+        1
+      ]
+    },
+    "encoder.net.20.bias": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.20.num_batches_tracked": {
+      "dtype": "I64",
+      "shape": []
+    },
+    "encoder.net.20.running_mean": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.20.running_var": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.20.weight": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.22.block.1.weight": {
+      "dtype": "F32",
+      "shape": [
+        64,
+        64,
+        3,
+        3
+      ]
+    },
+    "encoder.net.22.block.2.bias": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.22.block.2.num_batches_tracked": {
+      "dtype": "I64",
+      "shape": []
+    },
+    "encoder.net.22.block.2.running_mean": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.22.block.2.running_var": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.22.block.2.weight": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.22.block.5.weight": {
+      "dtype": "F32",
+      "shape": [
+        64,
+        64,
+        3,
+        3
+      ]
+    },
+    "encoder.net.22.block.6.bias": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.22.block.6.num_batches_tracked": {
+      "dtype": "I64",
+      "shape": []
+    },
+    "encoder.net.22.block.6.running_mean": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.22.block.6.running_var": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.22.block.6.weight": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.23.block.1.weight": {
+      "dtype": "F32",
+      "shape": [
+        64,
+        64,
+        3,
+        3
+      ]
+    },
+    "encoder.net.23.block.2.bias": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.23.block.2.num_batches_tracked": {
+      "dtype": "I64",
+      "shape": []
+    },
+    "encoder.net.23.block.2.running_mean": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.23.block.2.running_var": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.23.block.2.weight": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.23.block.5.weight": {
+      "dtype": "F32",
+      "shape": [
+        64,
+        64,
+        3,
+        3
+      ]
+    },
+    "encoder.net.23.block.6.bias": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.23.block.6.num_batches_tracked": {
+      "dtype": "I64",
+      "shape": []
+    },
+    "encoder.net.23.block.6.running_mean": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.23.block.6.running_var": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.23.block.6.weight": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.24.block.1.weight": {
+      "dtype": "F32",
+      "shape": [
+        64,
+        64,
+        3,
+        3
+      ]
+    },
+    "encoder.net.24.block.2.bias": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.24.block.2.num_batches_tracked": {
+      "dtype": "I64",
+      "shape": []
+    },
+    "encoder.net.24.block.2.running_mean": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.24.block.2.running_var": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.24.block.2.weight": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.24.block.5.weight": {
+      "dtype": "F32",
+      "shape": [
+        64,
+        64,
+        3,
+        3
+      ]
+    },
+    "encoder.net.24.block.6.bias": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.24.block.6.num_batches_tracked": {
+      "dtype": "I64",
+      "shape": []
+    },
+    "encoder.net.24.block.6.running_mean": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.24.block.6.running_var": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.24.block.6.weight": {
+      "dtype": "F32",
+      "shape": [
+        64
+      ]
+    },
+    "encoder.net.4.weight": {
+      "dtype": "F32",
+      "shape": [
+        2,
+        1,
+        3,
+        3
+      ]
+    },
+    "encoder.net.5.bias": {
+      "dtype": "F32",
+      "shape": [
+        2
+      ]
+    },
+    "encoder.net.5.num_batches_tracked": {
+      "dtype": "I64",
+      "shape": []
+    },
+    "encoder.net.5.running_mean": {
+      "dtype": "F32",
+      "shape": [
+        2
+      ]
+    },
+    "encoder.net.5.running_var": {
+      "dtype": "F32",
+      "shape": [
+        2
+      ]
+    },
+    "encoder.net.5.weight": {
+      "dtype": "F32",
+      "shape": [
+        2
+      ]
+    },
+    "encoder.net.7.weight": {
+      "dtype": "F32",
+      "shape": [
+        4,
+        2,
+        3,
+        3
+      ]
+    },
+    "encoder.net.8.bias": {
+      "dtype": "F32",
+      "shape": [
+        4
+      ]
+    },
+    "encoder.net.8.num_batches_tracked": {
+      "dtype": "I64",
+      "shape": []
+    },
+    "encoder.net.8.running_mean": {
+      "dtype": "F32",
+      "shape": [
+        4
+      ]
+    },
+    "encoder.net.8.running_var": {
+      "dtype": "F32",
+      "shape": [
+        4
+      ]
+    },
+    "encoder.net.8.weight": {
+      "dtype": "F32",
+      "shape": [
+        4
+      ]
+    }
+  },
+  "config_sha256": "e5ac614c5f176f39b40ddd96cfe311f50c8209151578a1535794cd55d87bb122",
+  "controls": [
+    {
+      "C0": true,
+      "C1_reported": true,
+      "C2": false,
+      "C3": false,
+      "C4": null,
+      "batch_size_by_frozen_rule": 1,
+      "checkpoint": {
+        "all_bn_counters": 3000,
+        "all_floats_finite": true,
+        "bn_counters": 25,
+        "bytes": 1996500,
+        "f32_elements": 495399,
+        "sha256": "7205d2c64650a0093e8cd13e29e37196cee1c892b5714d31ff18bb2ff244a2aa",
+        "tensors": 152
+      },
+      "control": "single_snapshot",
+      "cosine_per_snapshot": [
+        0.08353517797248287
+      ],
+      "curve_first": 0.20905062556266785,
+      "curve_last": 0.014643177390098572,
+      "curve_min": 0.014643177390098572,
+      "curve_points": 61,
+      "designation": "primary",
+      "ended_utc": "2026-10-06T11:44:32+00:00",
+      "gpu_wall_s": 250.625,
+      "iterations": 3000,
+      "norm_ratio_per_snapshot": [
+        0.13078590697780937
+      ],
+      "pooled_ae_rse": 0.9952545054326406,
+      "pooled_subset_mean_rse": null,
+      "representation": "R2",
+      "rse_per_snapshot": [
+        0.9952545054326406
+      ],
+      "started_utc": "2026-10-06T11:40:21+00:00",
+      "status": "FIT FAIL"
+    },
+    {
+      "C0": true,
+      "C1_reported": true,
+      "C2": false,
+      "C3": false,
+      "C4": false,
+      "batch_size_by_frozen_rule": 4,
+      "checkpoint": {
+        "all_bn_counters": 3000,
+        "all_floats_finite": true,
+        "bn_counters": 25,
+        "bytes": 1996500,
+        "f32_elements": 495399,
+        "sha256": "b82fae484e40c36bc06159c37439a6e2a82acd94ab570df1fe9aa1f5def6e155",
+        "tensors": 152
+      },
+      "control": "fixed_subset4",
+      "cosine_per_snapshot": [
+        0.027239187362742966,
+        0.04417345394136412,
+        0.05015558319485845,
+        0.020734641703340637
+      ],
+      "curve_first": 0.20529264211654663,
+      "curve_last": 0.013075437396764755,
+      "curve_min": 0.013075437396764755,
+      "curve_points": 61,
+      "designation": "primary",
+      "ended_utc": "2026-10-06T11:51:32+00:00",
+      "gpu_wall_s": 419.1869999999981,
+      "iterations": 3000,
+      "norm_ratio_per_snapshot": [
+        0.02981514543814678,
+        0.0318505520165787,
+        0.03590442409498566,
+        0.1164320986946997
+      ],
+      "pooled_ae_rse": 1.0018180589313364,
+      "pooled_subset_mean_rse": 0.6820597434511728,
+      "representation": "R2",
+      "rse_per_snapshot": [
+        0.9992646622318236,
+        0.9982005598787382,
+        0.9976875130100735,
+        1.0087280779080472
+      ],
+      "started_utc": "2026-10-06T11:44:32+00:00",
+      "status": "FIT FAIL"
+    },
+    {
+      "C0": true,
+      "C1_reported": true,
+      "C2": false,
+      "C3": false,
+      "C4": null,
+      "batch_size_by_frozen_rule": 1,
+      "checkpoint": {
+        "all_bn_counters": 3000,
+        "all_floats_finite": true,
+        "bn_counters": 25,
+        "bytes": 1996508,
+        "f32_elements": 495399,
+        "sha256": "dd46dbccba65c53b3c709ea46cedaaea9a470177d2d72dc2cfe1a19cb2dbbbc0",
+        "tensors": 152
+      },
+      "control": "single_snapshot",
+      "cosine_per_snapshot": [
+        0.08718036691133635
+      ],
+      "curve_first": 0.21200135350227356,
+      "curve_last": 0.017143134027719498,
+      "curve_min": 0.017143134027719498,
+      "curve_points": 61,
+      "designation": "primary",
+      "ended_utc": "2026-10-06T11:57:14+00:00",
+      "gpu_wall_s": 316.04699999999866,
+      "iterations": 3000,
+      "norm_ratio_per_snapshot": [
+        0.12471139818255722
+      ],
+      "pooled_ae_rse": 0.9938081619334862,
+      "pooled_subset_mean_rse": null,
+      "representation": "R3",
+      "rse_per_snapshot": [
+        0.9938081619334862
+      ],
+      "started_utc": "2026-10-06T11:51:58+00:00",
+      "status": "FIT FAIL"
+    },
+    {
+      "C0": true,
+      "C1_reported": true,
+      "C2": false,
+      "C3": false,
+      "C4": false,
+      "batch_size_by_frozen_rule": 4,
+      "checkpoint": {
+        "all_bn_counters": 3000,
+        "all_floats_finite": true,
+        "bn_counters": 25,
+        "bytes": 1996500,
+        "f32_elements": 495399,
+        "sha256": "9a62a2c724a8db4611f54e2309718fcc5ed1e63655d0d0b1d579f7eb4641da36",
+        "tensors": 152
+      },
+      "control": "fixed_subset4",
+      "cosine_per_snapshot": [
+        0.060875554254975886,
+        0.0583348825603499,
+        0.05777983499751618,
+        0.03788719481599051
+      ],
+      "curve_first": 0.21284542977809906,
+      "curve_last": 0.018528282642364502,
+      "curve_min": 0.018528282642364502,
+      "curve_points": 61,
+      "designation": "primary",
+      "ended_utc": "2026-10-06T12:07:08+00:00",
+      "gpu_wall_s": 592.6719999999987,
+      "iterations": 3000,
+      "norm_ratio_per_snapshot": [
+        0.04961765525020295,
+        0.046462839405388985,
+        0.04621722528378973,
+        0.09002515513366888
+      ],
+      "pooled_ae_rse": 0.9979188907786576,
+      "pooled_subset_mean_rse": 0.7508841443756189,
+      "representation": "R3",
+      "rse_per_snapshot": [
+        0.9964209071841511,
+        0.9967379868853435,
+        0.9967951846110518,
+        1.001282927375063
+      ],
+      "started_utc": "2026-10-06T11:57:15+00:00",
+      "status": "FIT FAIL"
+    },
+    {
+      "C0": true,
+      "C1_reported": true,
+      "C2": false,
+      "C3": false,
+      "C4": null,
+      "batch_size_by_frozen_rule": 1,
+      "checkpoint": {
+        "all_bn_counters": 3000,
+        "all_floats_finite": true,
+        "bn_counters": 25,
+        "bytes": 1996500,
+        "f32_elements": 495399,
+        "sha256": "a3cd6259df4d3aa6516ac0c2e79cb6194016d2803846ef540ce2e28639345441",
+        "tensors": 152
+      },
+      "control": "single_snapshot",
+      "cosine_per_snapshot": [
+        0.0019510162245096874
+      ],
+      "curve_first": 0.19030790030956268,
+      "curve_last": 0.0003554221475496888,
+      "curve_min": 0.0003554221475496888,
+      "curve_points": 61,
+      "designation": "secondary",
+      "ended_utc": "2026-10-06T12:11:17+00:00",
+      "gpu_wall_s": 247.23399999999674,
+      "iterations": 3000,
+      "norm_ratio_per_snapshot": [
+        0.5760113938393486
+      ],
+      "pooled_ae_rse": 1.329541510682983,
+      "pooled_subset_mean_rse": null,
+      "representation": "R4",
+      "rse_per_snapshot": [
+        1.329541510682983
+      ],
+      "started_utc": "2026-10-06T12:07:09+00:00",
+      "status": "FIT FAIL"
+    },
+    {
+      "C0": true,
+      "C1_reported": true,
+      "C2": false,
+      "C3": false,
+      "C4": false,
+      "batch_size_by_frozen_rule": 4,
+      "checkpoint": {
+        "all_bn_counters": 3000,
+        "all_floats_finite": true,
+        "bn_counters": 25,
+        "bytes": 1996500,
+        "f32_elements": 495399,
+        "sha256": "4979cecd64b6914cc7f34fed673516929072cc865548d01e83d2ba4aac152ecd",
+        "tensors": 152
+      },
+      "control": "fixed_subset4",
+      "cosine_per_snapshot": [
+        0.0012444998596276614,
+        0.008580239579461255,
+        0.021260330999745235,
+        0.008594492185182098
+      ],
+      "curve_first": 0.1816537231206894,
+      "curve_last": 0.0002720988995861262,
+      "curve_min": 0.0002720988995861262,
+      "curve_points": 61,
+      "designation": "secondary",
+      "ended_utc": "2026-10-06T12:18:51+00:00",
+      "gpu_wall_s": 454.140999999996,
+      "iterations": 3000,
+      "norm_ratio_per_snapshot": [
+        0.7641551291383171,
+        0.013775689513272326,
+        0.018059976467266124,
+        0.012748938959850624
+      ],
+      "pooled_ae_rse": 1.2445806533686776,
+      "pooled_subset_mean_rse": 0.15591703258665585,
+      "representation": "R4",
+      "rse_per_snapshot": [
+        1.5820310794865053,
+        0.9999533721887739,
+        0.9995582405949149,
+        0.9999433941320824
+      ],
+      "started_utc": "2026-10-06T12:11:17+00:00",
+      "status": "FIT FAIL"
+    }
+  ],
+  "evidence_scope": "supplied complete archive; no independent replay against original Windows input payloads",
+  "execution_head": "6603bd8d9156831562dd76c0bf9dba5a071e867f",
+  "execution_record_a_sha256": "e36de843549ef2e169ba79e6883e265de69a0f91fac93aa66a0df8fbc08c0c02",
+  "execution_record_b_sha256": "fc7bc274efd7c705fb3d60d9a03ebd5b0a42620b7002d82305e18262a2976dba",
+  "gpu_wall_s_charged_total": 2279.905999999988,
+  "implementation_head": "603acfce3fcfbe6724f7900c78dc03e28071f487",
+  "inventory": [
+    {
+      "bytes": 2824,
+      "path": "phase5_p5a_v2_seed1/ledger/end_R2_fixed_subset4.json",
+      "sha256": "00268238098dc2be81b04945f214872826d36bc73fc2629ea7467f2be6074a2b"
+    },
+    {
+      "bytes": 2805,
+      "path": "phase5_p5a_v2_seed1/ledger/end_R2_single_snapshot.json",
+      "sha256": "4d50220fc4d871c6d594ece8566198e15f8339af297e44383ef90f74f5ef14c9"
+    },
+    {
+      "bytes": 2824,
+      "path": "phase5_p5a_v2_seed1/ledger/end_R3_fixed_subset4.json",
+      "sha256": "7f09e1cb112ecbf4366077b2442e7e907bc72f6cc8d1f8171c4e48c3e5f38c97"
+    },
+    {
+      "bytes": 2828,
+      "path": "phase5_p5a_v2_seed1/ledger/end_R3_single_snapshot.json",
+      "sha256": "17f94832b3123a0c31ab341a6a462b6a185107c91969289a5026ebbe7129f9e7"
+    },
+    {
+      "bytes": 2823,
+      "path": "phase5_p5a_v2_seed1/ledger/end_R4_fixed_subset4.json",
+      "sha256": "b47c2d9bb723945dd3800b9fa844d5b370f78cb9bd47e4b8d0bd0dcb31c3c67b"
+    },
+    {
+      "bytes": 2828,
+      "path": "phase5_p5a_v2_seed1/ledger/end_R4_single_snapshot.json",
+      "sha256": "4ed4abaad03312a7e15bcbe1e01edecba25571afc55a1cc2dd36fd0640e91a77"
+    },
+    {
+      "bytes": 2767,
+      "path": "phase5_p5a_v2_seed1/ledger/invocation_1.json",
+      "sha256": "ae96c6c58d821c2e03ef63f6fe278b92782888fe2e7caaacb5cd04202a77ca08"
+    },
+    {
+      "bytes": 2943,
+      "path": "phase5_p5a_v2_seed1/ledger/start_R2_fixed_subset4.json",
+      "sha256": "c22eb6bfdcfb7c50288d3280a7ce9cc22874b63e05f06e32137b2b3bcb5ea2ef"
+    },
+    {
+      "bytes": 2940,
+      "path": "phase5_p5a_v2_seed1/ledger/start_R2_single_snapshot.json",
+      "sha256": "6012a941d4d49020b5f2e065751378f0ece08ca2fca3ff25aff808490cf67048"
+    },
+    {
+      "bytes": 2953,
+      "path": "phase5_p5a_v2_seed1/ledger/start_R3_fixed_subset4.json",
+      "sha256": "5ff0d2e246f7828c5738402cdd892f1a6c5e53b65c104f37141199760c5458b8"
+    },
+    {
+      "bytes": 2955,
+      "path": "phase5_p5a_v2_seed1/ledger/start_R3_single_snapshot.json",
+      "sha256": "ea44e3580cba9db89bdb4e7fed27fc4d26fc658cbe2db86165a38a9028d790ca"
+    },
+    {
+      "bytes": 2955,
+      "path": "phase5_p5a_v2_seed1/ledger/start_R4_fixed_subset4.json",
+      "sha256": "2b9c396c7e9ae293850510e972d650edc9093d78767b48d83beab355f9987b15"
+    },
+    {
+      "bytes": 2956,
+      "path": "phase5_p5a_v2_seed1/ledger/start_R4_single_snapshot.json",
+      "sha256": "4f4fd082cb0d7056014c0922da19ff30279325da96546786a70597cfabcd7e1d"
+    },
+    {
+      "bytes": 22603,
+      "path": "phase5_p5a_v2_seed1/ledger/summary_1.json",
+      "sha256": "d72770b874a0933f816390cbade7c50bf20d85bd9e9f3ef894e700df8393dcb9"
+    },
+    {
+      "bytes": 139339,
+      "path": "phase5_p5a_v2_seed1/preflight/preflight_1.json",
+      "sha256": "b058eb1bf01d101e1800bdf05d7701b5ac3de515ea71cd542f70403ee5d48cee"
+    },
+    {
+      "bytes": 1996500,
+      "path": "phase5_p5a_v2_seed1/R2_balanced_effective_state_fixed_subset4/autoencoder_p5a_final.safetensors",
+      "sha256": "b82fae484e40c36bc06159c37439a6e2a82acd94ab570df1fe9aa1f5def6e155"
+    },
+    {
+      "bytes": 4217,
+      "path": "phase5_p5a_v2_seed1/R2_balanced_effective_state_fixed_subset4/config.resolved.yaml",
+      "sha256": "a0abaddb4de16108805f233b3d3b4a9e76be827b7af7bf9dd2a3928c67fef536"
+    },
+    {
+      "bytes": 186,
+      "path": "phase5_p5a_v2_seed1/R2_balanced_effective_state_fixed_subset4/config.sha256.json",
+      "sha256": "2505f361562204f0dd20d3d0c6f8e1bd3f342d123deb9956d9c18b746738979d"
+    },
+    {
+      "bytes": 29009,
+      "path": "phase5_p5a_v2_seed1/R2_balanced_effective_state_fixed_subset4/p5a_record.json",
+      "sha256": "a8e150cc4918560a51657da528dee7213f35669a0e808d64c21dc6057ff80e94"
+    },
+    {
+      "bytes": 3210,
+      "path": "phase5_p5a_v2_seed1/R2_balanced_effective_state_fixed_subset4/run_metadata.json",
+      "sha256": "2c169e2dcfff4cf1baa0184914619c78ac18f73bfdaa219816631d0cee7e9c76"
+    },
+    {
+      "bytes": 1996500,
+      "path": "phase5_p5a_v2_seed1/R2_balanced_effective_state_single_snapshot/autoencoder_p5a_final.safetensors",
+      "sha256": "7205d2c64650a0093e8cd13e29e37196cee1c892b5714d31ff18bb2ff244a2aa"
+    },
+    {
+      "bytes": 4217,
+      "path": "phase5_p5a_v2_seed1/R2_balanced_effective_state_single_snapshot/config.resolved.yaml",
+      "sha256": "a0abaddb4de16108805f233b3d3b4a9e76be827b7af7bf9dd2a3928c67fef536"
+    },
+    {
+      "bytes": 186,
+      "path": "phase5_p5a_v2_seed1/R2_balanced_effective_state_single_snapshot/config.sha256.json",
+      "sha256": "2505f361562204f0dd20d3d0c6f8e1bd3f342d123deb9956d9c18b746738979d"
+    },
+    {
+      "bytes": 17237,
+      "path": "phase5_p5a_v2_seed1/R2_balanced_effective_state_single_snapshot/p5a_record.json",
+      "sha256": "1b32cf7f35fd2b2cb5c8867416086313220793fb92c48f27c67e47bfc39553c3"
+    },
+    {
+      "bytes": 3210,
+      "path": "phase5_p5a_v2_seed1/R2_balanced_effective_state_single_snapshot/run_metadata.json",
+      "sha256": "2c169e2dcfff4cf1baa0184914619c78ac18f73bfdaa219816631d0cee7e9c76"
+    },
+    {
+      "bytes": 1996500,
+      "path": "phase5_p5a_v2_seed1/R3_balanced_effective_delta_r8_fixed_subset4/autoencoder_p5a_final.safetensors",
+      "sha256": "9a62a2c724a8db4611f54e2309718fcc5ed1e63655d0d0b1d579f7eb4641da36"
+    },
+    {
+      "bytes": 4217,
+      "path": "phase5_p5a_v2_seed1/R3_balanced_effective_delta_r8_fixed_subset4/config.resolved.yaml",
+      "sha256": "a0abaddb4de16108805f233b3d3b4a9e76be827b7af7bf9dd2a3928c67fef536"
+    },
+    {
+      "bytes": 186,
+      "path": "phase5_p5a_v2_seed1/R3_balanced_effective_delta_r8_fixed_subset4/config.sha256.json",
+      "sha256": "2505f361562204f0dd20d3d0c6f8e1bd3f342d123deb9956d9c18b746738979d"
+    },
+    {
+      "bytes": 28964,
+      "path": "phase5_p5a_v2_seed1/R3_balanced_effective_delta_r8_fixed_subset4/p5a_record.json",
+      "sha256": "ff7614daedf3bfed2f919258de31ca67b951f590c8ff8ca5b2b76fc590fc6fed"
+    },
+    {
+      "bytes": 3210,
+      "path": "phase5_p5a_v2_seed1/R3_balanced_effective_delta_r8_fixed_subset4/run_metadata.json",
+      "sha256": "2c169e2dcfff4cf1baa0184914619c78ac18f73bfdaa219816631d0cee7e9c76"
+    },
+    {
+      "bytes": 1996508,
+      "path": "phase5_p5a_v2_seed1/R3_balanced_effective_delta_r8_single_snapshot/autoencoder_p5a_final.safetensors",
+      "sha256": "dd46dbccba65c53b3c709ea46cedaaea9a470177d2d72dc2cfe1a19cb2dbbbc0"
+    },
+    {
+      "bytes": 4217,
+      "path": "phase5_p5a_v2_seed1/R3_balanced_effective_delta_r8_single_snapshot/config.resolved.yaml",
+      "sha256": "a0abaddb4de16108805f233b3d3b4a9e76be827b7af7bf9dd2a3928c67fef536"
+    },
+    {
+      "bytes": 186,
+      "path": "phase5_p5a_v2_seed1/R3_balanced_effective_delta_r8_single_snapshot/config.sha256.json",
+      "sha256": "2505f361562204f0dd20d3d0c6f8e1bd3f342d123deb9956d9c18b746738979d"
+    },
+    {
+      "bytes": 17238,
+      "path": "phase5_p5a_v2_seed1/R3_balanced_effective_delta_r8_single_snapshot/p5a_record.json",
+      "sha256": "f60d3d15788b1945953d16394c39762b3a7a304e440d5bd63b96d87a23e97b2d"
+    },
+    {
+      "bytes": 3210,
+      "path": "phase5_p5a_v2_seed1/R3_balanced_effective_delta_r8_single_snapshot/run_metadata.json",
+      "sha256": "2c169e2dcfff4cf1baa0184914619c78ac18f73bfdaa219816631d0cee7e9c76"
+    },
+    {
+      "bytes": 1996500,
+      "path": "phase5_p5a_v2_seed1/R4_mean_step_gradient_fixed_subset4/autoencoder_p5a_final.safetensors",
+      "sha256": "4979cecd64b6914cc7f34fed673516929072cc865548d01e83d2ba4aac152ecd"
+    },
+    {
+      "bytes": 4217,
+      "path": "phase5_p5a_v2_seed1/R4_mean_step_gradient_fixed_subset4/config.resolved.yaml",
+      "sha256": "a0abaddb4de16108805f233b3d3b4a9e76be827b7af7bf9dd2a3928c67fef536"
+    },
+    {
+      "bytes": 186,
+      "path": "phase5_p5a_v2_seed1/R4_mean_step_gradient_fixed_subset4/config.sha256.json",
+      "sha256": "2505f361562204f0dd20d3d0c6f8e1bd3f342d123deb9956d9c18b746738979d"
+    },
+    {
+      "bytes": 28408,
+      "path": "phase5_p5a_v2_seed1/R4_mean_step_gradient_fixed_subset4/p5a_record.json",
+      "sha256": "2a28187a8c35f3cb3cf26483dbf58462f8f664d8fea385da3e8201e86dcaf234"
+    },
+    {
+      "bytes": 3210,
+      "path": "phase5_p5a_v2_seed1/R4_mean_step_gradient_fixed_subset4/run_metadata.json",
+      "sha256": "2c169e2dcfff4cf1baa0184914619c78ac18f73bfdaa219816631d0cee7e9c76"
+    },
+    {
+      "bytes": 1996500,
+      "path": "phase5_p5a_v2_seed1/R4_mean_step_gradient_single_snapshot/autoencoder_p5a_final.safetensors",
+      "sha256": "a3cd6259df4d3aa6516ac0c2e79cb6194016d2803846ef540ce2e28639345441"
+    },
+    {
+      "bytes": 4217,
+      "path": "phase5_p5a_v2_seed1/R4_mean_step_gradient_single_snapshot/config.resolved.yaml",
+      "sha256": "a0abaddb4de16108805f233b3d3b4a9e76be827b7af7bf9dd2a3928c67fef536"
+    },
+    {
+      "bytes": 186,
+      "path": "phase5_p5a_v2_seed1/R4_mean_step_gradient_single_snapshot/config.sha256.json",
+      "sha256": "2505f361562204f0dd20d3d0c6f8e1bd3f342d123deb9956d9c18b746738979d"
+    },
+    {
+      "bytes": 16970,
+      "path": "phase5_p5a_v2_seed1/R4_mean_step_gradient_single_snapshot/p5a_record.json",
+      "sha256": "a4271ae5b8d02f6408bd5d3486040bbcad32863672f966e4876c679a6673a34a"
+    },
+    {
+      "bytes": 3210,
+      "path": "phase5_p5a_v2_seed1/R4_mean_step_gradient_single_snapshot/run_metadata.json",
+      "sha256": "2c169e2dcfff4cf1baa0184914619c78ac18f73bfdaa219816631d0cee7e9c76"
+    },
+    {
+      "bytes": 40562,
+      "path": "execution/training_invocation1_native_20261006_112552Z.txt",
+      "sha256": "150097ee88f61dc2875cd7b188f16cdeadfcb1205b5176e56193dd9429594f00"
+    },
+    {
+      "bytes": 12680,
+      "path": "execution/p5a_v2_execution_record_version_a_e36de843549ef2e169ba79e6883e265de69a0f91fac93aa66a0df8fbc08c0c02.md",
+      "sha256": "e36de843549ef2e169ba79e6883e265de69a0f91fac93aa66a0df8fbc08c0c02"
+    },
+    {
+      "bytes": 23176,
+      "path": "execution/training_invocation1_console_20261006_112552Z.txt",
+      "sha256": "ae7a4d0e4a6b79a2e80e60ee937126e79cfa9e5b518b8035d93dc2a00fc50d9f"
+    },
+    {
+      "bytes": 23179,
+      "path": "execution/p5a_v2_execution_record.md",
+      "sha256": "fc7bc274efd7c705fb3d60d9a03ebd5b0a42620b7002d82305e18262a2976dba"
+    },
+    {
+      "bytes": 1023,
+      "path": "execution/training_invocation1_wrapper_attempt_20261006_112552Z.json",
+      "sha256": "8357200ef1e4cfdc437c80d677059b6b08116b628f6129ab05fca082346b4dce"
+    }
+  ],
+  "label": "DERIVED",
+  "limitations": [
+    "C1 reconstruction-element finiteness is a recorded producer observation; no reconstruction was re-evaluated.",
+    "SSE/SIG/HAT/DOT and input Phi identities were not recomputed from original payloads; all metric arithmetic and pooling were checked from recorded sums.",
+    "GPU peak memory, full-run numerical repeatability and behavior beyond the authorized paths were not measured by this artifact audit.",
+    "Archive run-root inventory is verified; current live Windows filesystem state must still match before importing evidence."
+  ],
+  "limits": {
+    "aggregate_limit_s": 10800.0,
+    "max_trainings": 6,
+    "retained_bytes": 20000000,
+    "training_limit_s": 1800.0
+  },
+  "new_preflight_or_gpu_work": false,
+  "original_evidence_modified": false,
+  "outcomes": {
+    "R2": "CAPACITY FIT NOT DEMONSTRATED",
+    "R3": "CAPACITY FIT NOT DEMONSTRATED",
+    "R4": "CAPACITY FIT NOT DEMONSTRATED"
+  },
+  "peft_imported_by_audit": false,
+  "preflight_sha256": "b058eb1bf01d101e1800bdf05d7701b5ac3de515ea71cd542f70403ee5d48cee",
+  "protocol": {
+    "addendum": {
+      "blob": "28e05f9ee33ed13386d346fce6e47e9108c937d7",
+      "commit": "33e51fd63c6cd0679e76e12380ae5d418158d698",
+      "path": "docs/phase5_preregistration_v2_1.md"
+    },
+    "blob": "e80d21aeda653ab6d1339d34f7b88118588855df",
+    "commit": "dd4bf3f4348fd3b2b1b2c4ad23e7204fbef8369c",
+    "path": "docs/phase5_preregistration_v2.md"
+  },
+  "publication_replay": [
+    {
+      "bytes": 139339,
+      "effective_cap": 300000,
+      "footprint_before": 0,
+      "path": "preflight/preflight_1.json",
+      "reservation_total_recomputed": 18990000,
+      "reserved_other_caps_recomputed": 18690000
+    },
+    {
+      "bytes": 2767,
+      "effective_cap": 50000,
+      "footprint_before": 139339,
+      "path": "ledger/invocation_1.json",
+      "reservation_total_recomputed": 5629339,
+      "reserved_other_caps_recomputed": 5440000
+    },
+    {
+      "bytes": 2940,
+      "effective_cap": 20000,
+      "footprint_before": 142106,
+      "path": "ledger/start_R2_single_snapshot.json",
+      "reservation_total_recomputed": 7682106,
+      "reserved_other_caps_recomputed": 7520000
+    },
+    {
+      "bytes": 2805,
+      "effective_cap": 20000,
+      "footprint_before": 145046,
+      "path": "ledger/end_R2_single_snapshot.json",
+      "reservation_total_recomputed": 5565046,
+      "reserved_other_caps_recomputed": 5400000
+    },
+    {
+      "bytes": 1996500,
+      "effective_cap": 2100000,
+      "footprint_before": 147851,
+      "path": "R2_balanced_effective_state_single_snapshot/autoencoder_p5a_final.safetensors",
+      "reservation_total_recomputed": 7647851,
+      "reserved_other_caps_recomputed": 5400000
+    },
+    {
+      "bytes": 4217,
+      "effective_cap": 150000,
+      "footprint_before": 2144351,
+      "path": "R2_balanced_effective_state_single_snapshot/config.resolved.yaml",
+      "reservation_total_recomputed": 7544351,
+      "reserved_other_caps_recomputed": 5250000
+    },
+    {
+      "bytes": 186,
+      "effective_cap": 145783,
+      "footprint_before": 2148568,
+      "path": "R2_balanced_effective_state_single_snapshot/config.sha256.json",
+      "reservation_total_recomputed": 7544351,
+      "reserved_other_caps_recomputed": 5250000
+    },
+    {
+      "bytes": 3210,
+      "effective_cap": 145597,
+      "footprint_before": 2148754,
+      "path": "R2_balanced_effective_state_single_snapshot/run_metadata.json",
+      "reservation_total_recomputed": 7544351,
+      "reserved_other_caps_recomputed": 5250000
+    },
+    {
+      "bytes": 17237,
+      "effective_cap": 500000,
+      "footprint_before": 2151964,
+      "path": "R2_balanced_effective_state_single_snapshot/p5a_record.json",
+      "reservation_total_recomputed": 7544351,
+      "reserved_other_caps_recomputed": 4892387
+    },
+    {
+      "bytes": 2943,
+      "effective_cap": 20000,
+      "footprint_before": 2169201,
+      "path": "ledger/start_R2_fixed_subset4.json",
+      "reservation_total_recomputed": 8919201,
+      "reserved_other_caps_recomputed": 6730000
+    },
+    {
+      "bytes": 2824,
+      "effective_cap": 20000,
+      "footprint_before": 2172144,
+      "path": "ledger/end_R2_fixed_subset4.json",
+      "reservation_total_recomputed": 6802144,
+      "reserved_other_caps_recomputed": 4610000
+    },
+    {
+      "bytes": 1996500,
+      "effective_cap": 2100000,
+      "footprint_before": 2174968,
+      "path": "R2_balanced_effective_state_fixed_subset4/autoencoder_p5a_final.safetensors",
+      "reservation_total_recomputed": 8884968,
+      "reserved_other_caps_recomputed": 4610000
+    },
+    {
+      "bytes": 4217,
+      "effective_cap": 150000,
+      "footprint_before": 4171468,
+      "path": "R2_balanced_effective_state_fixed_subset4/config.resolved.yaml",
+      "reservation_total_recomputed": 8781468,
+      "reserved_other_caps_recomputed": 4460000
+    },
+    {
+      "bytes": 186,
+      "effective_cap": 145783,
+      "footprint_before": 4175685,
+      "path": "R2_balanced_effective_state_fixed_subset4/config.sha256.json",
+      "reservation_total_recomputed": 8781468,
+      "reserved_other_caps_recomputed": 4460000
+    },
+    {
+      "bytes": 3210,
+      "effective_cap": 145597,
+      "footprint_before": 4175871,
+      "path": "R2_balanced_effective_state_fixed_subset4/run_metadata.json",
+      "reservation_total_recomputed": 8781468,
+      "reserved_other_caps_recomputed": 4460000
+    },
+    {
+      "bytes": 29009,
+      "effective_cap": 500000,
+      "footprint_before": 4179081,
+      "path": "R2_balanced_effective_state_fixed_subset4/p5a_record.json",
+      "reservation_total_recomputed": 8781468,
+      "reserved_other_caps_recomputed": 4102387
+    },
+    {
+      "bytes": 2955,
+      "effective_cap": 20000,
+      "footprint_before": 4208090,
+      "path": "ledger/start_R3_single_snapshot.json",
+      "reservation_total_recomputed": 10168090,
+      "reserved_other_caps_recomputed": 5940000
+    },
+    {
+      "bytes": 2828,
+      "effective_cap": 20000,
+      "footprint_before": 4211045,
+      "path": "ledger/end_R3_single_snapshot.json",
+      "reservation_total_recomputed": 8051045,
+      "reserved_other_caps_recomputed": 3820000
+    },
+    {
+      "bytes": 1996508,
+      "effective_cap": 2100000,
+      "footprint_before": 4213873,
+      "path": "R3_balanced_effective_delta_r8_single_snapshot/autoencoder_p5a_final.safetensors",
+      "reservation_total_recomputed": 10133873,
+      "reserved_other_caps_recomputed": 3820000
+    },
+    {
+      "bytes": 4217,
+      "effective_cap": 150000,
+      "footprint_before": 6210381,
+      "path": "R3_balanced_effective_delta_r8_single_snapshot/config.resolved.yaml",
+      "reservation_total_recomputed": 10030381,
+      "reserved_other_caps_recomputed": 3670000
+    },
+    {
+      "bytes": 186,
+      "effective_cap": 145783,
+      "footprint_before": 6214598,
+      "path": "R3_balanced_effective_delta_r8_single_snapshot/config.sha256.json",
+      "reservation_total_recomputed": 10030381,
+      "reserved_other_caps_recomputed": 3670000
+    },
+    {
+      "bytes": 3210,
+      "effective_cap": 145597,
+      "footprint_before": 6214784,
+      "path": "R3_balanced_effective_delta_r8_single_snapshot/run_metadata.json",
+      "reservation_total_recomputed": 10030381,
+      "reserved_other_caps_recomputed": 3670000
+    },
+    {
+      "bytes": 17238,
+      "effective_cap": 500000,
+      "footprint_before": 6217994,
+      "path": "R3_balanced_effective_delta_r8_single_snapshot/p5a_record.json",
+      "reservation_total_recomputed": 10030381,
+      "reserved_other_caps_recomputed": 3312387
+    },
+    {
+      "bytes": 2953,
+      "effective_cap": 20000,
+      "footprint_before": 6235232,
+      "path": "ledger/start_R3_fixed_subset4.json",
+      "reservation_total_recomputed": 11405232,
+      "reserved_other_caps_recomputed": 5150000
+    },
+    {
+      "bytes": 2824,
+      "effective_cap": 20000,
+      "footprint_before": 6238185,
+      "path": "ledger/end_R3_fixed_subset4.json",
+      "reservation_total_recomputed": 9288185,
+      "reserved_other_caps_recomputed": 3030000
+    },
+    {
+      "bytes": 1996500,
+      "effective_cap": 2100000,
+      "footprint_before": 6241009,
+      "path": "R3_balanced_effective_delta_r8_fixed_subset4/autoencoder_p5a_final.safetensors",
+      "reservation_total_recomputed": 11371009,
+      "reserved_other_caps_recomputed": 3030000
+    },
+    {
+      "bytes": 4217,
+      "effective_cap": 150000,
+      "footprint_before": 8237509,
+      "path": "R3_balanced_effective_delta_r8_fixed_subset4/config.resolved.yaml",
+      "reservation_total_recomputed": 11267509,
+      "reserved_other_caps_recomputed": 2880000
+    },
+    {
+      "bytes": 186,
+      "effective_cap": 145783,
+      "footprint_before": 8241726,
+      "path": "R3_balanced_effective_delta_r8_fixed_subset4/config.sha256.json",
+      "reservation_total_recomputed": 11267509,
+      "reserved_other_caps_recomputed": 2880000
+    },
+    {
+      "bytes": 3210,
+      "effective_cap": 145597,
+      "footprint_before": 8241912,
+      "path": "R3_balanced_effective_delta_r8_fixed_subset4/run_metadata.json",
+      "reservation_total_recomputed": 11267509,
+      "reserved_other_caps_recomputed": 2880000
+    },
+    {
+      "bytes": 28964,
+      "effective_cap": 500000,
+      "footprint_before": 8245122,
+      "path": "R3_balanced_effective_delta_r8_fixed_subset4/p5a_record.json",
+      "reservation_total_recomputed": 11267509,
+      "reserved_other_caps_recomputed": 2522387
+    },
+    {
+      "bytes": 2956,
+      "effective_cap": 20000,
+      "footprint_before": 8274086,
+      "path": "ledger/start_R4_single_snapshot.json",
+      "reservation_total_recomputed": 12654086,
+      "reserved_other_caps_recomputed": 4360000
+    },
+    {
+      "bytes": 2828,
+      "effective_cap": 20000,
+      "footprint_before": 8277042,
+      "path": "ledger/end_R4_single_snapshot.json",
+      "reservation_total_recomputed": 10537042,
+      "reserved_other_caps_recomputed": 2240000
+    },
+    {
+      "bytes": 1996500,
+      "effective_cap": 2100000,
+      "footprint_before": 8279870,
+      "path": "R4_mean_step_gradient_single_snapshot/autoencoder_p5a_final.safetensors",
+      "reservation_total_recomputed": 12619870,
+      "reserved_other_caps_recomputed": 2240000
+    },
+    {
+      "bytes": 4217,
+      "effective_cap": 150000,
+      "footprint_before": 10276370,
+      "path": "R4_mean_step_gradient_single_snapshot/config.resolved.yaml",
+      "reservation_total_recomputed": 12516370,
+      "reserved_other_caps_recomputed": 2090000
+    },
+    {
+      "bytes": 186,
+      "effective_cap": 145783,
+      "footprint_before": 10280587,
+      "path": "R4_mean_step_gradient_single_snapshot/config.sha256.json",
+      "reservation_total_recomputed": 12516370,
+      "reserved_other_caps_recomputed": 2090000
+    },
+    {
+      "bytes": 3210,
+      "effective_cap": 145597,
+      "footprint_before": 10280773,
+      "path": "R4_mean_step_gradient_single_snapshot/run_metadata.json",
+      "reservation_total_recomputed": 12516370,
+      "reserved_other_caps_recomputed": 2090000
+    },
+    {
+      "bytes": 16970,
+      "effective_cap": 500000,
+      "footprint_before": 10283983,
+      "path": "R4_mean_step_gradient_single_snapshot/p5a_record.json",
+      "reservation_total_recomputed": 12516370,
+      "reserved_other_caps_recomputed": 1732387
+    },
+    {
+      "bytes": 2955,
+      "effective_cap": 20000,
+      "footprint_before": 10300953,
+      "path": "ledger/start_R4_fixed_subset4.json",
+      "reservation_total_recomputed": 13890953,
+      "reserved_other_caps_recomputed": 3570000
+    },
+    {
+      "bytes": 2823,
+      "effective_cap": 20000,
+      "footprint_before": 10303908,
+      "path": "ledger/end_R4_fixed_subset4.json",
+      "reservation_total_recomputed": 11773908,
+      "reserved_other_caps_recomputed": 1450000
+    },
+    {
+      "bytes": 1996500,
+      "effective_cap": 2100000,
+      "footprint_before": 10306731,
+      "path": "R4_mean_step_gradient_fixed_subset4/autoencoder_p5a_final.safetensors",
+      "reservation_total_recomputed": 13856731,
+      "reserved_other_caps_recomputed": 1450000
+    },
+    {
+      "bytes": 4217,
+      "effective_cap": 150000,
+      "footprint_before": 12303231,
+      "path": "R4_mean_step_gradient_fixed_subset4/config.resolved.yaml",
+      "reservation_total_recomputed": 13753231,
+      "reserved_other_caps_recomputed": 1300000
+    },
+    {
+      "bytes": 186,
+      "effective_cap": 145783,
+      "footprint_before": 12307448,
+      "path": "R4_mean_step_gradient_fixed_subset4/config.sha256.json",
+      "reservation_total_recomputed": 13753231,
+      "reserved_other_caps_recomputed": 1300000
+    },
+    {
+      "bytes": 3210,
+      "effective_cap": 145597,
+      "footprint_before": 12307634,
+      "path": "R4_mean_step_gradient_fixed_subset4/run_metadata.json",
+      "reservation_total_recomputed": 13753231,
+      "reserved_other_caps_recomputed": 1300000
+    },
+    {
+      "bytes": 28408,
+      "effective_cap": 500000,
+      "footprint_before": 12310844,
+      "path": "R4_mean_step_gradient_fixed_subset4/p5a_record.json",
+      "reservation_total_recomputed": 13753231,
+      "reserved_other_caps_recomputed": 942387
+    },
+    {
+      "bytes": 22603,
+      "effective_cap": 200000,
+      "footprint_before": 12339252,
+      "path": "ledger/summary_1.json",
+      "reservation_total_recomputed": 13039252,
+      "reserved_other_caps_recomputed": 500000
+    }
+  ],
+  "recomputed_gate_comparisons": 66,
+  "recomputed_metric_sets": 78,
+  "review_date": "2026-10-06",
+  "run_closed": true,
+  "run_root_bytes": 12361855,
+  "run_root_files": 45,
+  "schema": "p5a-invocation1-full-artifact-audit-v1",
+  "setup_wall_s_reported": 44.419804499993916,
+  "tests_rerun": false,
+  "torch_imported_by_audit": false,
+  "trainings_started": 6,
+  "verdict": "PASS_FOR_EVIDENCE_ARCHIVAL",
+  "wrapper_elapsed_s_previously_verified": 2336
+}

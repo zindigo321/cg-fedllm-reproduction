@@ -1,0 +1,684 @@
+{
+  "closed": true,
+  "closure_issues": [],
+  "controls": [
+    {
+      "control": "single_snapshot",
+      "designation": "primary",
+      "pre_start": null,
+      "representation": "R2",
+      "state": "RECORDED",
+      "status": "FIT FAIL"
+    },
+    {
+      "control": "fixed_subset4",
+      "designation": "primary",
+      "pre_start": null,
+      "representation": "R2",
+      "state": "RECORDED",
+      "status": "FIT FAIL"
+    },
+    {
+      "control": "single_snapshot",
+      "designation": "primary",
+      "pre_start": null,
+      "representation": "R3",
+      "state": "RECORDED",
+      "status": "FIT FAIL"
+    },
+    {
+      "control": "fixed_subset4",
+      "designation": "primary",
+      "pre_start": null,
+      "representation": "R3",
+      "state": "RECORDED",
+      "status": "FIT FAIL"
+    },
+    {
+      "control": "single_snapshot",
+      "designation": "secondary",
+      "pre_start": null,
+      "representation": "R4",
+      "state": "RECORDED",
+      "status": "FIT FAIL"
+    },
+    {
+      "control": "fixed_subset4",
+      "designation": "secondary",
+      "pre_start": null,
+      "representation": "R4",
+      "state": "RECORDED",
+      "status": "FIT FAIL"
+    }
+  ],
+  "identity": {
+    "command": "D:\\projects-cd\\cg-fedllm-reproduction\\.claude\\worktrees\\p5a-engineering-support\\src\\cg_fedllm\\cli.py p5a --config configs/phase5/p5a_v2_seed1.yaml --runs-root D:\\cgfed-runs --launch-record D:\\p5a_v2_execution\\p5a_v2_execution_record.md",
+    "config_path": "configs/phase5/p5a_v2_seed1.yaml",
+    "config_sha256": "e5ac614c5f176f39b40ddd96cfe311f50c8209151578a1535794cd55d87bb122",
+    "cpu_environment": {
+      "cuda_matmul_allow_tf32": false,
+      "cudnn_allow_tf32": false,
+      "cudnn_benchmark": false,
+      "cudnn_deterministic": true,
+      "default_dtype": "torch.float32",
+      "deterministic_algorithms": true,
+      "deterministic_warn_only": false,
+      "env": {
+        "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+        "KMP_AFFINITY": null,
+        "KMP_BLOCKTIME": null,
+        "MKL_CBWR": null,
+        "MKL_DYNAMIC": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "OMP_DYNAMIC": null,
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null
+      },
+      "float32_matmul_precision": "highest",
+      "interpreter": "D:\\conda_envs\\cgfedllm\\python.exe",
+      "numpy": "2.4.6",
+      "python": "3.11.16",
+      "safetensors": "0.8.0",
+      "torch": "2.14.0+cu130",
+      "torch_cuda_build": "13.0",
+      "torch_git_version": "08187d9e0fba026dc8217405802ab5381dc88d90",
+      "torch_num_interop_threads": 24,
+      "torch_num_threads": 24
+    },
+    "execution_commit": "6603bd8d9156831562dd76c0bf9dba5a071e867f",
+    "execution_git": {
+      "available": true,
+      "branch": "worktree-p5a-engineering-support",
+      "commit": "6603bd8d9156831562dd76c0bf9dba5a071e867f",
+      "dirty": false,
+      "dirty_files": []
+    },
+    "launch_record": {
+      "path": "D:/p5a_v2_execution/p5a_v2_execution_record.md",
+      "sha256": "fc7bc274efd7c705fb3d60d9a03ebd5b0a42620b7002d82305e18262a2976dba"
+    }
+  },
+  "invocation": 1,
+  "is_result": true,
+  "label": "PHASE5-DIAGNOSTIC",
+  "note": "representations are never aggregated; there is no combined P5-A pass (section 11.4)",
+  "outcomes": [
+    {
+      "authorises": "nothing",
+      "controls": {
+        "fixed_subset4": "FIT FAIL",
+        "single_snapshot": "FIT FAIL"
+      },
+      "criteria": {
+        "fixed_subset4": {
+          "criteria": {
+            "C1": {
+              "gated_values_defined_and_finite": true,
+              "pass": true,
+              "reconstructions_finite": true
+            },
+            "C2": {
+              "field": "rse",
+              "operator": "<=",
+              "pass": false,
+              "per_snapshot": [
+                {
+                  "margin": 0.49926466223182364,
+                  "near_threshold": false,
+                  "operator": "<=",
+                  "pass": false,
+                  "threshold": 0.5,
+                  "value": 0.9992646622318236
+                },
+                {
+                  "margin": 0.49820055987873824,
+                  "near_threshold": false,
+                  "operator": "<=",
+                  "pass": false,
+                  "threshold": 0.5,
+                  "value": 0.9982005598787382
+                },
+                {
+                  "margin": 0.4976875130100735,
+                  "near_threshold": false,
+                  "operator": "<=",
+                  "pass": false,
+                  "threshold": 0.5,
+                  "value": 0.9976875130100735
+                },
+                {
+                  "margin": 0.5087280779080472,
+                  "near_threshold": false,
+                  "operator": "<=",
+                  "pass": false,
+                  "threshold": 0.5,
+                  "value": 1.0087280779080472
+                }
+              ],
+              "threshold": 0.5
+            },
+            "C3": {
+              "field": "cosine",
+              "operator": ">=",
+              "pass": false,
+              "per_snapshot": [
+                {
+                  "margin": -0.872760812637257,
+                  "near_threshold": false,
+                  "operator": ">=",
+                  "pass": false,
+                  "threshold": 0.9,
+                  "value": 0.027239187362742966
+                },
+                {
+                  "margin": -0.855826546058636,
+                  "near_threshold": false,
+                  "operator": ">=",
+                  "pass": false,
+                  "threshold": 0.9,
+                  "value": 0.04417345394136412
+                },
+                {
+                  "margin": -0.8498444168051416,
+                  "near_threshold": false,
+                  "operator": ">=",
+                  "pass": false,
+                  "threshold": 0.9,
+                  "value": 0.05015558319485845
+                },
+                {
+                  "margin": -0.8792653582966594,
+                  "near_threshold": false,
+                  "operator": ">=",
+                  "pass": false,
+                  "threshold": 0.9,
+                  "value": 0.020734641703340637
+                }
+              ],
+              "threshold": 0.9
+            },
+            "C4": {
+              "factor": 0.8,
+              "margin": 0.4561702641703981,
+              "near_threshold": false,
+              "operator": "<=",
+              "pass": false,
+              "pooled_subset_mean_rse": 0.6820597434511728,
+              "threshold": 0.5456477947609383,
+              "value": 1.0018180589313364
+            }
+          },
+          "pass": false,
+          "required": [
+            "C1",
+            "C2",
+            "C3",
+            "C4"
+          ]
+        },
+        "single_snapshot": {
+          "criteria": {
+            "C1": {
+              "gated_values_defined_and_finite": true,
+              "pass": true,
+              "reconstructions_finite": true
+            },
+            "C2": {
+              "field": "rse",
+              "operator": "<=",
+              "pass": false,
+              "per_snapshot": [
+                {
+                  "margin": 0.9852545054326406,
+                  "near_threshold": false,
+                  "operator": "<=",
+                  "pass": false,
+                  "threshold": 0.01,
+                  "value": 0.9952545054326406
+                }
+              ],
+              "threshold": 0.01
+            },
+            "C3": {
+              "field": "cosine",
+              "operator": ">=",
+              "pass": false,
+              "per_snapshot": [
+                {
+                  "margin": -0.9064648220275171,
+                  "near_threshold": false,
+                  "operator": ">=",
+                  "pass": false,
+                  "threshold": 0.99,
+                  "value": 0.08353517797248287
+                }
+              ],
+              "threshold": 0.99
+            }
+          },
+          "pass": false,
+          "required": [
+            "C1",
+            "C2",
+            "C3"
+          ]
+        }
+      },
+      "designation": "primary",
+      "does_not_establish": [
+        "compressibility or incompressibility of the representation at 1/64",
+        "sufficient or insufficient AE capacity in general",
+        "generalisation to unseen snapshots",
+        "stability across seeds",
+        "the cause of the F6 failures",
+        "anything about FAF, operational server semantics or the paper's compression claims"
+      ],
+      "meaning": "under this protocol, at least one completed control did not meet its standard; this does not show that the representation is incompressible or that the AE has insufficient capacity",
+      "outcome": "CAPACITY FIT NOT DEMONSTRATED",
+      "qualifier": "under the P5-A v2 protocol (fixed ResNet-3, exact training-population max-abs scaling to 0.95, Adam 2e-4, 3,000 iterations, final checkpoint, AE seed 1, training snapshots only)",
+      "reported_only_gate_results": {
+        "controls": {},
+        "note": "computed before a publication failure; not gate results and not used by the outcome"
+      },
+      "representation": "R2",
+      "standards": {
+        "fixed_subset4": "subset fit (RSE <= 0.50, cos >= 0.90 per snapshot; C4)",
+        "single_snapshot": "memorisation (RSE <= 0.01, cos >= 0.99)"
+      }
+    },
+    {
+      "authorises": "nothing",
+      "controls": {
+        "fixed_subset4": "FIT FAIL",
+        "single_snapshot": "FIT FAIL"
+      },
+      "criteria": {
+        "fixed_subset4": {
+          "criteria": {
+            "C1": {
+              "gated_values_defined_and_finite": true,
+              "pass": true,
+              "reconstructions_finite": true
+            },
+            "C2": {
+              "field": "rse",
+              "operator": "<=",
+              "pass": false,
+              "per_snapshot": [
+                {
+                  "margin": 0.4964209071841511,
+                  "near_threshold": false,
+                  "operator": "<=",
+                  "pass": false,
+                  "threshold": 0.5,
+                  "value": 0.9964209071841511
+                },
+                {
+                  "margin": 0.49673798688534354,
+                  "near_threshold": false,
+                  "operator": "<=",
+                  "pass": false,
+                  "threshold": 0.5,
+                  "value": 0.9967379868853435
+                },
+                {
+                  "margin": 0.49679518461105177,
+                  "near_threshold": false,
+                  "operator": "<=",
+                  "pass": false,
+                  "threshold": 0.5,
+                  "value": 0.9967951846110518
+                },
+                {
+                  "margin": 0.501282927375063,
+                  "near_threshold": false,
+                  "operator": "<=",
+                  "pass": false,
+                  "threshold": 0.5,
+                  "value": 1.001282927375063
+                }
+              ],
+              "threshold": 0.5
+            },
+            "C3": {
+              "field": "cosine",
+              "operator": ">=",
+              "pass": false,
+              "per_snapshot": [
+                {
+                  "margin": -0.8391244457450241,
+                  "near_threshold": false,
+                  "operator": ">=",
+                  "pass": false,
+                  "threshold": 0.9,
+                  "value": 0.060875554254975886
+                },
+                {
+                  "margin": -0.8416651174396501,
+                  "near_threshold": false,
+                  "operator": ">=",
+                  "pass": false,
+                  "threshold": 0.9,
+                  "value": 0.0583348825603499
+                },
+                {
+                  "margin": -0.8422201650024839,
+                  "near_threshold": false,
+                  "operator": ">=",
+                  "pass": false,
+                  "threshold": 0.9,
+                  "value": 0.05777983499751618
+                },
+                {
+                  "margin": -0.8621128051840095,
+                  "near_threshold": false,
+                  "operator": ">=",
+                  "pass": false,
+                  "threshold": 0.9,
+                  "value": 0.03788719481599051
+                }
+              ],
+              "threshold": 0.9
+            },
+            "C4": {
+              "factor": 0.8,
+              "margin": 0.3972115752781624,
+              "near_threshold": false,
+              "operator": "<=",
+              "pass": false,
+              "pooled_subset_mean_rse": 0.7508841443756189,
+              "threshold": 0.6007073155004952,
+              "value": 0.9979188907786576
+            }
+          },
+          "pass": false,
+          "required": [
+            "C1",
+            "C2",
+            "C3",
+            "C4"
+          ]
+        },
+        "single_snapshot": {
+          "criteria": {
+            "C1": {
+              "gated_values_defined_and_finite": true,
+              "pass": true,
+              "reconstructions_finite": true
+            },
+            "C2": {
+              "field": "rse",
+              "operator": "<=",
+              "pass": false,
+              "per_snapshot": [
+                {
+                  "margin": 0.9838081619334862,
+                  "near_threshold": false,
+                  "operator": "<=",
+                  "pass": false,
+                  "threshold": 0.01,
+                  "value": 0.9938081619334862
+                }
+              ],
+              "threshold": 0.01
+            },
+            "C3": {
+              "field": "cosine",
+              "operator": ">=",
+              "pass": false,
+              "per_snapshot": [
+                {
+                  "margin": -0.9028196330886636,
+                  "near_threshold": false,
+                  "operator": ">=",
+                  "pass": false,
+                  "threshold": 0.99,
+                  "value": 0.08718036691133635
+                }
+              ],
+              "threshold": 0.99
+            }
+          },
+          "pass": false,
+          "required": [
+            "C1",
+            "C2",
+            "C3"
+          ]
+        }
+      },
+      "designation": "primary",
+      "does_not_establish": [
+        "compressibility or incompressibility of the representation at 1/64",
+        "sufficient or insufficient AE capacity in general",
+        "generalisation to unseen snapshots",
+        "stability across seeds",
+        "the cause of the F6 failures",
+        "anything about FAF, operational server semantics or the paper's compression claims"
+      ],
+      "meaning": "under this protocol, at least one completed control did not meet its standard; this does not show that the representation is incompressible or that the AE has insufficient capacity",
+      "outcome": "CAPACITY FIT NOT DEMONSTRATED",
+      "qualifier": "under the P5-A v2 protocol (fixed ResNet-3, exact training-population max-abs scaling to 0.95, Adam 2e-4, 3,000 iterations, final checkpoint, AE seed 1, training snapshots only)",
+      "reported_only_gate_results": {
+        "controls": {},
+        "note": "computed before a publication failure; not gate results and not used by the outcome"
+      },
+      "representation": "R3",
+      "standards": {
+        "fixed_subset4": "subset fit (RSE <= 0.50, cos >= 0.90 per snapshot; C4)",
+        "single_snapshot": "memorisation (RSE <= 0.01, cos >= 0.99)"
+      }
+    },
+    {
+      "authorises": "nothing",
+      "controls": {
+        "fixed_subset4": "FIT FAIL",
+        "single_snapshot": "FIT FAIL"
+      },
+      "criteria": {
+        "fixed_subset4": {
+          "criteria": {
+            "C1": {
+              "gated_values_defined_and_finite": true,
+              "pass": true,
+              "reconstructions_finite": true
+            },
+            "C2": {
+              "field": "rse",
+              "operator": "<=",
+              "pass": false,
+              "per_snapshot": [
+                {
+                  "margin": 1.0820310794865053,
+                  "near_threshold": false,
+                  "operator": "<=",
+                  "pass": false,
+                  "threshold": 0.5,
+                  "value": 1.5820310794865053
+                },
+                {
+                  "margin": 0.4999533721887739,
+                  "near_threshold": false,
+                  "operator": "<=",
+                  "pass": false,
+                  "threshold": 0.5,
+                  "value": 0.9999533721887739
+                },
+                {
+                  "margin": 0.49955824059491494,
+                  "near_threshold": false,
+                  "operator": "<=",
+                  "pass": false,
+                  "threshold": 0.5,
+                  "value": 0.9995582405949149
+                },
+                {
+                  "margin": 0.49994339413208244,
+                  "near_threshold": false,
+                  "operator": "<=",
+                  "pass": false,
+                  "threshold": 0.5,
+                  "value": 0.9999433941320824
+                }
+              ],
+              "threshold": 0.5
+            },
+            "C3": {
+              "field": "cosine",
+              "operator": ">=",
+              "pass": false,
+              "per_snapshot": [
+                {
+                  "margin": -0.8987555001403723,
+                  "near_threshold": false,
+                  "operator": ">=",
+                  "pass": false,
+                  "threshold": 0.9,
+                  "value": 0.0012444998596276614
+                },
+                {
+                  "margin": -0.8914197604205387,
+                  "near_threshold": false,
+                  "operator": ">=",
+                  "pass": false,
+                  "threshold": 0.9,
+                  "value": 0.008580239579461255
+                },
+                {
+                  "margin": -0.8787396690002548,
+                  "near_threshold": false,
+                  "operator": ">=",
+                  "pass": false,
+                  "threshold": 0.9,
+                  "value": 0.021260330999745235
+                },
+                {
+                  "margin": -0.891405507814818,
+                  "near_threshold": false,
+                  "operator": ">=",
+                  "pass": false,
+                  "threshold": 0.9,
+                  "value": 0.008594492185182098
+                }
+              ],
+              "threshold": 0.9
+            },
+            "C4": {
+              "factor": 0.8,
+              "margin": 1.119847027299353,
+              "near_threshold": false,
+              "operator": "<=",
+              "pass": false,
+              "pooled_subset_mean_rse": 0.15591703258665585,
+              "threshold": 0.12473362606932469,
+              "value": 1.2445806533686776
+            }
+          },
+          "pass": false,
+          "required": [
+            "C1",
+            "C2",
+            "C3",
+            "C4"
+          ]
+        },
+        "single_snapshot": {
+          "criteria": {
+            "C1": {
+              "gated_values_defined_and_finite": true,
+              "pass": true,
+              "reconstructions_finite": true
+            },
+            "C2": {
+              "field": "rse",
+              "operator": "<=",
+              "pass": false,
+              "per_snapshot": [
+                {
+                  "margin": 1.319541510682983,
+                  "near_threshold": false,
+                  "operator": "<=",
+                  "pass": false,
+                  "threshold": 0.01,
+                  "value": 1.329541510682983
+                }
+              ],
+              "threshold": 0.01
+            },
+            "C3": {
+              "field": "cosine",
+              "operator": ">=",
+              "pass": false,
+              "per_snapshot": [
+                {
+                  "margin": -0.9880489837754903,
+                  "near_threshold": false,
+                  "operator": ">=",
+                  "pass": false,
+                  "threshold": 0.99,
+                  "value": 0.0019510162245096874
+                }
+              ],
+              "threshold": 0.99
+            }
+          },
+          "pass": false,
+          "required": [
+            "C1",
+            "C2",
+            "C3"
+          ]
+        }
+      },
+      "designation": "secondary",
+      "does_not_establish": [
+        "compressibility or incompressibility of the representation at 1/64",
+        "sufficient or insufficient AE capacity in general",
+        "generalisation to unseen snapshots",
+        "stability across seeds",
+        "the cause of the F6 failures",
+        "anything about FAF, operational server semantics or the paper's compression claims"
+      ],
+      "meaning": "under this protocol, at least one completed control did not meet its standard; this does not show that the representation is incompressible or that the AE has insufficient capacity",
+      "outcome": "CAPACITY FIT NOT DEMONSTRATED",
+      "qualifier": "under the P5-A v2 protocol (fixed ResNet-3, exact training-population max-abs scaling to 0.95, Adam 2e-4, 3,000 iterations, final checkpoint, AE seed 1, training snapshots only)",
+      "reported_only_gate_results": {
+        "controls": {},
+        "note": "computed before a publication failure; not gate results and not used by the outcome"
+      },
+      "representation": "R4",
+      "standards": {
+        "fixed_subset4": "subset fit (RSE <= 0.50, cos >= 0.90 per snapshot; C4)",
+        "single_snapshot": "memorisation (RSE <= 0.01, cos >= 0.99)"
+      }
+    }
+  ],
+  "profile": "PRODUCTION",
+  "protocol": {
+    "addendum": {
+      "blob": "28e05f9ee33ed13386d346fce6e47e9108c937d7",
+      "commit": "33e51fd63c6cd0679e76e12380ae5d418158d698",
+      "path": "docs/phase5_preregistration_v2_1.md"
+    },
+    "blob": "e80d21aeda653ab6d1339d34f7b88118588855df",
+    "commit": "dd4bf3f4348fd3b2b1b2c4ad23e7204fbef8369c",
+    "path": "docs/phase5_preregistration_v2.md"
+  },
+  "recovered": [],
+  "resource_state": {
+    "gpu_wall_s_charged_total": 2279.905999999988,
+    "limits": {
+      "aggregate_limit_s": 10800.0,
+      "max_trainings": 6,
+      "retained_bytes": 20000000,
+      "training_limit_s": 1800.0
+    },
+    "may_start": false,
+    "trainings_started": 6
+  },
+  "retained_bytes_before_this_file": 12339252,
+  "setup_wall_s": 44.419804499993916,
+  "stop": null
+}

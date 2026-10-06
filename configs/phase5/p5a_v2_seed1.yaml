@@ -1,0 +1,13 @@
+# Phase 5, P5-A v2 (PHASE5-DIAGNOSTIC): AutoEncoder fit control for R2-R4 on their own training snapshots
+# (docs/phase5_preregistration_v2.md, dd4bf3f). Fixed ResNet-3, latent 1/64, MSE, Adam 2e-4, batch min(4, k),
+# exactly 3000 iterations, final checkpoint only, AE seed 1, `global_exact_maxabs_train` applied unconditionally with
+# the frozen scales of section 5.3. `cgfed p5a-preflight` and `cgfed p5a` refuse --set overrides and any value that
+# differs from this file. This file does not authorise a preflight or a run: a reviewed launch record and a separate
+# written authorisation are required for each real step.
+inherit: ../phase3/tierb_seed1.yaml
+run:
+  name: phase5_p5a_v2_seed1
+  result_label: PHASE5-DIAGNOSTIC
+autoencoder:
+  checkpoint_policy: final
+  normalization: global_exact_maxabs_train
