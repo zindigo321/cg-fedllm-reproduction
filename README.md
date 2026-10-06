@@ -140,6 +140,17 @@ a recorded negative result, not an unfinished implementation task.
 Phase 4 still does not establish a viable operational AutoEncoder-backed FAF
 compressor at the paper's target ratio.
 
+### Phase 5: AutoEncoder fit control (P5-A)
+
+- [x] Pre-register the P5-A control for R2-R4 (v1, `docs/phase5_preregistration.md`; historical, never executed)
+- [x] Approve the revised protocol v2 for implementation (`docs/phase5_preregistration_v2.md`)
+- [x] Freeze the v2.1 addendum on recovery and publication states (`docs/phase5_preregistration_v2_1.md`)
+- [x] Implement P5-A v2 and validate it on synthetic data (CPU tests only)
+- [ ] Run the CPU input preflight (needs a reviewed launch record and a separate written authorisation)
+- [ ] Run P5-A v2 (needs the preflight, the launch record and a separate written run authorisation)
+
+The real P5-A input preflight and training have not been performed; no Phase-5 result exists yet.
+
 ## 5. Related Projects and Baselines
 
 Projects mentioned in or related to the reproduction include:
@@ -220,6 +231,14 @@ experimental claims.
   AE-backed compressor at the paper's target ratio. See
   `docs/phase4_preregistration.md`, `docs/phase4_findings.md`,
   `docs/representation_forensics.md`, and `results/phase4/`.
+
+- **Phase 5 — P5-A fit control:** the v2 protocol
+  (`docs/phase5_preregistration_v2.md`, with the v2.1 addendum
+  `docs/phase5_preregistration_v2_1.md`) is approved for implementation and
+  implemented with synthetic CPU tests (`docs/phase5_implementation_review.md`);
+  v1 (`docs/phase5_preregistration.md`) is kept as the historical record. The
+  real P5-A preflight and run have **not** been performed, so there is no
+  Phase-5 result.
 
 The remaining project-level goals are to determine whether a viable operational
 compressed FAF path can be established, and to reproduce the

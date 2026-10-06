@@ -56,6 +56,7 @@ def test_result_label_is_restricted_to_the_reviewer_labels():
         "PHASE4-FORENSIC",
         "PHASE4-BASELINE",
         "PHASE4-DIAGNOSTIC",
+        "PHASE5-DIAGNOSTIC",
     )
     # migration rule: the schema only grows -- every label an earlier-phase record carries stays valid
     assert PHASE2_RESULT_LABELS == (
@@ -80,6 +81,19 @@ def test_result_label_is_restricted_to_the_reviewer_labels():
     # every Phase-2 config that produces results says so explicitly
     for rel in ("smoke/llama160m_smoke.yaml", "smoke/tiny_cpu.yaml", "eval/qwen15_0p5b_validation.yaml"):
         assert load_config(REPO / "configs" / rel).run.result_label == "PHASE2-SMOKE"
+
+
+def test_normalization_modes_only_grow():
+    # Phase-3/4 modes stay valid; P5-A v2 adds global_exact_maxabs_train without redefining global_maxabs_train
+    for mode in ("none", "global_rms", "factor_rms", "global_maxabs_train", "global_exact_maxabs_train"):
+        assert (
+            config_from_dict(
+                {"run": {"name": "x"}, "autoencoder": {"normalization": mode}}
+            ).autoencoder.normalization
+            == mode
+        )
+    with pytest.raises(ConfigError, match="not in allowed"):
+        config_from_dict({"run": {"name": "x"}, "autoencoder": {"normalization": "global_train_maxabs"}})
 
 
 def test_bool_is_not_an_int_and_types_are_strict():

@@ -2,7 +2,8 @@
 
 Commands: capture-env, prepare-data, run-fl, collect-tgap, train-ae, evaluate, smoke, bench-gpu, and the
 Phase-3 diagnostics calibrate-train, microbatch-diag, tgap-stats, ae-viability, ae-select, reference-codes, and the
-Phase-4 forensics validate-microbatch, forensic-stats, gradient-forensics, forensic-screen.
+Phase-4 forensics validate-microbatch, forensic-stats, gradient-forensics, forensic-screen, and the Phase-5 P5-A
+capacity control p5a.
 Determinism settings and the optional CUDA allocator cap (``run.allocator_cap_margin_mb``) are applied before
 any model or CUDA work.
 """
@@ -1144,6 +1145,34 @@ def cmd_forensic_screen(args) -> dict:
     }
 
 
+def cmd_p5a(args) -> dict:
+    """P5-A v2 training invocation (docs/phase5_preregistration_v2.md). Needs a passing CPU preflight record, a
+    reviewed launch record and a separate written run authorisation; the command refuses overrides and any
+    configuration other than the protocol's. ``--closure-only`` completes a run whose third invocation died."""
+    from cg_fedllm.phase5.p5a import P5AProtocolError
+    from cg_fedllm.phase5.p5a_run import production_closure, production_main
+
+    entry = production_closure if args.closure_only else production_main
+    out = entry(args.config, args.set, args.runs_root, " ".join(sys.argv), args.launch_record)
+    errors = {key: out[key] for key in ("summary_publication_error", "closure_issues") if out.get(key)}
+    if errors:
+        raise P5AProtocolError(
+            "P5-A evidence publication incomplete: " + json.dumps(errors, ensure_ascii=False)
+        )
+    return {k: out.get(k) for k in ("invocation", "controls", "stop", "closed", "outcomes")}
+
+
+def cmd_p5a_preflight(args) -> dict:
+    """P5-A v2 CPU-only input preflight (section 5.4.1): no AE, no CUDA, no training. Needs a reviewed launch record
+    and a separate written authorisation before it is run on the real inputs."""
+    from cg_fedllm.phase5.p5a_preflight import production_preflight
+
+    out = production_preflight(args.config, args.set, args.runs_root, " ".join(sys.argv), args.launch_record)
+    return {"preflight": out["preflight"], "pass": out["pass"],
+            "representations": [{k: r.get(k) for k in ("representation", "pass", "failure")}
+                                for r in out["representations"]]}  # fmt: skip
+
+
 def cmd_baseline_summary(args) -> dict:
     """F7: condense the seed-1 baseline run directories into one labelled record (+ the Identity regression)."""
     import subprocess
@@ -1463,6 +1492,8 @@ COMMANDS = {
     "eval-projection": cmd_eval_projection,
     "gradient-shape": cmd_gradient_shape,
     "eval-compare": cmd_eval_compare,
+    "p5a-preflight": cmd_p5a_preflight,
+    "p5a": cmd_p5a,
 }
 
 
@@ -1556,6 +1587,21 @@ def build_parser() -> argparse.ArgumentParser:
         if name == "evaluate":
             sp.add_argument("--adapter", default=None)
             sp.add_argument("--tag", default=None)
+        if name in ("p5a", "p5a-preflight"):
+            sp.add_argument(
+                "--runs-root", default=None, help="CGFED_RUNS (frozen inputs and the P5-A run root)"
+            )
+            sp.add_argument(
+                "--launch-record",
+                default=None,
+                help="path of the reviewed launch record, cited by path and SHA-256 (not an authorisation check)",
+            )
+        if name == "p5a":
+            sp.add_argument(
+                "--closure-only",
+                action="store_true",
+                help="complete a run whose third invocation died before its summary (section 13.5)",
+            )
         if name == "smoke":
             sp.add_argument("--gpu-tolerance", type=float, default=1e-6)
             sp.add_argument("--controls", action="store_true")

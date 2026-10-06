@@ -32,7 +32,9 @@ Aggregation = Literal["sample_weighted_mean", "uniform_mean", "literal_sum"]
 TGAPSource = Literal["local_pretrain", "federated_pretrain"]
 CodecType = Literal["none", "identity", "autoencoder", "constant_mean", "gaussian_noise"]
 # AE input normalisation (Phase 3, A2): a DIAGNOSTIC/STABILISED variant -- the paper specifies none.
-NormalizationMode = Literal["none", "global_rms", "factor_rms", "global_maxabs_train"]
+NormalizationMode = Literal[
+    "none", "global_rms", "factor_rms", "global_maxabs_train", "global_exact_maxabs_train"
+]
 # Every reported result carries exactly one of these labels (reviewer scientific-integrity rule). The schema
 # only ever grows: labels written by earlier phases stay valid (tests/unit/test_config.py).
 ResultLabel = Literal[
@@ -47,6 +49,7 @@ ResultLabel = Literal[
     "PHASE4-FORENSIC",
     "PHASE4-BASELINE",
     "PHASE4-DIAGNOSTIC",
+    "PHASE5-DIAGNOSTIC",
 ]
 RESULT_LABELS: tuple[str, ...] = get_args(ResultLabel)
 PHASE2_RESULT_LABELS: tuple[str, ...] = (
